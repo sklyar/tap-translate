@@ -85,15 +85,19 @@ export function isEligibleTextTarget(
 export function isVisibleContextText(textNode: Text): boolean {
   const textParent = textNode.parentElement;
 
-  if (textParent === null || isInsideEditableContent(textParent)) {
+  return textParent !== null && isVisibleContextElement(textParent);
+}
+
+export function isVisibleContextElement(element: Element): boolean {
+  if (isInsideEditableContent(element)) {
     return false;
   }
 
-  return !ancestryBelowBody(textParent).some(
-    (element) =>
-      isHidden(element) ||
-      element.matches(excludedTextSelector) ||
-      element.matches(excludedContextControlSelector),
+  return !ancestryBelowBody(element).some(
+    (ancestor) =>
+      isHidden(ancestor) ||
+      ancestor.matches(excludedTextSelector) ||
+      ancestor.matches(excludedContextControlSelector),
   );
 }
 
