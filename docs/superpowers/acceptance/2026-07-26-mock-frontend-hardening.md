@@ -31,16 +31,16 @@ Stage 5 can be marked complete only after every required row below has an outcom
 
 The proposed public URLs were reachable when this record was created on 2026-07-27. Public content changes over time, so each URL is evidence for one run, not an automated contract. If a URL is unavailable during execution, replace it with a concrete page in the same category and record the page actually tested.
 
-| ID  | Category                             | Concrete URL                                                   | Date / Safari | Detect / reject | Loading / success | Compact / expanded / sheet scroll | Replace / dismiss / back | Page scroll / resize | Page controls | Console / network | Outcome | Limitation or regression reference |
-| --- | ------------------------------------ | -------------------------------------------------------------- | ------------- | --------------- | ----------------- | --------------------------------- | ------------------------ | -------------------- | ------------- | ----------------- | ------- | ---------------------------------- |
-| L1  | Local hostile and dynamic fixture    | `http://127.0.0.1:5173/hardening.html`                         | Not run       | Not run         | Not run           | Not run                           | Not run                  | Not run              | Not run       | Not run           | Not run | —                                  |
-| L2  | Local restrictive-CSP fixture        | `http://127.0.0.1:5173/hardening-csp.html`                     | Not run       | Not run         | Not run           | Not run                           | Not run                  | Not run              | Not run       | Not run           | Not run | —                                  |
-| P1  | Long-form article                    | `https://www.gutenberg.org/files/1342/1342-h/1342-h.htm`       | Not run       | Not run         | Not run           | Not run                           | Not run                  | Not run              | Not run       | Not run           | Not run | —                                  |
-| P2  | Technical documentation              | `https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal` | Not run       | Not run         | Not run           | Not run                           | Not run                  | Not run              | Not run       | Not run           | Not run | —                                  |
-| P3  | News page                            | `https://apnews.com/`                                          | Not run       | Not run         | Not run           | Not run                           | Not run                  | Not run              | Not run       | Not run           | Not run | —                                  |
-| P4  | Dynamically rendered SPA             | `https://react.dev/learn`                                      | Not run       | Not run         | Not run           | Not run                           | Not run                  | Not run              | Not run       | Not run           | Not run | —                                  |
-| P5  | Sticky or fixed-overlay page         | `https://www.theatlantic.com/magazine/`                        | Not run       | Not run         | Not run           | Not run                           | Not run                  | Not run              | Not run       | Not run           | Not run | —                                  |
-| P6  | Complex typography and inline markup | `https://en.wikipedia.org/wiki/Translation`                    | Not run       | Not run         | Not run           | Not run                           | Not run                  | Not run              | Not run       | Not run           | Not run | —                                  |
+| ID  | Category                             | Concrete URL                                                   | Date / Safari                       | Detect / reject                                  | Loading / success                                     | Compact / expanded / sheet scroll                | Replace / dismiss / back | Page scroll / resize | Page controls                  | Console / network                                                              | Outcome    | Limitation or regression reference                                     |
+| --- | ------------------------------------ | -------------------------------------------------------------- | ----------------------------------- | ------------------------------------------------ | ----------------------------------------------------- | ------------------------------------------------ | ------------------------ | -------------------- | ------------------------------ | ------------------------------------------------------------------------------ | ---------- | ---------------------------------------------------------------------- |
+| L1  | Local hostile and dynamic fixture    | `http://127.0.0.1:5173/hardening.html`                         | Not run                             | Not run                                          | Not run                                               | Not run                                          | Not run                  | Not run              | Not run                        | Not run                                                                        | Not run    | —                                                                      |
+| L2  | Local restrictive-CSP fixture        | `http://127.0.0.1:5173/hardening-csp.html`                     | 2026-07-27 / Safari version pending | Pass: ordinary word; controls remain page-native | Regression: mock result renders without sheet styling | Regression: compact/expanded styling unavailable | Not run                  | Not run              | Pass from supplied screenshots | Safari refuses sheet-owned inline stylesheet; translation network not observed | Regression | External stylesheet fix in MR #5; exact environment and retest pending |
+| P1  | Long-form article                    | `https://www.gutenberg.org/files/1342/1342-h/1342-h.htm`       | Not run                             | Not run                                          | Not run                                               | Not run                                          | Not run                  | Not run              | Not run                        | Not run                                                                        | Not run    | —                                                                      |
+| P2  | Technical documentation              | `https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal` | Not run                             | Not run                                          | Not run                                               | Not run                                          | Not run                  | Not run              | Not run                        | Not run                                                                        | Not run    | —                                                                      |
+| P3  | News page                            | `https://apnews.com/`                                          | Not run                             | Not run                                          | Not run                                               | Not run                                          | Not run                  | Not run              | Not run                        | Not run                                                                        | Not run    | —                                                                      |
+| P4  | Dynamically rendered SPA             | `https://react.dev/learn`                                      | Not run                             | Not run                                          | Not run                                               | Not run                                          | Not run                  | Not run              | Not run                        | Not run                                                                        | Not run    | —                                                                      |
+| P5  | Sticky or fixed-overlay page         | `https://www.theatlantic.com/magazine/`                        | Not run                             | Not run                                          | Not run                                               | Not run                                          | Not run                  | Not run              | Not run                        | Not run                                                                        | Not run    | —                                                                      |
+| P6  | Complex typography and inline markup | `https://en.wikipedia.org/wiki/Translation`                    | Not run                             | Not run                                          | Not run                                               | Not run                                          | Not run                  | Not run              | Not run                        | Not run                                                                        | Not run    | —                                                                      |
 
 ## Setup
 
@@ -74,7 +74,7 @@ Apply every applicable check to each required row. Summarize the observations in
 - [ ] Long content wraps and the sheet content scrolls internally without horizontal overflow.
 - [ ] Close has a usable touch-sized target and focus remains understandable with keyboard navigation.
 - [ ] Hostile page typography, button, heading, paragraph, `mark`, and `!important` rules on L1 do not restyle shadow content.
-- [ ] On L2, record explicitly whether the extension-created shadow `<style>` remains applied under `style-src 'none'`.
+- [ ] On L2, confirm the Shadow Root contains the packaged `translation-sheet.css` `<link>`, the sheet is fully styled under `style-src 'none'`, and no sheet-owned CSP violation appears.
 
 ### Replacement, dismissal, and lifecycle
 
@@ -95,13 +95,15 @@ Apply every applicable check to each required row. Summarize the observations in
 - [ ] No translation, page text, or provider payload is written to Console.
 - [ ] No translation HTTP request appears in Network; the mock provider remains entirely local.
 
-## CSP decision gate
+## CSP retest gate
 
-If L2 shows that Safari extension injection blocks the shadow stylesheet:
+Safari blocked the original inline Shadow DOM stylesheet on L2. A focused design update selected a packaged web-accessible stylesheet while preserving the Shadow DOM boundary.
 
-1. record `Regression` or `Documented limitation` with the Safari version and console evidence;
-2. do not move styles to manifest CSS or abandon the shadow boundary in this stage;
-3. create a focused design update before changing the presentation architecture.
+Before closing the regression:
+
+1. record the Safari and macOS versions and the exact tested commit;
+2. confirm the packaged stylesheet loads through the Safari extension URL under `style-src 'none'`;
+3. confirm no extension-owned CSP violation remains and rerun the full L2 protocol.
 
 ## Known scope boundaries
 
@@ -115,9 +117,9 @@ These are expected limitations, not reasons to expand Stage 5 while executing th
 
 ## Findings and regression references
 
-| Finding       | Page / reproduction | Resolution or accepted limitation | Test / fixture / follow-up |
-| ------------- | ------------------- | --------------------------------- | -------------------------- |
-| None recorded | —                   | —                                 | —                          |
+| Finding                                                                 | Page / reproduction                 | Resolution or accepted limitation                                        | Test / fixture / follow-up                                                 |
+| ----------------------------------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------------------- |
+| Safari blocks the inline Shadow DOM stylesheet under `style-src 'none'` | L2; screenshots supplied 2026-07-27 | Packaged external stylesheet via WebExtension URL; manual retest pending | `2026-07-27-safari-csp-stylesheet-design.md`; focused sheet/manifest tests |
 
 ## Completion sign-off
 
