@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TapTranslate hardening fixture</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box !important;
+      }
+
+      html {
+        color-scheme: light dark;
+        font-family: Georgia, 'Times New Roman', serif !important;
+        line-height: 1.65 !important;
+      }
+
+      body {
+        min-width: 20rem;
+        margin: 0 !important;
+        background: #f5efe3 !important;
+        color: #241f1a !important;
+        font-size: 18px !important;
+      }
+
+      body :is(h1, h2, h3, p, mark, button, input, a, strong, em, span) {
+        letter-spacing: 0.035em !important;
+      }
+
+      body p {
+        margin: 1.25rem 0 !important;
+        color: inherit !important;
+      }
+
+      body h1,
+      body h2,
+      body h3 {
+        font-family: Impact, Haettenschweiler, sans-serif !important;
+        font-weight: 400 !important;
+        line-height: 1.1 !important;
+        text-transform: uppercase !important;
+      }
+
+      body button,
+      body input {
+        min-height: 44px !important;
+        border: 4px dashed #8c2f39 !important;
+        border-radius: 0 !important;
+        background: #fff8dc !important;
+        color: #19120c !important;
+        font:
+          700 15px/1.2 Courier,
+          monospace !important;
+      }
+
+      body button {
+        padding: 0.65rem 0.8rem !important;
+        cursor: pointer !important;
+      }
+
+      body input {
+        width: min(100%, 28rem) !important;
+        padding: 0.5rem !important;
+      }
+
+      body mark {
+        border: 3px solid #432818 !important;
+        background: #ff4fd8 !important;
+        color: #001219 !important;
+      }
+
+      body a {
+        color: #0645ad !important;
+        text-decoration: wavy underline !important;
+      }
+
+      .sticky-navigation {
+        position: sticky;
+        z-index: 2147483000;
+        top: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        align-items: center;
+        padding: 0.7rem 1rem;
+        border-bottom: 5px solid #241f1a;
+        background: rgb(245 239 227 / 96%);
+      }
+
+      .sticky-navigation strong {
+        margin-right: auto;
+      }
+
+      #event-status {
+        min-width: 9rem;
+        font:
+          700 13px/1.2 system-ui,
+          sans-serif;
+      }
+
+      .page-overlay {
+        position: fixed;
+        z-index: 2147483000;
+        top: 5.5rem;
+        right: 0;
+        width: min(12rem, 42vw);
+        padding: 0.65rem;
+        border: 4px solid #fb8500;
+        background: #ffb703;
+        color: #1d3557;
+        font:
+          700 12px/1.25 system-ui,
+          sans-serif;
+        pointer-events: none;
+      }
+
+      main {
+        width: min(100% - 2rem, 54rem);
+        margin: 0 auto;
+        padding: 2rem 0 10rem;
+      }
+
+      .reading-region {
+        margin: 2rem 0;
+        padding: clamp(1rem, 4vw, 3rem);
+        border: 7px double currentColor;
+      }
+
+      .reading-region--light {
+        background: #fffaf0;
+        color: #2b2118;
+      }
+
+      .reading-region--dark {
+        background: #111827;
+        color: #f3f4f6;
+      }
+
+      .controls {
+        display: grid;
+        gap: 0.75rem;
+        grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+      }
+
+      .nested-run {
+        font-family: 'Arial Black', Arial, sans-serif;
+        font-size: clamp(17px, 3vw, 25px);
+      }
+
+      .nested-run span {
+        vertical-align: 0.15em;
+      }
+
+      .nested-run em {
+        font-family: cursive;
+      }
+
+      .long-scroll {
+        max-height: 32rem;
+        padding-right: 1rem;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+      }
+
+      iframe {
+        width: 100%;
+        min-height: 10rem;
+        border: 8px ridge #6a4c93;
+        background: white;
+      }
+
+      @media (max-width: 38rem) {
+        .sticky-navigation {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .sticky-navigation strong {
+          margin-right: 0;
+        }
+
+        .page-overlay {
+          top: auto;
+          bottom: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="sticky-navigation" aria-label="Fixture controls">
+      <strong>Hostile page navigation</strong>
+      <button id="replace-reading-block" type="button">
+        Replace reading block
+      </button>
+      <button id="remove-sheet-host" type="button">
+        Remove extension host
+      </button>
+      <span id="event-status" role="status" aria-live="polite">
+        Page events: <output id="page-event-count">0</output>
+      </span>
+    </nav>
+
+    <aside class="page-overlay" aria-label="Fixed page overlay">
+      Fixed page overlay with a deliberately high page-local z-index.
+    </aside>
+
+    <main>
+      <header>
+        <h1>TapTranslate hostile-page and lifecycle fixture</h1>
+        <p>
+          This page intentionally applies invasive global styles. The
+          translation sheet should remain readable and the page should continue
+          receiving its ordinary interactions.
+        </p>
+      </header>
+
+      <section class="reading-region reading-region--light">
+        <h2>Dynamic and ordinary controls</h2>
+        <div class="controls">
+          <a href="#destination">Ordinary page link</a>
+          <button id="ordinary-page-button" type="button">
+            Ordinary page button
+          </button>
+          <label>
+            Ordinary page input
+            <input value="Editable page value" />
+          </label>
+        </div>
+        <p id="dynamic-reading-block">
+          The original reading paragraph remains eligible before replacement.
+        </p>
+      </section>
+
+      <section class="reading-region reading-region--dark">
+        <h2>Complex typography and nested inline markup</h2>
+        <p class="nested-run">
+          The <span>carefully <strong>nested</strong></span>
+          <em>reading experience</em> keeps <mark>ordinary English words</mark>
+          available across inline formatting boundaries.
+        </p>
+        <p>
+          Turn the light off before leaving the room, because the unusually long
+          contextual sentence continues with deliberate repetition about lamps,
+          switches, evening routines, energy conservation, household habits,
+          accessible controls, and a final reminder that the complete content
+          must wrap without escaping the translation sheet on a narrow mobile
+          viewport.
+        </p>
+      </section>
+
+      <article class="reading-region reading-region--light long-scroll">
+        <h2>Long scrollable article</h2>
+        <p>
+          Reading starts quietly in a small coastal town where the morning train
+          passes behind the library and residents pause to hear its whistle.
+        </p>
+        <p>
+          The librarian opens the tall windows, arranges returned books, and
+          writes recommendations for visitors who want an absorbing story.
+        </p>
+        <p>
+          A student studies an unfamiliar chapter and checks how each new word
+          changes meaning when the surrounding sentence changes.
+        </p>
+        <p>
+          Nearby, a designer compares typography, spacing, and contrast while a
+          developer inspects the controls without interrupting anyone's reading.
+        </p>
+        <p>
+          At midday the article introduces another topic, yet the previous and
+          following paragraphs still provide useful neighboring context.
+        </p>
+        <blockquote>
+          A quotation can contain readable language without becoming an
+          interactive control or losing its structural boundary.
+        </blockquote>
+        <p>
+          Later paragraphs repeat the exercise across a long document so scroll
+          position and fixed overlays can be checked while the sheet is open.
+        </p>
+        <p>
+          The reader expands the translation, scrolls its internal content, then
+          returns to the page and continues toward the final section.
+        </p>
+        <p>
+          Nothing on the page should freeze, navigate unexpectedly, or stop
+          receiving clicks merely because translation is visible.
+        </p>
+        <p id="destination">
+          The destination paragraph marks the end of the long reading region.
+        </p>
+      </article>
+
+      <section class="reading-region reading-region--dark">
+        <h2>Unsupported iframe boundary</h2>
+        <p>
+          Clicking text below must not open or replace the top-document sheet.
+        </p>
+        <iframe
+          title="Unsupported iframe text"
+          srcdoc="<!doctype html><html lang='en'><body><h2>Iframe reading area</h2><p>Words inside this frame are deliberately outside the current TapTranslate scope.</p><button type='button'>Iframe control</button></body></html>"
+        ></iframe>
+      </section>
+    </main>
+
+    <script type="module">
+      const counter = document.querySelector('#page-event-count');
+      const replaceButton = document.querySelector('#replace-reading-block');
+      const removeHostButton = document.querySelector('#remove-sheet-host');
+      let pageEvents = 0;
+
+      document.addEventListener('click', () => {
+        pageEvents += 1;
+        if (counter) counter.textContent = String(pageEvents);
+      });
+
+      replaceButton?.addEventListener('click', () => {
+        const current = document.querySelector('#dynamic-reading-block');
+        const replacement = document.createElement('p');
+        replacement.id = 'dynamic-reading-block';
+        replacement.textContent =
+          'The dynamically replaced paragraph remains eligible for translation.';
+        current?.replaceWith(replacement);
+      });
+
+      removeHostButton?.addEventListener('click', () => {
+        document.querySelector('[data-taptranslate-sheet-host]')?.remove();
+      });
+    </script>
+  </body>
+</html>
