@@ -1,3 +1,4 @@
+import { showAcceptedHitEffect } from './accepted-hit-effect';
 import { detectEnglishContext } from './detection';
 
 function handleClick(event: MouseEvent): void {
@@ -14,6 +15,8 @@ function handleClick(event: MouseEvent): void {
     if (result === null) {
       return;
     }
+
+    showAcceptedHitEffect(result.anchorRect);
 
     const { text, word: wordSpan } = result.context.focusBlock;
     const word = text.slice(wordSpan.start, wordSpan.end);

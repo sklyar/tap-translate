@@ -80,8 +80,8 @@ export function showAcceptedHitEffect(
       all: 'initial',
       position: 'fixed',
       display: 'block',
-      left: `${centerX}px`,
-      top: `${centerY}px`,
+      left: `${String(centerX)}px`,
+      top: `${String(centerY)}px`,
       width: '24px',
       height: '24px',
       margin: '0',
@@ -103,7 +103,12 @@ export function showAcceptedHitEffect(
     }
 
     documentRoot.documentElement.append(ring);
-    globalThis.setTimeout(() => ring.remove(), cleanupDelayMilliseconds);
+    globalThis.setTimeout(() => {
+      ring.remove();
+    }, cleanupDelayMilliseconds);
+
+    // Commit the initial scale before changing it on the next frame.
+    ring.getBoundingClientRect();
 
     const animate = () => {
       ring.style.setProperty(
