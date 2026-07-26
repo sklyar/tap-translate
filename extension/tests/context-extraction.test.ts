@@ -2,7 +2,11 @@
 
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { extractTextContext } from '../src/context-extraction';
+import {
+  extractTextContext,
+  type ContextLimits,
+  type DetectionContext,
+} from '../src/context-extraction';
 
 const anchorRect = { x: 10, y: 10, width: 8, height: 16 } as const;
 
@@ -21,6 +25,34 @@ const requiredText = (root: Element): Text => {
     throw new Error('Missing fixture text node');
   }
   return textNode;
+};
+
+const extractFixtureContext = (
+  selector: string,
+  word: string,
+  limits?: ContextLimits,
+): DetectionContext | null => {
+  const focusBlock = requiredElement(selector);
+  const walker = document.createTreeWalker(focusBlock, NodeFilter.SHOW_TEXT);
+  let node = walker.nextNode();
+
+  while (node instanceof Text && !node.data.includes(word)) {
+    node = walker.nextNode();
+  }
+
+  if (!(node instanceof Text)) {
+    throw new Error(`Fixture word not found: ${word}`);
+  }
+
+  const hit = {
+    textNode: node,
+    characterOffset: node.data.indexOf(word) + 1,
+    anchorRect,
+  };
+
+  return limits === undefined
+    ? extractTextContext(hit, focusBlock)
+    : extractTextContext(hit, focusBlock, limits);
 };
 
 describe('extractTextContext', () => {
@@ -158,5 +190,119 @@ describe('extractTextContext', () => {
     }
     expect(result.focusBlock.text).not.toMatch(/^[\uDC00-\uDFFF]/u);
     expect(result.focusBlock.text).not.toMatch(/[\uD800-\uDBFF]$/u);
+  });
+
+  it('collects one previous and one next block in DOM reading order', () => {
+    document.body.innerHTML = `
+      <article>
+        <p>Previous paragraph.</p>
+        <p id="focus">Click the target word.</p>
+        <p>Next paragraph.</p>
+        <p>Too far away.</p>
+      </article>
+    `;
+
+    const result = extractFixtureContext('#focus', 'target');
+    expect(result?.beforeBlocks).toEqual([
+      {
+        text: 'Previous paragraph.',
+        truncatedBefore: false,
+        truncatedAfter: false,
+      },
+    ]);
+    expect(result?.afterBlocks).toEqual([
+      {
+        text: 'Next paragraph.',
+        truncatedBefore: false,
+        truncatedAfter: false,
+      },
+    ]);
+  });
+
+  it('does not cross into a nested aside or another section', () => {
+    document.body.innerHTML = `
+      <article>
+        <p>Previous article text.</p>
+        <aside><p>Aside text.</p></aside>
+        <p id="focus">Click the target word.</p>
+        <section><p>Other section text.</p></section>
+        <p>Next article text.</p>
+      </article>
+    `;
+    const result = extractFixtureContext('#focus', 'target');
+    expect(result?.beforeBlocks[0]?.text).toBe('Previous article text.');
+    expect(result?.afterBlocks[0]?.text).toBe('Next article text.');
+  });
+
+  it('keeps the previous suffix and next prefix at the neighbor limit', () => {
+    document.body.innerHTML = `
+      <article>
+        <p>xxx😀near</p>
+        <p id="focus">Click the target word.</p>
+        <p>near😀xxx</p>
+      </article>
+    `;
+    const result = extractFixtureContext('#focus', 'target', {
+      focusBlockCharacters: 40,
+      neighborBlockCharacters: 5,
+    });
+    expect(result?.beforeBlocks).toEqual([
+      { text: 'near', truncatedBefore: true, truncatedAfter: false },
+    ]);
+    expect(result?.afterBlocks).toEqual([
+      { text: 'near', truncatedBefore: false, truncatedAfter: true },
+    ]);
+  });
+
+  it('skips hidden, code-only, and empty candidate blocks', () => {
+    document.body.innerHTML = `
+      <article>
+        <p>Previous visible.</p>
+        <p hidden>Hidden.</p>
+        <p><code>return</code></p>
+        <p></p>
+        <p id="focus">Click the target word.</p>
+        <p>Next visible.</p>
+      </article>
+    `;
+    const result = extractFixtureContext('#focus', 'target');
+    expect(result?.beforeBlocks[0]?.text).toBe('Previous visible.');
+    expect(result?.afterBlocks[0]?.text).toBe('Next visible.');
+  });
+
+  it('collects no neighbors when the fallback parent is body', () => {
+    document.body.innerHTML = `
+      <p>Previous.</p>
+      <p id="focus">Click the target word.</p>
+      <p>Next.</p>
+    `;
+    const result = extractFixtureContext('#focus', 'target');
+    expect(result?.beforeBlocks).toEqual([]);
+    expect(result?.afterBlocks).toEqual([]);
+  });
+
+  it('keeps a nested list item separate from its parent list item', () => {
+    document.body.innerHTML = `
+      <section>
+        <ul>
+          <li>Parent text<ul><li>Nested text.</li></ul></li>
+          <li id="focus">Click the target word.</li>
+        </ul>
+      </section>
+    `;
+    const result = extractFixtureContext('#focus', 'target');
+    expect(result?.beforeBlocks[0]?.text).toBe('Nested text.');
+  });
+
+  it('uses an empty array for a missing side', () => {
+    document.body.innerHTML = `
+      <article>
+        <p id="focus">Click the target word.</p>
+        <p>Only next text.</p>
+      </article>
+    `;
+    const result = extractFixtureContext('#focus', 'target');
+    expect(result?.beforeBlocks).toEqual([]);
+    expect(result?.afterBlocks[0]?.text).toBe('Only next text.');
   });
 });

@@ -1,5 +1,9 @@
 import { getEnglishSentenceSpanAtOffset } from './sentence-segmentation';
-import { buildTextSnapshot } from './text-snapshot';
+import {
+  buildTextSnapshot,
+  findFocusBlock,
+  findReadingRegion,
+} from './text-snapshot';
 import type { TextHit } from './hit-testing';
 import { getEnglishWordSpanAtOffset, type TextSpan } from './word-segmentation';
 
@@ -44,7 +48,7 @@ export function extractTextContext(
     offset: hit.characterOffset,
   });
 
-  if (snapshot === null || snapshot.sourceOffset === null) {
+  if (snapshot?.sourceOffset === null || snapshot === null) {
     return null;
   }
 
@@ -70,10 +74,131 @@ export function extractTextContext(
   }
 
   return {
-    beforeBlocks: [],
+    beforeBlocks: optionalBlock(
+      findNeighborBlock(
+        hit.textNode,
+        focusBlock,
+        'before',
+        limits.neighborBlockCharacters,
+      ),
+    ),
     focusBlock: croppedFocus,
-    afterBlocks: [],
+    afterBlocks: optionalBlock(
+      findNeighborBlock(
+        hit.textNode,
+        focusBlock,
+        'after',
+        limits.neighborBlockCharacters,
+      ),
+    ),
   };
+}
+
+function findNeighborBlock(
+  hitTextNode: Text,
+  focusBlock: Element,
+  direction: 'before' | 'after',
+  limit: number,
+): ContextBlock | null {
+  const focusRegion = findReadingRegion(focusBlock);
+  const fallbackParent = focusRegion === null ? focusBlock.parentElement : null;
+  const traversalRoot = focusRegion ?? fallbackParent;
+
+  if (
+    traversalRoot === null ||
+    isDocumentBoundary(traversalRoot) ||
+    !traversalRoot.contains(hitTextNode)
+  ) {
+    return null;
+  }
+
+  const walker = focusBlock.ownerDocument.createTreeWalker(
+    traversalRoot,
+    NodeFilter.SHOW_TEXT,
+  );
+  walker.currentNode = hitTextNode;
+  const visitedBlocks = new Set<Element>();
+
+  for (;;) {
+    const node =
+      direction === 'before' ? walker.previousNode() : walker.nextNode();
+    if (node === null) {
+      return null;
+    }
+
+    if (!(node instanceof Text) || focusBlock.contains(node)) {
+      continue;
+    }
+
+    const candidate = findFocusBlock(node);
+    if (
+      candidate === null ||
+      candidate === focusBlock ||
+      visitedBlocks.has(candidate)
+    ) {
+      continue;
+    }
+    visitedBlocks.add(candidate);
+
+    if (!hasSameContextOwner(candidate, focusRegion, fallbackParent)) {
+      continue;
+    }
+
+    const snapshot = buildTextSnapshot(candidate, null);
+    if (snapshot === null) {
+      continue;
+    }
+
+    const block = cropNeighborBlock(snapshot.text, direction, limit);
+    if (block !== null) {
+      return block;
+    }
+  }
+}
+
+function hasSameContextOwner(
+  candidate: Element,
+  focusRegion: Element | null,
+  fallbackParent: Element | null,
+): boolean {
+  const candidateRegion = findReadingRegion(candidate);
+
+  return focusRegion === null
+    ? candidateRegion === null && candidate.parentElement === fallbackParent
+    : candidateRegion === focusRegion;
+}
+
+function cropNeighborBlock(
+  text: string,
+  direction: 'before' | 'after',
+  limit: number,
+): ContextBlock | null {
+  let start = direction === 'before' ? Math.max(0, text.length - limit) : 0;
+  let end = direction === 'after' ? Math.min(text.length, limit) : text.length;
+
+  start = safeStartBoundary(text, start);
+  end = safeEndBoundary(text, end);
+
+  while (start < end && isWhitespace(text[start])) {
+    start += 1;
+  }
+  while (end > start && isWhitespace(text[end - 1])) {
+    end -= 1;
+  }
+
+  if (start === end) {
+    return null;
+  }
+
+  return {
+    text: text.slice(start, end),
+    truncatedBefore: start > 0,
+    truncatedAfter: end < text.length,
+  };
+}
+
+function optionalBlock(block: ContextBlock | null): readonly ContextBlock[] {
+  return block === null ? [] : [block];
 }
 
 function cropFocusBlock(
@@ -144,6 +269,10 @@ function isLowSurrogate(code: number): boolean {
 
 function isHighSurrogate(code: number): boolean {
   return code >= 0xd800 && code <= 0xdbff;
+}
+
+function isDocumentBoundary(element: Element): boolean {
+  return element.tagName === 'HTML' || element.tagName === 'BODY';
 }
 
 function isWhitespace(character: string | undefined): boolean {
