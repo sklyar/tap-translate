@@ -322,6 +322,9 @@ describe('translationSheetStyles', () => {
     );
     expect(translationSheetStyles).toContain('max-width: 640px');
     expect(translationSheetStyles).toContain(':focus-visible');
+    expect(translationSheetStyles).toMatch(
+      /\.close\s*\{[\s\S]*?width: 44px;[\s\S]*?height: 44px;[\s\S]*?\}/,
+    );
     expect(translationSheetStyles).toContain(
       '@media (prefers-reduced-motion: reduce)',
     );

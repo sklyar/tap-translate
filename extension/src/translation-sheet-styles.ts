@@ -101,11 +101,11 @@ export const translationSheetStyles = `
 
   .close {
     position: absolute;
-    top: 7px;
-    right: 12px;
+    top: 1px;
+    right: 8px;
     display: inline-flex;
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
