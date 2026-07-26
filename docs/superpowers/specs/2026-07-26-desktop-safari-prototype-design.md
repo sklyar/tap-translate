@@ -42,13 +42,28 @@ The `extension/dist` output will later be incorporated as shared resources in th
 
 ## Tooling and build output
 
-- TypeScript runs in strict mode and targets Safari 15-compatible JavaScript.
+- The project uses native ESM (`"type": "module"`) for configuration and source development.
+- TypeScript runs in strict mode with `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `useUnknownInCatchVariables`, `isolatedModules`, and `noEmit`. Vite remains the only JavaScript emitter and produces Safari 15-compatible output.
 - Vite bundles `src/content.ts` into a stable `dist/content.js` filename and copies `public/manifest.json` to `dist/manifest.json`.
 - Vitest runs unit tests for word segmentation.
-- ESLint uses the current flat configuration format and includes TypeScript-aware linting.
+- ESLint uses the current flat configuration format, recommended JavaScript rules, and strict type-checked TypeScript rules. Prettier compatibility is explicit so formatting and lint rules do not conflict.
 - Prettier provides deterministic formatting.
-- npm manages development dependencies, and `package-lock.json` is committed.
+- npm manages development dependencies. Direct dependency versions and the npm lockfile are committed for reproducible `npm ci` installs.
+- The development baseline is Node.js 22.12 or newer. Tool versions are selected from current stable releases that support this baseline and are pinned during implementation.
+- Source maps are emitted for practical debugging in desktop Safari and through Safari Web Inspector on an attached iPhone or simulator.
+- `node_modules` and generated `dist` output are ignored; source files, configuration, tests, manifest, and `package-lock.json` are committed.
 - No production runtime dependencies or UI frameworks are added.
+
+## Engineering standards
+
+- Keep side effects at the entry point. Word segmentation remains pure, and DOM-specific behavior remains inside hit-testing.
+- Export narrow functions with explicit parameter and return types. Avoid classes, dependency-injection frameworks, barrel files, and speculative abstractions for this three-module prototype.
+- Preserve normal page behavior and fail closed: an ambiguous or unsupported hit produces `null` rather than guessing a neighboring word.
+- Keep Safari compatibility code local and documented. Feature-detect browser APIs instead of user-agent detection.
+- Use one production entry point and deterministic output names so the same bundle can be copied into future macOS and iOS extension targets.
+- Provide focused npm scripts for `build`, `test`, `test:watch`, `typecheck`, `lint`, `format`, `format:check`, and an aggregate `check` command suitable for local development and CI.
+- Prefer table-driven unit tests with behavior-oriented names. Tests run in Node without a DOM emulator because the tested segmentation unit is platform-independent.
+- Keep comments limited to compatibility rationale or non-obvious browser behavior; names and types should explain ordinary control flow.
 
 ## Testing and verification
 
