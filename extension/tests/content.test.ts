@@ -45,6 +45,8 @@ const turnOffResult: TranslationResult = {
   partOfSpeech: 'phrasal verb',
   explanation: 'Здесь означает выключить свет.',
 };
+const stylesheetUrl =
+  'safari-web-extension://taptranslate-test/translation-sheet.css';
 
 let startTapTranslateContent: typeof import('../src/content').startTapTranslateContent;
 
@@ -113,6 +115,22 @@ function createTarget(): HTMLElement {
   target.textContent = 'Turn the light off.';
   document.body.append(target);
   return target;
+}
+
+function loadMountedSheetStylesheet(): ShadowRoot {
+  const host = document.querySelector('[data-taptranslate-sheet-host]');
+  const shadowRoot = host?.shadowRoot;
+  const link = shadowRoot?.querySelector(
+    'link[rel="stylesheet"][data-taptranslate-stylesheet]',
+  );
+  if (shadowRoot === null || shadowRoot === undefined) {
+    throw new Error('Missing translation sheet shadow root');
+  }
+  if (!(link instanceof HTMLLinkElement)) {
+    throw new Error('Missing translation sheet stylesheet');
+  }
+  link.dispatchEvent(new Event('load'));
+  return shadowRoot;
 }
 
 describe('startTapTranslateContent', () => {
@@ -344,10 +362,14 @@ describe('startTapTranslateContent', () => {
     const provider = new MockTranslationProvider({
       attempts: [{ type: 'success', result: turnOffResult, delayMs: 50 }],
     });
-    const sheet = new TranslationSheet(document, {
-      onRetry: retryTranslation,
-      onDismiss: dismissTranslation,
-    });
+    const sheet = new TranslationSheet(
+      document,
+      {
+        onRetry: retryTranslation,
+        onDismiss: dismissTranslation,
+      },
+      stylesheetUrl,
+    );
     const controller = new TranslationController(provider, sheet);
     const stop = startTapTranslateContent({
       documentRoot: document,
@@ -358,12 +380,19 @@ describe('startTapTranslateContent', () => {
 
     createTarget().click();
     const host = document.querySelector('[data-taptranslate-sheet-host]');
-    expect(host?.shadowRoot?.textContent).toContain('Переводим');
+    expect(host?.shadowRoot?.querySelector('[role="dialog"]')).toBeNull();
+    const shadowRoot = loadMountedSheetStylesheet();
+    expect(shadowRoot.textContent).toContain('Переводим');
 
     await vi.advanceTimersByTimeAsync(50);
 
-    expect(host?.shadowRoot?.textContent).toContain('turn off');
-    expect(host?.shadowRoot?.textContent).toContain('выключить');
+    expect(shadowRoot.textContent).toContain('turn off');
+    expect(shadowRoot.textContent).toContain('выключить');
+    expect(
+      shadowRoot.querySelectorAll(
+        'link[rel="stylesheet"][data-taptranslate-stylesheet]',
+      ),
+    ).toHaveLength(1);
     expect(fetchSpy).not.toHaveBeenCalled();
     stop();
 
@@ -401,10 +430,14 @@ describe('startTapTranslateContent', () => {
     const provider = new MockTranslationProvider({
       attempts: [{ type: 'success', result: turnOffResult, delayMs: 5 }],
     });
-    const sheet = new TranslationSheet(document, {
-      onRetry: retryTranslation,
-      onDismiss: dismissTranslation,
-    });
+    const sheet = new TranslationSheet(
+      document,
+      {
+        onRetry: retryTranslation,
+        onDismiss: dismissTranslation,
+      },
+      stylesheetUrl,
+    );
     const controller = new TranslationController(provider, sheet);
     const dismiss = vi.spyOn(controller, 'dismiss');
     const stop = startTapTranslateContent({
@@ -419,6 +452,7 @@ describe('startTapTranslateContent', () => {
       expect(
         document.querySelectorAll('[data-taptranslate-sheet-host]'),
       ).toHaveLength(1);
+      loadMountedSheetStylesheet();
       await vi.advanceTimersByTimeAsync(5);
 
       const host = document.querySelector('[data-taptranslate-sheet-host]');
