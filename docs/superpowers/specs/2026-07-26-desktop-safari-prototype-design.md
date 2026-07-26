@@ -20,7 +20,7 @@ The implementation has three focused modules:
 
 1. `src/content.ts` owns event registration and console logging. It listens for `click` events without cancelling or modifying them, passes viewport coordinates to hit-testing, and logs only successful word detections.
 2. `src/hit-testing.ts` translates viewport coordinates into a text-node offset. It prefers the standardized `Document.caretPositionFromPoint()` API when available and falls back to WebKit's `Document.caretRangeFromPoint()` for Safari versions that predate the standard API. It accepts coordinates rather than a specific event type so a future mobile gesture can reuse it unchanged.
-3. `src/word-segmentation.ts` is a pure text utility. It uses `Intl.Segmenter` with the English locale and word granularity to return the word-like segment containing an exact UTF-16 offset. A returned segment must contain at least one ASCII English letter, so numeric and punctuation-only segments are rejected.
+3. `src/word-segmentation.ts` is a pure text utility. It uses `Intl.Segmenter` with the English locale and word granularity to return the word-like segment containing an exact UTF-16 offset. The character at that exact offset must be an ASCII English letter. A returned segment must consist of ASCII English letters, optionally joined by straight or curly apostrophes, so numeric, alphanumeric, non-Latin, and punctuation-only segments are rejected. Clicking a letter in a contraction returns the whole contraction, while clicking its apostrophe returns `null`.
 
 The modules communicate through narrow values: hit-testing receives `clientX` and `clientY`, resolves a text node and offset, and passes the node's text plus the offset to segmentation. The result is `string | null`.
 
@@ -49,7 +49,7 @@ The `extension/dist` output will later be incorporated as shared resources in th
 - ESLint uses the current flat configuration format, recommended JavaScript rules, and strict type-checked TypeScript rules. Prettier compatibility is explicit so formatting and lint rules do not conflict.
 - Prettier provides deterministic formatting.
 - npm manages development dependencies. Direct dependency versions and the npm lockfile are committed for reproducible `npm ci` installs.
-- The development baseline is Node.js 22.12 or newer. Tool versions are selected from current stable releases that support this baseline and are pinned during implementation.
+- The development baseline is Node.js 22.13 or newer. Tool versions are selected from current stable mutually compatible releases that support this baseline and are pinned during implementation; compatibility takes precedence over selecting a newer incompatible major version.
 - Source maps are emitted for practical debugging in desktop Safari and through Safari Web Inspector on an attached iPhone or simulator.
 - `node_modules` and generated `dist` output are ignored; source files, configuration, tests, manifest, and `package-lock.json` are committed.
 - No production runtime dependencies or UI frameworks are added.
@@ -74,6 +74,7 @@ Unit tests cover:
 - punctuation and whitespace;
 - English contractions;
 - numeric and punctuation-only segments;
+- alphanumeric and non-Latin segments;
 - empty strings and offsets outside the string.
 
 Automated verification consists of the Vitest suite, strict TypeScript checking, ESLint, Prettier checking, and a production Vite build. The built manifest and stable content-script filename are inspected after the build. Manual Safari verification consists of loading the unpacked build, clicking ordinary English text, and observing one console log for a word and no log for punctuation or whitespace.
