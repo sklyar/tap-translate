@@ -1,0 +1,21 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+*.tmp
+*.bak
+
+# Local agent artifacts
+.superpowers/
+.impeccable/critique/
+
+.env
+deploy/backend/config.yaml
