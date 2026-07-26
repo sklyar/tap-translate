@@ -1,32 +1,116 @@
-import { showAcceptedHitEffect } from './accepted-hit-effect';
 import { detectEnglishContext } from './detection';
+import { MockTranslationProvider } from './mock-translation-provider';
+import { TranslationController } from './translation-controller';
+import { TranslationSheet } from './translation-sheet';
+import { createTranslationRequest } from './translation';
+import type { DetectionInput, DetectionResult } from './detection';
+import type { TranslationRequest } from './translation';
 
-function handleClick(event: MouseEvent): void {
-  try {
-    const result = detectEnglishContext({
-      point: {
-        clientX: event.clientX,
-        clientY: event.clientY,
-      },
-      target: event.target,
-      eventPath: event.composedPath(),
-    });
-
-    if (result === null) {
-      return;
-    }
-
-    showAcceptedHitEffect(result.anchorRect);
-
-    const { text, word: wordSpan } = result.context.focusBlock;
-    const word = text.slice(wordSpan.start, wordSpan.end);
-    console.log('[TapTranslate] Detected word:', word);
-  } catch {
-    console.error('[TapTranslate] Unexpected detection failure.');
-  }
+export interface TranslationContentController {
+  translate(request: TranslationRequest): void;
+  dismiss(): void;
 }
 
-document.addEventListener('click', handleClick, {
-  capture: true,
-  passive: true,
+export interface TranslationContentSheet {
+  containsEventPath(path: readonly EventTarget[]): boolean;
+}
+
+export interface TapTranslateContentOptions {
+  readonly documentRoot: Document;
+  readonly controller: TranslationContentController;
+  readonly sheet: TranslationContentSheet;
+  readonly detect?: (
+    input: DetectionInput,
+    documentRoot?: Document,
+  ) => DetectionResult | null;
+}
+
+export function startTapTranslateContent(
+  options: TapTranslateContentOptions,
+): () => void {
+  const detect = options.detect ?? detectEnglishContext;
+  let listening = true;
+
+  const handleClick = (event: MouseEvent): void => {
+    try {
+      const eventPath = event.composedPath();
+      if (options.sheet.containsEventPath(eventPath)) {
+        return;
+      }
+
+      const result = detect(
+        {
+          point: {
+            clientX: event.clientX,
+            clientY: event.clientY,
+          },
+          target: event.target,
+          eventPath,
+        },
+        options.documentRoot,
+      );
+
+      if (result === null) {
+        options.controller.dismiss();
+        return;
+      }
+
+      options.controller.translate(createTranslationRequest(result));
+    } catch {
+      console.error('[TapTranslate] Unexpected interaction failure.');
+    }
+  };
+
+  options.documentRoot.addEventListener('click', handleClick, {
+    capture: true,
+    passive: true,
+  });
+
+  return (): void => {
+    if (!listening) {
+      return;
+    }
+    listening = false;
+    options.documentRoot.removeEventListener('click', handleClick, true);
+    try {
+      options.controller.dismiss();
+    } catch {
+      // Cleanup must not surface extension failures onto the page.
+    }
+  };
+}
+
+const provider = new MockTranslationProvider({
+  attempts: [
+    {
+      type: 'success',
+      delayMs: 350,
+      result: {
+        expression: 'turn off',
+        translation: 'выключить',
+        partOfSpeech: 'phrasal verb',
+        explanation: 'Здесь означает выключить свет.',
+      },
+    },
+  ],
 });
+
+const sheet = new TranslationSheet(document, {
+  onRetry: retryTranslation,
+  onDismiss: dismissTranslation,
+});
+const controller = new TranslationController(provider, sheet);
+
+startTapTranslateContent({
+  documentRoot: document,
+  controller,
+  sheet,
+});
+
+function retryTranslation(): void {
+  controller.retry();
+}
+
+function dismissTranslation(): void {
+  controller.dismiss();
+}
