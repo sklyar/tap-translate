@@ -1,8 +1,19 @@
-import { getEnglishWordAtOffset } from './word-segmentation';
-
 export interface ViewportPoint {
   readonly clientX: number;
   readonly clientY: number;
+}
+
+export interface ViewportRect {
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
+}
+
+export interface TextHit {
+  readonly textNode: Text;
+  readonly characterOffset: number;
+  readonly anchorRect: ViewportRect;
 }
 
 interface TextPosition {
@@ -46,33 +57,43 @@ function resolveTextPosition(
   return null;
 }
 
-function characterContainsPoint(
+function matchingCharacterRectangles(
   documentRoot: Document,
   textNode: Text,
   characterOffset: number,
   { clientX, clientY }: ViewportPoint,
-): boolean {
+): readonly ViewportRect[] {
   const range = documentRoot.createRange();
   range.setStart(textNode, characterOffset);
   range.setEnd(textNode, characterOffset + 1);
 
-  return Array.from(range.getClientRects()).some(
-    (rectangle) =>
-      rectangle.width > 0 &&
-      rectangle.height > 0 &&
-      clientX >= rectangle.left &&
-      clientX <= rectangle.right &&
-      clientY >= rectangle.top &&
-      clientY <= rectangle.bottom,
-  );
+  return Array.from(range.getClientRects())
+    .filter(
+      (rectangle) =>
+        Number.isFinite(rectangle.x) &&
+        Number.isFinite(rectangle.y) &&
+        Number.isFinite(rectangle.width) &&
+        Number.isFinite(rectangle.height) &&
+        Number.isFinite(rectangle.left) &&
+        Number.isFinite(rectangle.right) &&
+        Number.isFinite(rectangle.top) &&
+        Number.isFinite(rectangle.bottom) &&
+        rectangle.width > 0 &&
+        rectangle.height > 0 &&
+        clientX >= rectangle.left &&
+        clientX < rectangle.right &&
+        clientY >= rectangle.top &&
+        clientY < rectangle.bottom,
+    )
+    .map(({ x, y, width, height }) => ({ x, y, width, height }));
 }
 
-function resolveCharacterOffset(
+function resolveTextHit(
   documentRoot: Document,
   textNode: Text,
   caretOffset: number,
   point: ViewportPoint,
-): number | null {
+): TextHit | null {
   if (
     !Number.isInteger(caretOffset) ||
     caretOffset < 0 ||
@@ -81,51 +102,48 @@ function resolveCharacterOffset(
     return null;
   }
 
-  const candidates = [caretOffset, caretOffset - 1];
-  let matchedOffset: number | null = null;
+  const matches: TextHit[] = [];
 
-  for (const candidate of candidates) {
-    if (
-      candidate < 0 ||
-      candidate >= textNode.length ||
-      !characterContainsPoint(documentRoot, textNode, candidate, point)
-    ) {
+  for (const characterOffset of [caretOffset, caretOffset - 1]) {
+    if (characterOffset < 0 || characterOffset >= textNode.length) {
       continue;
     }
 
-    if (matchedOffset !== null && matchedOffset !== candidate) {
-      return null;
+    for (const anchorRect of matchingCharacterRectangles(
+      documentRoot,
+      textNode,
+      characterOffset,
+      point,
+    )) {
+      matches.push({ textNode, characterOffset, anchorRect });
     }
-
-    matchedOffset = candidate;
   }
 
-  return matchedOffset;
+  return matches.length === 1 ? (matches[0] ?? null) : null;
 }
 
-export function findEnglishWordAtPoint(
+export function findTextHitAtPoint(
   point: ViewportPoint,
   documentRoot: Document = document,
-): string | null {
+): TextHit | null {
   if (!Number.isFinite(point.clientX) || !Number.isFinite(point.clientY)) {
     return null;
   }
 
-  const textPosition = resolveTextPosition(documentRoot, point);
+  try {
+    const textPosition = resolveTextPosition(documentRoot, point);
 
-  if (textPosition?.node.nodeType !== Node.TEXT_NODE) {
+    if (textPosition?.node.nodeType !== Node.TEXT_NODE) {
+      return null;
+    }
+
+    return resolveTextHit(
+      documentRoot,
+      textPosition.node as Text,
+      textPosition.offset,
+      point,
+    );
+  } catch {
     return null;
   }
-
-  const textNode = textPosition.node as Text;
-  const characterOffset = resolveCharacterOffset(
-    documentRoot,
-    textNode,
-    textPosition.offset,
-    point,
-  );
-
-  return characterOffset === null
-    ? null
-    : getEnglishWordAtOffset(textNode.data, characterOffset);
 }

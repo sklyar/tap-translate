@@ -1,6 +1,35 @@
 import { describe, expect, it } from 'vitest';
 
-import { getEnglishWordAtOffset } from '../src/word-segmentation';
+import {
+  getEnglishWordAtOffset,
+  getEnglishWordSpanAtOffset,
+} from '../src/word-segmentation';
+
+describe('getEnglishWordSpanAtOffset', () => {
+  it.each([
+    { text: 'Hello world', offset: 0, expected: { start: 0, end: 5 } },
+    { text: 'Hello world', offset: 8, expected: { start: 6, end: 11 } },
+    { text: "I can't wait", offset: 2, expected: { start: 2, end: 7 } },
+    { text: 'I can’t wait', offset: 6, expected: { start: 2, end: 7 } },
+  ])(
+    'returns the English word span at $offset in $text',
+    ({ text, offset, expected }) => {
+      expect(getEnglishWordSpanAtOffset(text, offset)).toEqual(expected);
+    },
+  );
+
+  it.each([
+    { text: '', offset: 0 },
+    { text: 'Hello', offset: -1 },
+    { text: 'Hello', offset: 5 },
+    { text: 'Hello world', offset: 5 },
+    { text: "can't", offset: 3 },
+    { text: 'abc123', offset: 1 },
+    { text: 'Привет', offset: 0 },
+  ])('returns no English word span at $offset in $text', ({ text, offset }) => {
+    expect(getEnglishWordSpanAtOffset(text, offset)).toBeNull();
+  });
+});
 
 describe('getEnglishWordAtOffset', () => {
   it.each([

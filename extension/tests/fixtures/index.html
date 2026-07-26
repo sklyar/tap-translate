@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TapTranslate Safari acceptance fixture</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: system-ui, sans-serif;
+        line-height: 1.5;
+      }
+
+      body {
+        margin: 0 auto;
+        max-width: 52rem;
+        padding: 1rem;
+      }
+
+      section,
+      article,
+      aside {
+        border: 1px solid color-mix(in srgb, currentColor 25%, transparent);
+        border-radius: 0.5rem;
+        margin-block: 1rem;
+        padding: 1rem;
+      }
+
+      table {
+        border-collapse: collapse;
+      }
+
+      caption,
+      td,
+      th {
+        border: 1px solid currentColor;
+        padding: 0.5rem;
+      }
+
+      #click-counter {
+        position: fixed;
+        z-index: 1000;
+        top: 0.75rem;
+        right: 0.75rem;
+        background: Canvas;
+        border: 1px solid currentColor;
+        border-radius: 0.375rem;
+        padding: 0.5rem;
+      }
+
+      .glossary-term {
+        cursor: pointer;
+        text-decoration: underline dotted;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>TapTranslate Safari acceptance fixture</h1>
+      <p id="click-counter" role="status" aria-live="polite">
+        Page clicks observed: <output>0</output>
+      </p>
+    </header>
+
+    <main>
+      <section aria-labelledby="plain-heading">
+        <h2 id="plain-heading">Plain and formatted prose</h2>
+        <p>
+          This is the first sentence. Click an ordinary word in the second
+          sentence. The third sentence supplies additional context.
+        </p>
+        <p>
+          <span>Turn</span> the <strong>light</strong> <em>off</em> before
+          leaving.
+        </p>
+        <p>We can't wait, and they can’t wait either.</p>
+        <p>
+          This <span class="glossary-term">glossary term</span> uses only
+          pointer styling and remains eligible.
+        </p>
+      </section>
+
+      <article aria-labelledby="context-heading">
+        <h2 id="context-heading">Neighboring context</h2>
+        <p>Previous article paragraph.</p>
+        <p>Click the target word in this focus paragraph.</p>
+        <p>Next article paragraph.</p>
+        <aside>
+          <h3>Nested aside</h3>
+          <p>This text must not leak into the article neighbor selection.</p>
+        </aside>
+        <section>
+          <h3>Nested section</h3>
+          <p>This is a different reading region.</p>
+        </section>
+      </article>
+
+      <section aria-labelledby="structures-heading">
+        <h2 id="structures-heading">Structural blocks</h2>
+        <ul>
+          <li>A readable list item.</li>
+          <li>
+            Parent list text.
+            <ul>
+              <li>Nested list text.</li>
+            </ul>
+          </li>
+        </ul>
+        <blockquote>A quotation contains ordinary readable words.</blockquote>
+        <figure>
+          <figcaption>A figure caption with readable text.</figcaption>
+        </figure>
+        <table>
+          <caption>
+            A table caption
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Heading cell</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>A readable table cell.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section aria-labelledby="interactive-heading">
+        <h2 id="interactive-heading">Interactive and excluded targets</h2>
+        <p><a href="#destination">Linked words</a> must not trigger.</p>
+        <p><button type="button">Button words</button> must not trigger.</p>
+        <p>
+          <label for="fixture-input">Input label words</label>
+          <input id="fixture-input" value="Editable input text" />
+        </p>
+        <p contenteditable="true">Editable paragraph words.</p>
+        <p><span role="button">ARIA button words</span>.</p>
+        <p><span tabindex="0">Focusable widget words</span>.</p>
+        <p><span onclick="void 0">Inline handler words</span>.</p>
+        <p hidden>Hidden words.</p>
+        <p>Visible prose with <code>inline code words</code> after it.</p>
+        <pre>Preformatted code words.</pre>
+      </section>
+
+      <section aria-labelledby="tokens-heading">
+        <h2 id="tokens-heading">Rejected token boundaries</h2>
+        <p>
+          Punctuation: , . ! ? — ' ’. Whitespace separates these words. Numbers:
+          123 42. Alphanumeric: abc123 v2test. Non-Latin: Привет мир, café,
+          日本語.
+        </p>
+      </section>
+
+      <p id="destination">Link destination. Normal navigation must work.</p>
+    </main>
+
+    <script>
+      const output = document.querySelector('#click-counter output');
+      let clickCount = 0;
+      document.addEventListener('click', () => {
+        clickCount += 1;
+        output.value = String(clickCount);
+      });
+    </script>
+  </body>
+</html>
