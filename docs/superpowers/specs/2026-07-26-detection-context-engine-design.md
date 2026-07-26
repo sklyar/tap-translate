@@ -1,72 +1,30 @@
-# Design Document — Detection & Context Engine
+# Detection & Context Engine Design
 
-|                   |                                                                                                                                                 |
-| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Created**       | 2026-07-26                                                                                                                                      |
-| **Finished date** | Not finished                                                                                                                                    |
-| **Status**        | DRAFT                                                                                                                                           |
-| **Authors**       | Alexey Sklyar, Codex                                                                                                                            |
-| **Approved by**   | Pending user review                                                                                                                             |
-| **Epic**          | Not assigned                                                                                                                                    |
-| **Related links** | [Product roadmap](2026-07-26-taptranslate-product-roadmap-design.md), [Desktop prototype design](2026-07-26-desktop-safari-prototype-design.md) |
+Related: [product roadmap](2026-07-26-taptranslate-product-roadmap-design.md) and [desktop prototype design](2026-07-26-desktop-safari-prototype-design.md).
 
-**Audience:** TapTranslate frontend and backend engineering, QA, and product review
+## Goal
 
----
+Extend the working desktop Safari prototype from returning one English word to returning a bounded, serializable context for that word. The result must contain the exact clicked word, its sentence, its logical text block, nearby blocks, and a viewport anchor for the future UI.
 
-## Context
+The engine is developed and tested primarily in desktop Safari but must not depend on desktop-only input behavior. It preserves normal page events and returns `null` for unsupported or ambiguous hits.
 
-TapTranslate currently has a working desktop Safari prototype that resolves an exact English word under a page click and logs it without changing normal page behavior. The prototype uses strict TypeScript, Safari-compatible caret APIs, geometric character validation, pure English word segmentation, and a deterministic Manifest V3 bundle. Its automated suite contains 17 passing segmentation tests, and the built extension has passed manual smoke testing on real desktop Safari pages.
+## Scope
 
-The next product stages need more than a standalone word. A future translation backend must receive enough page context to resolve meaning, phrasal verbs such as `get off`, separated expressions such as `turn the light off`, and other context-dependent language. The future presentation layer also needs a stable viewport anchor and a serializable result that is independent of DOM objects.
+This stage includes:
 
-Website text is not represented uniformly. A logical sentence or paragraph may span many inline elements, while raw `textContent` may include hidden, interactive, or structurally unrelated content. Pages also contain controls, editable areas, custom widgets, navigation, code, and malformed or unusually large text containers. The engine therefore needs explicit eligibility, normalization, boundary, size, and failure rules.
+- semantic eligibility rules for clicked page text;
+- exact point-to-character hit-testing and viewport geometry;
+- text extraction across nested inline DOM nodes;
+- whitespace normalization with source-offset mapping;
+- English word and sentence spans;
+- the current logical block plus at most one neighboring block on each side;
+- automated tests, a local DOM fixture, and desktop Safari acceptance.
 
-**Goal:** Produce a bounded, serializable `DetectionResult` containing the exact clicked English word, its containing sentence, its logical text block, the nearest surrounding text blocks, and a viewport anchor. The engine must remain mobile-compatible, preserve normal page behavior, and fail closed for unsupported or ambiguous hits.
+This stage does not include translation UI, mock responses, backend calls, semantic interpretation, storage, background scripts, Xcode packaging, or mobile gesture handling.
 
----
+## Result contract
 
-## Implementation Approach
-
-Detection runs as a local on-demand pipeline for each click or future tap. It examines only the hit and nearby reading context; it does not index the entire document, observe page mutations continuously, or cache a document-wide text model.
-
-The browser entry point supplies viewport coordinates and event-path metadata without cancelling the event. Hit-testing resolves and geometrically validates one text character. Eligibility then rejects explicit interactive, editable, hidden, and unsupported targets. A local text snapshot combines eligible inline text in reading order, normalizes whitespace, and maps the clicked DOM offset into the normalized text. Word and sentence segmentation produce spans inside that text. Finally, the context collector adds at most one neighboring block on each side and applies bounded size limits.
-
-Expected unsupported cases return no result. A missing neighboring block degrades to an empty side of the context envelope, while loss of the clicked word, its mapped offset, or its sentence invalidates the complete result.
-
-### Data flow
-
-```text
-capture-phase click / future tap metadata
-                    |
-                    v
-       Safari point-to-character adapter
-                    |
-                    v
-        exact TextHit + viewport rect
-                    |
-                    v
-         semantic eligibility policy
-                    |
-                    v
-      focus block and reading container
-                    |
-                    v
-  normalized text snapshot + offset mapping
-                    |
-                    v
-       English word and sentence spans
-                    |
-                    v
- nearest previous and next eligible blocks
-                    |
-                    v
-       serializable DetectionResult | null
-```
-
-### Detection result contract
-
-The following TypeScript interface is the shared output contract. `TextSpan.start` is inclusive, `TextSpan.end` is exclusive, and both offsets refer to UTF-16 code units in the corresponding normalized `text` value.
+`TextSpan.start` is inclusive and `TextSpan.end` is exclusive. Both are UTF-16 offsets in the corresponding normalized `text`.
 
 ```ts
 interface TextSpan {
@@ -102,178 +60,126 @@ interface DetectionResult {
 }
 ```
 
-The clicked word is `focusBlock.text.slice(word.start, word.end)`. The containing sentence is derived through the equivalent `sentence` span. The contract avoids duplicated word or sentence strings that could disagree with their source block.
+The clicked word is derived with `focusBlock.text.slice(word.start, word.end)`. The sentence is derived through the equivalent `sentence` span. The contract contains no DOM objects and can later be passed to a mock or backend adapter.
 
-### Backend Scope
+## Processing flow
 
-#### TapTranslate backend
+Detection is local and on demand. It does not pre-index the page, cache a document model, or observe mutations continuously.
 
-No backend changes are included in this stage. The future backend will receive a serializable derivative of `DetectionResult.context`, interpret the clicked token within the supplied sentence and surrounding blocks, and return the resolved lexical expression, translation, explanation, and examples. Semantic resolution of phrasal verbs, idioms, collocations, and separated expressions belongs to that later backend stage.
+```text
+click / future tap metadata
+          |
+          v
+exact text character and viewport rectangle
+          |
+          v
+semantic target eligibility
+          |
+          v
+focus block and reading container
+          |
+          v
+normalized text with mapped clicked offset
+          |
+          v
+word and sentence spans
+          |
+          v
+previous and next context blocks
+          |
+          v
+DetectionResult | null
+```
 
-### Frontend Scope
+The implementation remains a small pipeline with these responsibilities:
 
-#### Interaction adapter
+- the interaction adapter supplies coordinates, the event target, and the composed event path without cancelling the event;
+- hit-testing resolves one geometrically validated character using the standard caret API first and the Safari fallback second;
+- eligibility decides whether the clicked DOM path is ordinary readable text;
+- the snapshot builder converts the local DOM text into normalized text while preserving the clicked offset;
+- context extraction finds the sentence, focus block, and neighboring blocks;
+- one orchestrator returns the complete result or `null`.
 
-The interaction adapter remains a side-effect-only boundary. It supplies viewport coordinates, the original event target, and the composed event path. It does not depend on hover, right-click, fixed mouse precision, or another desktop-only input assumption, and it never calls `preventDefault()` or `stopPropagation()`.
+No classes, dependency-injection layer, document-wide cache, `MutationObserver`, or generic DOM framework are introduced.
 
-#### Safari hit-testing
+## Eligibility rules
 
-Hit-testing continues to prefer `caretPositionFromPoint()` and fall back to `caretRangeFromPoint()`. The resulting caret insertion position is geometrically validated against adjacent character rectangles. A valid internal hit contains one text node, one exact UTF-16 character offset, and one positive-size viewport rectangle.
+Visible ordinary text is eligible inside inline formatting and structural regions such as headings, headers, asides, and footers.
 
-#### Target eligibility
+A hit is rejected when its relevant ancestor path contains:
 
-Visible ordinary text is eligible even when it appears inside inline formatting or structural regions such as headers, asides, and footers. Inline wrappers such as spans, emphasis, and strong emphasis do not create boundaries.
+- a native link, button, form control, label, or other native interactive element;
+- editable content;
+- an interactive WAI-ARIA role;
+- a non-negative `tabindex`;
+- an explicit click handler;
+- hidden or `aria-hidden` content;
+- script, style, template, canvas, SVG text, code, or preformatted code content.
 
-The hit is rejected when the clicked text or its relevant ancestor path belongs to a native link or control, label, editable area, interactive WAI-ARIA widget, non-negative `tabindex`, or explicit click handler. Script, style, template, canvas, SVG text, form-control content, code, and preformatted code regions are unsupported. Hidden and `aria-hidden` content is ineligible.
+`cursor: pointer` alone does not make text ineligible. This preserves glossary terms and highlighted reading text. A custom widget without semantic interaction signals may remain eligible, but TapTranslate still does not alter its normal click behavior.
 
-`cursor: pointer` alone is not an interactive signal. This keeps glossary terms and other intentionally highlighted reading text eligible. Custom widgets that expose none of the supported semantic signals may remain eligible; the extension still does not cancel or alter their page event.
+## Text blocks and context
 
-#### Focus block and reading container
+The focus block is the nearest logical block containing the clicked word. Paragraphs, list items, quotations, captions, description-list items, headings, and table cells take precedence. The nearest rendered block container is the fallback for generic layouts.
 
-The focus block is the nearest logical text block containing the hit. Semantic paragraph, list item, quotation, caption, description-list item, heading, and table-cell elements take precedence. A rendered block container is the fallback for pages built from generic elements.
+Neighbor lookup remains inside the closest article, main, or section region. If none exists, it remains in the focus block's parent flow and never scans the full body. Structural tags do not prevent translating their own ordinary text; they only constrain surrounding-context lookup.
 
-The reading container is the nearest structural region that keeps neighboring content local to the same flow. Neighbor lookup does not cross an enclosing article, main, or section boundary. When no such region exists, lookup remains within the focus block's parent flow rather than searching the full body.
+The result contains no more than one previous and one next eligible block. Blocks remain separate so the future backend can preserve discourse boundaries.
 
-Structural tags do not by themselves make the clicked focus text ineligible. They constrain neighbor lookup so context from an article is not mixed with navigation, sidebars, or unrelated page regions.
+Semantic interpretation is outside this engine. For example, clicking `turn` in `Turn the light off` identifies `turn` and supplies the complete sentence and nearby text. The future backend determines that the relevant expression is `turn off`.
 
-#### Text snapshot and normalization
+## Normalization and limits
 
-The snapshot walks eligible visible text nodes in DOM reading order and preserves a mapping from the source hit into normalized focus-block text. It retains letter case, punctuation, and straight or typographic apostrophes. Ordinary whitespace sequences collapse to a single space; explicit line breaks remain newline boundaries. Inline boundaries neither concatenate separate words nor invent spaces inside a word split only for styling.
+- Preserve letter case, punctuation, and straight or typographic apostrophes.
+- Collapse ordinary whitespace sequences to one space.
+- Preserve explicit line breaks as newline boundaries.
+- Combine inline formatting without joining separate words or inserting spaces inside a word split only for styling.
+- Express word and sentence spans relative to the normalized focus text.
+- Use English word and sentence segmentation; a block without terminal punctuation is one sentence.
 
-All public spans refer to the normalized text. If the DOM changes during extraction and the hit can no longer be mapped consistently, the pipeline returns no result.
+Default internal limits are:
 
-#### Word, sentence, and surrounding context
+- 4,000 UTF-16 code units for the focus block;
+- 2,000 for the previous block;
+- 2,000 for the next block;
+- 8,000 for the complete envelope.
 
-The existing English word rules remain unchanged: ASCII letters with optional internal straight or typographic apostrophes are accepted, while whitespace, punctuation, numbers, alphanumeric tokens, non-Latin text, and a direct click on an apostrophe are rejected.
+Truncation always preserves the clicked word and preserves its complete sentence when it fits within the focus-block limit. `truncatedBefore` and `truncatedAfter` report removed text. These limits are internal policy values and can be tuned later without changing the result contract.
 
-English sentence segmentation selects the sentence containing the accepted word span. A focus block without terminal punctuation is still one sentence. The engine does not perform grammatical or semantic interpretation.
+## Failure behavior
 
-The context envelope contains no more than one previous and one next eligible text block from the same reading container. Blocks stay separate so later consumers can preserve discourse boundaries.
+Expected unsupported cases return `null` without logging an error. This includes an invalid point, unsupported caret APIs, ambiguous character geometry, an ineligible target, a failed source-offset mapping, and no accepted English word or containing sentence.
 
-Default internal limits are 4,000 UTF-16 code units for the focus block, 2,000 for each neighboring block, and 8,000 for the full context envelope. Truncation retains the clicked word and preserves its complete sentence whenever that sentence fits within the focus-block limit. Truncation direction is reported explicitly. These limits are policy values and can be tuned later without changing the output contract.
+Missing neighboring context is recoverable: the corresponding array is empty. Missing focus identity, word span, sentence span, or positive-size anchor geometry invalidates the result.
 
-#### Detection orchestration
+DOM changes and expected `Range` failures during extraction also return `null`. The browser entry boundary contains unexpected exceptions so TapTranslate never breaks the page, and error logs never include extracted page text. During this stage the existing successful console log remains limited to the clicked word.
 
-The orchestrator exposes one detection operation and returns either a complete `DetectionResult` or no result. Intermediate DOM nodes, ranges, computed styles, and event targets never escape through the public result. Missing neighboring context is recoverable; missing focus identity, offset mapping, sentence containment, or anchor geometry is not.
+## Correctness constraints
 
----
+- The handler never calls `preventDefault()` or `stopPropagation()`.
+- The word span is non-empty and inside the focus text.
+- The sentence span contains the full word span and is inside the focus text.
+- The anchor rectangle has positive width and height and uses viewport CSS pixels.
+- The output contains at most three blocks and 8,000 UTF-16 code units.
+- The output is serializable and contains no DOM references.
+- No extracted context is persisted, transmitted, or logged.
+- Safari 15.4 and iOS 15.4 remain the minimum targets.
 
-## Non-Functional Requirements
+## Testing
 
-- Safari 15.4 and iOS 15.4 remain the minimum browser targets.
-- Detection uses no Node.js runtime API, network call, storage, background script, persistent observer, or document-wide index.
-- Normal page clicks, links, controls, selection, and scrolling retain their browser behavior.
-- Context extraction is bounded to three output blocks and at most 8,000 UTF-16 code units.
-- The clicked word span is always non-empty and within the focus text.
-- The sentence span always contains the complete clicked word span and remains within the focus text.
-- The anchor rectangle always has positive width and height and uses viewport CSS pixels.
-- Expected unsupported or ambiguous input returns no result and produces no error log.
-- Unexpected failures are contained at the browser entry boundary and never include extracted page text in logs.
-- The output contract contains only serializable values and no DOM references.
-- No extracted context is persisted, transmitted, or logged during this stage; the existing success log remains limited to the clicked word for manual acceptance.
+Automated coverage includes:
 
----
+- existing English word boundaries and contractions;
+- sentence boundaries, punctuation, line breaks, missing terminal punctuation, and word containment;
+- nested inline markup, styled word fragments, whitespace normalization, source-offset mapping, and truncation;
+- native and ARIA interaction signals, editable and hidden content, explicit click handlers, and an eligible `cursor: pointer` term;
+- paragraphs, headings, lists, quotations, captions, tables, generic block fallbacks, and reading-container boundaries;
+- previous and next block selection, skipped ineligible blocks, and no cross-section leakage;
+- standard and WebKit caret APIs, invalid offsets, zero-size geometry, adjacent-character ambiguity, and DOM mutation;
+- complete pipeline results and fail-closed outcomes at every mandatory stage.
 
-## Testing Strategy
+DOM fixtures test structure and visibility metadata. Geometry is stubbed because a Node test environment cannot reproduce Safari layout.
 
-### Automated tests
+Manual desktop Safari acceptance verifies the local fixture and representative article, documentation, search, and dynamic pages. It covers plain and nested text, headings, lists, quotations, tables, contractions, rejected targets, `cursor: pointer` glossary text, preserved page behavior, one successful word log, and no unexpected errors.
 
-- Word tests retain the existing beginning, middle, boundary, contraction, punctuation, numeric, alphanumeric, non-Latin, empty, and invalid-offset cases.
-- Sentence tests cover beginning and end boundaries, multiple sentences, punctuation, abbreviations represented in the fixture corpus, line breaks, missing terminal punctuation, and containment of the word span.
-- Normalization tests cover nested inline elements, styled word fragments, explicit and collapsed whitespace, line breaks, punctuation adjacency, source-to-normalized offset mapping, truncation, and word preservation.
-- Eligibility tests cover native links and controls, labels, editable content, interactive ARIA roles, `tabindex`, explicit click handlers, hidden content, unsupported elements, and an eligible `cursor: pointer` glossary term.
-- Focus-block tests cover paragraphs, headings, lists, quotations, captions, description lists, tables, generic block fallbacks, and structural reading-container boundaries.
-- Neighbor tests verify at most one block on each side, correct reading order, skipped ineligible blocks, no cross-section leakage, independent truncation flags, and graceful absence of either side.
-- Hit-testing tests cover the standard and WebKit caret APIs, invalid caret offsets, zero-size rectangles, adjacent-character ambiguity, punctuation, whitespace, and DOM mutation during processing.
-- Pipeline tests cover a complete eligible result and fail-closed outcomes at every mandatory stage.
-
-DOM fixture tests may use a development-only DOM implementation for structure and visibility metadata. Geometry remains explicitly stubbed because a Node test environment cannot reproduce Safari layout.
-
-### Manual desktop Safari acceptance
-
-1. Build and load the temporary extension in desktop Safari.
-2. Verify a plain paragraph, nested inline formatting, a heading, a list item, a quotation, and a table cell.
-3. Verify clicks on the first, middle, and last letter of words and contractions.
-4. Verify no result for whitespace, punctuation, numbers, alphanumeric tokens, non-Latin text, apostrophes, links, controls, editable text, and code.
-5. Verify a glossary-like term with only `cursor: pointer` remains eligible.
-6. Verify normal links, controls, selection, and page click handlers continue to work.
-7. Exercise the local integration fixture plus representative real article, documentation, search, and dynamically rendered pages.
-8. Confirm the console contains one successful word log per eligible click, no extracted context, and no unexpected errors.
-
-### Data validation
-
-For each integration fixture, expected normalized focus text, word span, sentence span, neighboring blocks, truncation flags, and viewport anchor are asserted together. This prevents individually passing helpers from producing an inconsistent final contract.
-
----
-
-## Rollout / Migration Plan
-
-The project is pre-release and has no production users or persisted extension data, so this stage requires no data migration or runtime feature flag.
-
-1. Land eligibility, snapshot, context, and orchestration changes in testable increments while preserving the current word-only success log.
-2. Run the complete npm verification suite after each increment and inspect the deterministic build output.
-3. Complete the local fixture acceptance matrix in a temporary desktop Safari extension.
-4. Repeat smoke tests on representative real websites before merging the feature branch.
-5. Keep the accepted prototype commit available as the rollback point; a regression can be reverted without data repair or backend coordination.
-
-| Risk                                                  | Mitigation                                                                                                                    |
-| ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| Incorrect block boundaries mix unrelated page regions | Constrain neighbor lookup to the nearest reading container and assert no cross-section leakage in fixtures.                   |
-| Whitespace normalization shifts the clicked offset    | Maintain explicit source-to-normalized mapping and assert complete result invariants.                                         |
-| A large generic container causes expensive traversal  | Enforce bounded collection and output limits without a document-wide scan.                                                    |
-| A custom widget lacks semantic interaction markers    | Preserve page behavior and refine semantic signals later from real examples rather than treating visual styling as proof.     |
-| Sentence segmentation is imperfect for unusual prose  | Preserve the complete focus block and surrounding blocks so the future backend is not limited to the frontend sentence guess. |
-| Safari caret geometry differs from test doubles       | Retain manual Safari acceptance for real layout behavior.                                                                     |
-
----
-
-## Third Party Dependencies
-
-- Safari DOM caret and Range APIs provide point-to-character and geometry data.
-- `Intl.Segmenter` provides English word and sentence boundaries within the supported Safari baseline.
-- The existing pinned TypeScript, Vite, Vitest, ESLint, and Prettier toolchain remains in use.
-- A development-only DOM fixture implementation may be selected in the implementation plan; no production runtime dependency is introduced.
-
-No backend, AI provider, native application, analytics service, or remote API participates in this stage.
-
----
-
-## Rejected Approaches
-
-### Extend the current hit-testing function into one large operation
-
-This minimizes the first diff but couples geometry, interaction policy, DOM traversal, normalization, and context semantics. It makes independent testing and later mobile changes unnecessarily risky.
-
-### Use the nearest element's raw `textContent`
-
-Raw `textContent` loses rendered whitespace intent and may include hidden, interactive, code, or structurally unrelated text. It also does not preserve a reliable mapping for the clicked offset across nested elements.
-
-### Pre-index and cache the complete document
-
-A document-wide model speeds repeated clicks but introduces mutation observation, cache invalidation, memory cost, and dynamic-page correctness problems before performance evidence justifies them.
-
-### Build Reader Mode-style article extraction
-
-Whole-article inference could provide broad context but greatly expands scope and creates new heuristics for page classification. Local block context is sufficient for the first backend contract.
-
-### Resolve phrasal verbs in the extension
-
-Phrasal verbs, idioms, and separated expressions require semantic interpretation. Handwritten frontend heuristics would duplicate future backend intelligence and fail on constructions such as `turn the light off`.
-
-### Reject every `cursor: pointer` target
-
-Visual cursor styling is not a reliable interaction contract and is commonly used for glossary terms or highlighted reading text. Semantic interaction signals provide a better balance.
-
----
-
-## Out of Scope
-
-- Translation UI, bottom sheet behavior, loading states, examples, and explanation rendering
-- Mock translation provider and translation request/response contracts
-- Backend, AI-provider, authentication, networking, rate limiting, and persistence
-- Background scripts, extension storage, settings, and native messaging
-- Xcode containers, iOS deployment, mobile gesture policy, and TestFlight
-- Semantic resolution of phrasal verbs, idioms, collocations, and word senses
-- Full Reader Mode extraction or whole-document indexing
-- Complete support for inaccessible shadow roots, cross-origin frames, canvas, SVG text, and code blocks
-- Automated Safari WebDriver or iOS browser testing
+Automated Safari WebDriver and iOS testing remain outside this stage.
