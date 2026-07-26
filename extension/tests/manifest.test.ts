@@ -9,8 +9,14 @@ interface ManifestContentScript {
   readonly all_frames?: boolean;
 }
 
+interface ManifestWebAccessibleResource {
+  readonly resources?: readonly string[];
+  readonly matches?: readonly string[];
+}
+
 interface ExtensionManifest {
   readonly content_scripts?: readonly ManifestContentScript[];
+  readonly web_accessible_resources?: readonly ManifestWebAccessibleResource[];
 }
 
 describe('extension manifest', () => {
@@ -25,6 +31,12 @@ describe('extension manifest', () => {
         js: ['content.js'],
         run_at: 'document_idle',
         all_frames: false,
+      },
+    ]);
+    expect(manifest.web_accessible_resources).toEqual([
+      {
+        resources: ['translation-sheet.css'],
+        matches: ['http://*/*', 'https://*/*'],
       },
     ]);
   });

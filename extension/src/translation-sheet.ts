@@ -1,9 +1,9 @@
-import { translationSheetStyles } from './translation-sheet-styles';
 import type {
   TranslationView,
   TranslationViewState,
 } from './translation-controller';
 import type { FocusContextBlock } from './detection';
+import type { TranslationRequest } from './translation';
 
 export interface TranslationSheetCallbacks {
   readonly onRetry: () => void;
@@ -13,9 +13,13 @@ export interface TranslationSheetCallbacks {
 export class TranslationSheet implements TranslationView {
   private readonly documentRoot: Document;
   private readonly callbacks: TranslationSheetCallbacks;
+  private readonly stylesheetUrl: string | undefined;
   private host: HTMLElement | undefined;
   private shadowRoot: ShadowRoot | undefined;
-  private styleElement: HTMLStyleElement | undefined;
+  private stylesheetElement: HTMLLinkElement | undefined;
+  private overlayElement: HTMLElement | undefined;
+  private stylesheetReady = false;
+  private failedStylesheetRequest: TranslationRequest | undefined;
   private currentState: TranslationViewState | undefined;
   private previouslyFocused: HTMLElement | undefined;
   private focusCaptureComplete = false;
@@ -24,13 +28,22 @@ export class TranslationSheet implements TranslationView {
   public constructor(
     documentRoot: Document,
     callbacks: TranslationSheetCallbacks,
+    stylesheetUrl?: string,
   ) {
     this.documentRoot = documentRoot;
     this.callbacks = callbacks;
+    this.stylesheetUrl = stylesheetUrl;
   }
 
   public render(state: TranslationViewState): void {
+    const requestChanged = this.currentState?.request !== state.request;
     this.currentState = state;
+    if (requestChanged) {
+      this.failedStylesheetRequest = undefined;
+    }
+    if (this.failedStylesheetRequest === state.request) {
+      return;
+    }
     this.ensureMounted();
     this.renderCurrentState();
   }
@@ -45,6 +58,7 @@ export class TranslationSheet implements TranslationView {
     this.previouslyFocused = undefined;
     this.focusCaptureComplete = false;
     this.expanded = false;
+    this.failedStylesheetRequest = undefined;
 
     if (
       shouldRestoreFocus &&
@@ -69,6 +83,28 @@ export class TranslationSheet implements TranslationView {
     }
   };
 
+  private readonly handleStylesheetLoad = (event: Event): void => {
+    if (event.currentTarget !== this.stylesheetElement) {
+      return;
+    }
+
+    this.removeStylesheetListeners();
+    this.stylesheetReady = true;
+    try {
+      this.renderCurrentState();
+    } catch {
+      this.failCurrentStylesheet();
+    }
+  };
+
+  private readonly handleStylesheetError = (event: Event): void => {
+    if (event.currentTarget !== this.stylesheetElement) {
+      return;
+    }
+
+    this.failCurrentStylesheet();
+  };
+
   private ensureMounted(): void {
     if (this.isMountConnected()) {
       return;
@@ -77,9 +113,16 @@ export class TranslationSheet implements TranslationView {
     if (
       this.host !== undefined ||
       this.shadowRoot !== undefined ||
-      this.styleElement !== undefined
+      this.stylesheetElement !== undefined ||
+      this.overlayElement !== undefined
     ) {
       this.releaseMount();
+    }
+
+    const stylesheetUrl = this.stylesheetUrl ?? getExtensionStylesheetUrl();
+    if (stylesheetUrl === undefined || stylesheetUrl.length === 0) {
+      this.failedStylesheetRequest = this.currentState?.request;
+      return;
     }
 
     if (!this.focusCaptureComplete) {
@@ -90,26 +133,34 @@ export class TranslationSheet implements TranslationView {
     const host = this.documentRoot.createElement('div');
     host.setAttribute('data-taptranslate-sheet-host', '');
     const shadowRoot = host.attachShadow({ mode: 'open' });
-    const styleElement = this.documentRoot.createElement('style');
-    styleElement.textContent = translationSheetStyles;
-    shadowRoot.append(styleElement);
-    this.documentRoot.documentElement.append(host);
-    this.documentRoot.addEventListener('keydown', this.handleKeyDown);
+    const stylesheetElement = this.documentRoot.createElement('link');
+    stylesheetElement.rel = 'stylesheet';
+    stylesheetElement.href = stylesheetUrl;
+    stylesheetElement.setAttribute('data-taptranslate-stylesheet', '');
+    stylesheetElement.addEventListener('load', this.handleStylesheetLoad, {
+      once: true,
+    });
+    stylesheetElement.addEventListener('error', this.handleStylesheetError, {
+      once: true,
+    });
 
     this.host = host;
     this.shadowRoot = shadowRoot;
-    this.styleElement = styleElement;
+    this.stylesheetElement = stylesheetElement;
+    this.documentRoot.documentElement.append(host);
+    this.documentRoot.addEventListener('keydown', this.handleKeyDown);
+    shadowRoot.append(stylesheetElement);
   }
 
   private isMountConnected(): boolean {
     return (
       this.host !== undefined &&
       this.shadowRoot !== undefined &&
-      this.styleElement !== undefined &&
+      this.stylesheetElement !== undefined &&
       this.host.isConnected &&
       this.host.ownerDocument === this.documentRoot &&
       this.host.shadowRoot === this.shadowRoot &&
-      this.styleElement.parentNode === this.shadowRoot
+      this.stylesheetElement.parentNode === this.shadowRoot
     );
   }
 
@@ -117,29 +168,52 @@ export class TranslationSheet implements TranslationView {
     if (
       this.host !== undefined ||
       this.shadowRoot !== undefined ||
-      this.styleElement !== undefined
+      this.stylesheetElement !== undefined ||
+      this.overlayElement !== undefined
     ) {
       this.documentRoot.removeEventListener('keydown', this.handleKeyDown);
     }
+    this.removeStylesheetListeners();
     this.host?.remove();
     this.host = undefined;
     this.shadowRoot = undefined;
-    this.styleElement = undefined;
+    this.stylesheetElement = undefined;
+    this.overlayElement = undefined;
+    this.stylesheetReady = false;
   }
 
   private renderCurrentState(): void {
     const state = this.currentState;
     const shadowRoot = this.shadowRoot;
-    const styleElement = this.styleElement;
     if (
       state === undefined ||
       shadowRoot === undefined ||
-      styleElement === undefined
+      !this.stylesheetReady
     ) {
       return;
     }
 
-    shadowRoot.replaceChildren(styleElement, this.createOverlay(state));
+    const overlay = this.createOverlay(state);
+    this.overlayElement?.remove();
+    shadowRoot.append(overlay);
+    this.overlayElement = overlay;
+  }
+
+  private failCurrentStylesheet(): void {
+    const failedRequest = this.currentState?.request;
+    this.releaseMount();
+    this.failedStylesheetRequest = failedRequest;
+  }
+
+  private removeStylesheetListeners(): void {
+    this.stylesheetElement?.removeEventListener(
+      'load',
+      this.handleStylesheetLoad,
+    );
+    this.stylesheetElement?.removeEventListener(
+      'error',
+      this.handleStylesheetError,
+    );
   }
 
   private createOverlay(state: TranslationViewState): HTMLElement {
@@ -414,4 +488,24 @@ function isRestorableFocusTarget(element: HTMLElement): boolean {
     !element.hasAttribute('disabled') &&
     !element.hasAttribute('hidden')
   );
+}
+
+interface WebExtensionRuntime {
+  getURL(path: string): string;
+}
+
+interface WebExtensionGlobal {
+  readonly browser?: { readonly runtime?: WebExtensionRuntime };
+  readonly chrome?: { readonly runtime?: WebExtensionRuntime };
+}
+
+function getExtensionStylesheetUrl(): string | undefined {
+  const extensionGlobal = globalThis as typeof globalThis & WebExtensionGlobal;
+  const runtime =
+    extensionGlobal.browser?.runtime ?? extensionGlobal.chrome?.runtime;
+  try {
+    return runtime?.getURL('translation-sheet.css');
+  } catch {
+    return undefined;
+  }
 }
