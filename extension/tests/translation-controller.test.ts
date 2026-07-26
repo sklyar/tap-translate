@@ -251,7 +251,7 @@ describe('TranslationController', () => {
             ...request.context,
             focusBlock: {
               ...request.context.focusBlock,
-              text: `Word ${index}.`,
+              text: `Word ${String(index)}.`,
             },
           },
         }) satisfies TranslationRequest,
@@ -268,7 +268,10 @@ describe('TranslationController', () => {
       if (translation === undefined) {
         throw new Error('Missing deferred translation');
       }
-      translation.resolve({ ...turnOffResult, expression: `word-${index}` });
+      translation.resolve({
+        ...turnOffResult,
+        expression: `word-${String(index)}`,
+      });
       await flushPromises();
     }
 
@@ -282,7 +285,7 @@ describe('TranslationController', () => {
       request: latestRequest,
       result: {
         ...turnOffResult,
-        expression: `word-${requestCount - 1}`,
+        expression: `word-${String(requestCount - 1)}`,
       },
     });
     for (const [, options] of translate.mock.calls.slice(0, -1)) {
