@@ -60,7 +60,7 @@ interface DetectionResult {
 }
 ```
 
-The clicked word is derived with `focusBlock.text.slice(word.start, word.end)`. The sentence is derived through the equivalent `sentence` span. The contract contains no DOM objects and can later be passed to a mock or backend adapter.
+The clicked word is derived with `focusBlock.text.slice(word.start, word.end)`. The sentence is derived through the equivalent `sentence` span. The contract contains no DOM objects and can later be passed to a mock or backend adapter. `anchorRect` is the exact clicked-character rectangle; word-level geometry can be added with the future UI if it becomes necessary.
 
 ## Processing flow
 
@@ -104,11 +104,11 @@ No classes, dependency-injection layer, document-wide cache, `MutationObserver`,
 
 ## Eligibility rules
 
-Visible ordinary text is eligible inside inline formatting and structural regions such as headings, headers, asides, and footers.
+Visible ordinary text is eligible inside inline formatting and structural regions such as headings, headers, asides, and footers. Eligibility is cross-checked against both the resolved text-node ancestry and the original event target and composed path so an overlay cannot expose unrelated text underneath it.
 
 A hit is rejected when its relevant ancestor path contains:
 
-- a native link, button, form control, label, or other native interactive element;
+- a native link with a destination, button, form control, label, summary, or media element with controls;
 - editable content;
 - an interactive WAI-ARIA role;
 - a non-negative `tabindex`;
@@ -116,13 +116,19 @@ A hit is rejected when its relevant ancestor path contains:
 - hidden or `aria-hidden` content;
 - script, style, template, canvas, SVG text, code, or preformatted code content.
 
+Native interaction, interactive roles, editability, and visibility are checked through the relevant ancestry up to the document body. `tabindex` and explicit `onclick` attribute or property checks stop at the focus block so a delegated page-level handler does not disable an entire page. Event listeners registered only through `addEventListener()` are not introspectable and are not treated as signals.
+
 `cursor: pointer` alone does not make text ineligible. This preserves glossary terms and highlighted reading text. A custom widget without semantic interaction signals may remain eligible, but TapTranslate still does not alter its normal click behavior.
+
+Click eligibility and context inclusion are separate policies. Clicking linked or widget text is rejected, but its visible inline text remains part of a surrounding prose snapshot when another word in that block is clicked. Hidden, editable, form-control, code, preformatted, script, style, template, canvas, and SVG subtrees remain excluded from snapshots.
 
 ## Text blocks and context
 
-The focus block is the nearest logical block containing the clicked word. Paragraphs, list items, quotations, captions, description-list items, headings, and table cells take precedence. The nearest rendered block container is the fallback for generic layouts.
+The focus block is the nearest matching ancestor of the clicked word. The semantic set is `p`, `li`, `blockquote`, `figcaption`, `dt`, `dd`, `h1`–`h6`, `caption`, `td`, and `th`; the nearest match wins. If none exists, the nearest ancestor whose computed display is `block`, `flow-root`, `list-item`, `table-cell`, `table-caption`, `flex`, or `grid` is used. `html` and `body` are never focus blocks.
 
-Neighbor lookup remains inside the closest article, main, or section region. If none exists, it remains in the focus block's parent flow and never scans the full body. Structural tags do not prevent translating their own ordinary text; they only constrain surrounding-context lookup.
+The reading region is the nearest `article`, `main`, `section`, `aside`, `nav`, `header`, or `footer`. Neighbors must belong to that same nearest region. If no region exists, lookup remains in the focus block's parent flow; when that parent is `html` or `body`, no neighbors are collected.
+
+Neighbors are the nearest distinct logical blocks before and after the focus block in DOM reading order. Nested logical blocks are not flattened into their ancestor snapshot, and blocks owned by a nested or different reading region are skipped. Structural tags do not prevent translating their own ordinary text; they constrain surrounding-context lookup.
 
 The result contains no more than one previous and one next eligible block. Blocks remain separate so the future backend can preserve discourse boundaries.
 
@@ -131,11 +137,11 @@ Semantic interpretation is outside this engine. For example, clicking `turn` in 
 ## Normalization and limits
 
 - Preserve letter case, punctuation, and straight or typographic apostrophes.
-- Collapse ordinary whitespace sequences to one space.
-- Preserve explicit line breaks as newline boundaries.
-- Combine inline formatting without joining separate words or inserting spaces inside a word split only for styling.
+- Collapse whitespace originating in text nodes to one space and trim normalized leading and trailing whitespace.
+- Emit one newline for each explicit `<br>`; `<br>` does not by itself force a sentence boundary, and the English segmenter decides how the newline participates.
+- Concatenate inline text in DOM order and never invent a separator between inline nodes. Existing whitespace remains a separator, while a word split only for styling remains one word.
 - Express word and sentence spans relative to the normalized focus text.
-- Use English word and sentence segmentation; a block without terminal punctuation is one sentence.
+- Use `Intl.Segmenter('en', { granularity: 'sentence' })`, trim whitespace from the selected sentence span, and treat a block without terminal punctuation as one sentence.
 
 Default internal limits are:
 
@@ -144,7 +150,7 @@ Default internal limits are:
 - 2,000 for the next block;
 - 8,000 for the complete envelope.
 
-Truncation always preserves the clicked word and preserves its complete sentence when it fits within the focus-block limit. `truncatedBefore` and `truncatedAfter` report removed text. These limits are internal policy values and can be tuned later without changing the result contract.
+If the containing sentence alone exceeds 4,000 code units, detection returns `null`. Otherwise focus truncation keeps the complete sentence, rebases both spans, and uses the remaining budget around it. The previous block keeps the suffix nearest the focus, while the next block keeps the nearest prefix. Cuts never leave an unpaired UTF-16 surrogate. `truncatedBefore` and `truncatedAfter` report removed text, and the 8,000 limit is the sum of the three block-text lengths. These limits are internal policy values and can be tuned later without changing the result contract.
 
 ## Failure behavior
 
