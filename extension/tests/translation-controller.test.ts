@@ -251,7 +251,7 @@ describe('TranslationController', () => {
             ...request.context,
             focusBlock: {
               ...request.context.focusBlock,
-              text: `Word ${String(index)}.`,
+              text: `${request.context.focusBlock.text} ${String(index)}`,
             },
           },
         }) satisfies TranslationRequest,
