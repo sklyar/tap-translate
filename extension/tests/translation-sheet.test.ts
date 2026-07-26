@@ -51,6 +51,7 @@ afterEach(() => {
       host.remove();
     });
   document.body.replaceChildren();
+  vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
 
@@ -123,6 +124,39 @@ function renderReady(
 }
 
 describe('TranslationSheet rendering', () => {
+  it.each(['browser', 'chrome'] as const)(
+    'resolves the packaged stylesheet through the %s runtime',
+    (runtimeName) => {
+      const getURL = vi.fn<(path: string) => string>(() => stylesheetUrl);
+      vi.stubGlobal(runtimeName, { runtime: { getURL } });
+      const sheet = new TranslationSheet(document, {
+        onRetry: vi.fn(),
+        onDismiss: vi.fn(),
+      });
+
+      sheet.render(loadingState);
+
+      expect(getURL).toHaveBeenCalledWith('translation-sheet.css');
+      expect(requiredStylesheet().href).toBe(stylesheetUrl);
+    },
+  );
+
+  it('fails closed when the extension runtime cannot resolve the stylesheet', () => {
+    const getURL = vi.fn<() => string>(() => {
+      throw new Error('Unavailable extension runtime');
+    });
+    vi.stubGlobal('browser', { runtime: { getURL } });
+    const sheet = new TranslationSheet(document, {
+      onRetry: vi.fn(),
+      onDismiss: vi.fn(),
+    });
+
+    expect(() => {
+      sheet.render(loadingState);
+    }).not.toThrow();
+    expect(document.querySelector('[data-taptranslate-sheet-host]')).toBeNull();
+  });
+
   it('mounts one open shadow root and reuses it across state updates', () => {
     const { sheet } = createSheet();
 
