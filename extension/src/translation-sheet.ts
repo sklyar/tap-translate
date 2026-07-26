@@ -114,7 +114,13 @@ export class TranslationSheet implements TranslationView {
   }
 
   private releaseMount(): void {
-    this.documentRoot.removeEventListener('keydown', this.handleKeyDown);
+    if (
+      this.host !== undefined ||
+      this.shadowRoot !== undefined ||
+      this.styleElement !== undefined
+    ) {
+      this.documentRoot.removeEventListener('keydown', this.handleKeyDown);
+    }
     this.host?.remove();
     this.host = undefined;
     this.shadowRoot = undefined;

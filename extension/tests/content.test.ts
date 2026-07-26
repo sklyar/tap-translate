@@ -375,4 +375,92 @@ describe('startTapTranslateContent', () => {
       controller.dismiss();
     }
   });
+
+  it('leaves no resources after repeated mock frontend interaction', async () => {
+    vi.useFakeTimers();
+    const addEventListener = vi.spyOn(document, 'addEventListener');
+    const removeEventListener = vi.spyOn(document, 'removeEventListener');
+    const fetchSpy = vi
+      .spyOn(globalThis, 'fetch')
+      .mockRejectedValue(new Error('Unexpected network call'));
+    const firstTarget = createTarget();
+    const replacementTarget = document.createElement('p');
+    replacementTarget.textContent = 'Open the window.';
+    const outsideTarget = document.createElement('button');
+    outsideTarget.textContent = 'Page control';
+    document.body.append(replacementTarget, outsideTarget);
+    const detect = vi.fn((input: DetectionInput) => {
+      if (input.target === firstTarget) {
+        return detectionResult;
+      }
+      if (input.target === replacementTarget) {
+        return secondDetectionResult;
+      }
+      return null;
+    });
+    const provider = new MockTranslationProvider({
+      attempts: [{ type: 'success', result: turnOffResult, delayMs: 5 }],
+    });
+    const sheet = new TranslationSheet(document, {
+      onRetry: retryTranslation,
+      onDismiss: dismissTranslation,
+    });
+    const controller = new TranslationController(provider, sheet);
+    const dismiss = vi.spyOn(controller, 'dismiss');
+    const stop = startTapTranslateContent({
+      documentRoot: document,
+      controller,
+      sheet,
+      detect,
+    });
+
+    for (let iteration = 0; iteration < 20; iteration += 1) {
+      firstTarget.click();
+      expect(
+        document.querySelectorAll('[data-taptranslate-sheet-host]'),
+      ).toHaveLength(1);
+      await vi.advanceTimersByTimeAsync(5);
+
+      const host = document.querySelector('[data-taptranslate-sheet-host]');
+      const expand = host?.shadowRoot?.querySelector(
+        '[data-taptranslate-expand]',
+      );
+      if (!(expand instanceof HTMLElement)) {
+        throw new Error('Missing sheet expand control');
+      }
+      expand.click();
+
+      replacementTarget.click();
+      expect(
+        document.querySelectorAll('[data-taptranslate-sheet-host]'),
+      ).toHaveLength(1);
+      await vi.advanceTimersByTimeAsync(5);
+
+      outsideTarget.click();
+      expect(
+        document.querySelectorAll('[data-taptranslate-sheet-host]'),
+      ).toHaveLength(0);
+    }
+
+    expect(vi.getTimerCount()).toBe(0);
+    expect(fetchSpy).not.toHaveBeenCalled();
+    stop();
+    const dismissCount = dismiss.mock.calls.length;
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    expect(dismiss).toHaveBeenCalledTimes(dismissCount);
+    expect(
+      addEventListener.mock.calls.filter(([type]) => type === 'keydown'),
+    ).toHaveLength(
+      removeEventListener.mock.calls.filter(([type]) => type === 'keydown')
+        .length,
+    );
+
+    function retryTranslation(): void {
+      controller.retry();
+    }
+
+    function dismissTranslation(): void {
+      controller.dismiss();
+    }
+  });
 });

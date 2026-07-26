@@ -152,6 +152,41 @@ describe('TranslationSheet rendering', () => {
     );
   });
 
+  it('keeps long markup-shaped provider strings as text', () => {
+    const { sheet } = createSheet();
+    const longExpression = `<img data-injected src=x> ${'turn off '.repeat(80)}`;
+    const longTranslation = `<b data-injected>выключить</b> ${'перевод '.repeat(80)}`;
+    const longPartOfSpeech = `<i data-injected>phrasal verb</i> ${'grammar '.repeat(40)}`;
+    const longExplanation = `<script data-injected>bad()</script> ${'контекстное объяснение '.repeat(80)}`;
+
+    sheet.render({
+      kind: 'success',
+      request,
+      result: {
+        expression: longExpression,
+        translation: longTranslation,
+        partOfSpeech: longPartOfSpeech,
+        explanation: longExplanation,
+      },
+    });
+
+    const shadowRoot = requiredShadowRoot();
+    expect(shadowRoot.querySelector('[data-injected]')).toBeNull();
+    expect(requiredElement('[data-taptranslate-expression]').textContent).toBe(
+      longExpression,
+    );
+    expect(requiredElement('[data-taptranslate-translation]').textContent).toBe(
+      longTranslation,
+    );
+    expect(requiredElement('.part-of-speech').textContent).toBe(
+      longPartOfSpeech,
+    );
+    expect(requiredElement('[data-taptranslate-explanation]').textContent).toBe(
+      longExplanation,
+    );
+    expect(shadowRoot.querySelectorAll('style')).toHaveLength(1);
+  });
+
   it('toggles expanded mode and highlights only the clicked source word', () => {
     const { sheet } = createSheet();
     sheet.render(successState);
