@@ -305,4 +305,18 @@ describe('extractTextContext', () => {
     expect(result?.beforeBlocks).toEqual([]);
     expect(result?.afterBlocks[0]?.text).toBe('Only next text.');
   });
+
+  it('does not use a containing logical block as a neighbor', () => {
+    document.body.innerHTML = `
+      <article>
+        Direct text before.
+        <p id="focus">Click the target word.</p>
+        Direct text after.
+      </article>
+    `;
+
+    const result = extractFixtureContext('#focus', 'target');
+    expect(result?.beforeBlocks).toEqual([]);
+    expect(result?.afterBlocks).toEqual([]);
+  });
 });

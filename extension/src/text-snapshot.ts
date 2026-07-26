@@ -156,6 +156,7 @@ function visitChildren(
     }
 
     if (child !== root && isLogicalBlock(child)) {
+      state.pendingSpace = true;
       continue;
     }
 

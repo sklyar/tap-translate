@@ -114,6 +114,15 @@ describe('buildTextSnapshot', () => {
     );
   });
 
+  it('keeps a word boundary around a pruned nested logical block', () => {
+    document.body.innerHTML =
+      '<li id="focus">Hello<p>Nested paragraph.</p>world</li>';
+
+    expect(buildTextSnapshot(requiredElement('#focus'), null)?.text).toBe(
+      'Hello world',
+    );
+  });
+
   it('collapses source whitespace, preserves consecutive br elements, and trims edges', () => {
     document.body.innerHTML =
       '<p id="focus">  One \n <span>two</span><br><br>Three  </p>';

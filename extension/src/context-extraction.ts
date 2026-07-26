@@ -134,6 +134,7 @@ function findNeighborBlock(
     if (
       candidate === null ||
       candidate === focusBlock ||
+      candidate.contains(focusBlock) ||
       visitedBlocks.has(candidate)
     ) {
       continue;
