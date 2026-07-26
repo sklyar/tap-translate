@@ -81,9 +81,9 @@ function matchingCharacterRectangles(
         rectangle.width > 0 &&
         rectangle.height > 0 &&
         clientX >= rectangle.left &&
-        clientX <= rectangle.right &&
+        clientX < rectangle.right &&
         clientY >= rectangle.top &&
-        clientY <= rectangle.bottom,
+        clientY < rectangle.bottom,
     )
     .map(({ x, y, width, height }) => ({ x, y, width, height }));
 }

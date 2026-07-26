@@ -71,6 +71,31 @@ describe('findTextHitAtPoint', () => {
     ).toBeNull();
   });
 
+  it('assigns a shared character edge to the character on the right', () => {
+    const textNode = document.createTextNode('Hello');
+    document.body.replaceChildren(textNode);
+    setCaretPositionFromPoint(document, { offsetNode: textNode, offset: 1 });
+    const rightRect = {
+      ...TEST_RECT,
+      x: 20,
+      left: 20,
+      right: 30,
+    };
+    stubCharacterRectangles(
+      document,
+      new Map([
+        [0, [TEST_RECT]],
+        [1, [rightRect]],
+      ]),
+    );
+
+    expect(findTextHitAtPoint({ clientX: 20, clientY: 15 }, document)).toEqual({
+      textNode,
+      characterOffset: 1,
+      anchorRect: { x: 20, y: 10, width: 10, height: 10 },
+    });
+  });
+
   it('returns null for a non-text caret node', () => {
     setCaretPositionFromPoint(document, {
       offsetNode: document.body,
