@@ -92,6 +92,9 @@ export class TranslationSheet implements TranslationView {
     this.stylesheetReady = true;
     try {
       this.renderCurrentState();
+      if (this.host !== undefined) {
+        this.host.hidden = false;
+      }
     } catch {
       this.failCurrentStylesheet();
     }
@@ -131,6 +134,7 @@ export class TranslationSheet implements TranslationView {
     }
 
     const host = this.documentRoot.createElement('div');
+    host.hidden = true;
     host.setAttribute('data-taptranslate-sheet-host', '');
     const shadowRoot = host.attachShadow({ mode: 'open' });
     const stylesheetElement = this.documentRoot.createElement('link');

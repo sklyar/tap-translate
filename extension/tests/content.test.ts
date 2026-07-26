@@ -380,8 +380,13 @@ describe('startTapTranslateContent', () => {
 
     createTarget().click();
     const host = document.querySelector('[data-taptranslate-sheet-host]');
-    expect(host?.shadowRoot?.querySelector('[role="dialog"]')).toBeNull();
+    if (!(host instanceof HTMLElement)) {
+      throw new Error('Missing translation sheet host');
+    }
+    expect(host.hidden).toBe(true);
+    expect(host.shadowRoot?.querySelector('[role="dialog"]')).toBeNull();
     const shadowRoot = loadMountedSheetStylesheet();
+    expect(host.hidden).toBe(false);
     expect(shadowRoot.textContent).toContain('Переводим');
 
     await vi.advanceTimersByTimeAsync(50);

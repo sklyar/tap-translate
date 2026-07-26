@@ -165,6 +165,7 @@ describe('TranslationSheet rendering', () => {
     const shadowRoot = requiredShadowRoot();
     const stylesheet = requiredStylesheet();
 
+    expect(host.hidden).toBe(true);
     expect(stylesheet.href).toBe(stylesheetUrl);
     expect(shadowRoot.querySelector('style')).toBeNull();
     expect(shadowRoot.querySelector('[role="dialog"]')).toBeNull();
@@ -173,6 +174,7 @@ describe('TranslationSheet rendering', () => {
     sheet.render(successState);
     loadStylesheet();
 
+    expect(host.hidden).toBe(false);
     expect(shadowRoot.textContent).toContain('turn off');
     expect(shadowRoot.textContent).not.toContain('Переводим выражение…');
     expect(
