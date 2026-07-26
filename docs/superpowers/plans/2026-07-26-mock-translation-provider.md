@@ -327,12 +327,15 @@ export interface MockTranslationProviderOptions {
 
 export class MockTranslationProvider implements TranslationProvider {
   private attemptIndex = 0;
+  private readonly options: MockTranslationProviderOptions;
 
-  public constructor(
-    private readonly options: MockTranslationProviderOptions,
-  ) {}
+  public constructor(options: MockTranslationProviderOptions) {
+    this.options = options;
+  }
 
-  public translate(_request: TranslationRequest): Promise<TranslationResult> {
+  public translate(request: TranslationRequest): Promise<TranslationResult> {
+    void request;
+
     const attemptIndex = Math.min(
       this.attemptIndex,
       this.options.attempts.length - 1,
@@ -553,9 +556,11 @@ Replace `MockTranslationProvider.translate` and add the helpers below in `extens
 
 ```ts
   public translate(
-    _request: TranslationRequest,
+    request: TranslationRequest,
     options: TranslationOptions = {},
   ): Promise<TranslationResult> {
+    void request;
+
     const signal = options.signal;
 
     if (signal?.aborted === true) {
