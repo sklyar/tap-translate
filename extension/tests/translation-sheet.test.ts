@@ -209,6 +209,83 @@ describe('TranslationSheet rendering', () => {
 });
 
 describe('TranslationSheet controls and lifecycle', () => {
+  it('remounts a detached host while preserving state and expansion', () => {
+    const { sheet } = createSheet();
+    sheet.render(successState);
+    requiredElement('[data-taptranslate-expand]').click();
+    const staleHost = requiredHost();
+
+    staleHost.remove();
+    sheet.render(successState);
+
+    expect(requiredHost()).not.toBe(staleHost);
+    expect(
+      document.querySelectorAll('[data-taptranslate-sheet-host]'),
+    ).toHaveLength(1);
+    expect(
+      requiredElement('[data-taptranslate-sheet]').getAttribute(
+        'data-expanded',
+      ),
+    ).toBe('true');
+    expect(requiredShadowRoot().textContent).toContain('turn off');
+  });
+
+  it('replaces the sheet keydown listener instead of duplicating it', () => {
+    const addEventListener = vi.spyOn(document, 'addEventListener');
+    const removeEventListener = vi.spyOn(document, 'removeEventListener');
+    const { sheet, dismiss } = createSheet();
+
+    sheet.render(successState);
+    requiredHost().remove();
+    sheet.render(successState);
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+
+    expect(dismiss).toHaveBeenCalledOnce();
+    expect(
+      addEventListener.mock.calls.filter(([type]) => type === 'keydown'),
+    ).toHaveLength(2);
+    expect(
+      removeEventListener.mock.calls.filter(([type]) => type === 'keydown'),
+    ).toHaveLength(1);
+  });
+
+  it('does not restore or recapture page focus while remounting', () => {
+    const original = document.createElement('button');
+    const later = document.createElement('button');
+    document.body.append(original, later);
+    original.focus();
+    const { sheet } = createSheet();
+    sheet.render(successState);
+
+    requiredHost().remove();
+    later.focus();
+    sheet.render(successState);
+
+    expect(document.activeElement).toBe(later);
+    requiredElement('[data-taptranslate-close]').focus();
+    sheet.destroy();
+    expect(document.activeElement).toBe(original);
+  });
+
+  it('leaves no host or keydown listener after repeated recovery', () => {
+    const { sheet, dismiss } = createSheet();
+
+    for (let iteration = 0; iteration < 20; iteration += 1) {
+      sheet.render(successState);
+      requiredHost().remove();
+      sheet.render(successState);
+      expect(
+        document.querySelectorAll('[data-taptranslate-sheet-host]'),
+      ).toHaveLength(1);
+    }
+
+    sheet.destroy();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+
+    expect(document.querySelector('[data-taptranslate-sheet-host]')).toBeNull();
+    expect(dismiss).not.toHaveBeenCalled();
+  });
+
   it('announces neutral loading and error states and retries', () => {
     const { sheet, retry } = createSheet();
 

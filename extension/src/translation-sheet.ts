@@ -18,6 +18,7 @@ export class TranslationSheet implements TranslationView {
   private styleElement: HTMLStyleElement | undefined;
   private currentState: TranslationViewState | undefined;
   private previouslyFocused: HTMLElement | undefined;
+  private focusCaptureComplete = false;
   private expanded = false;
 
   public constructor(
@@ -35,16 +36,14 @@ export class TranslationSheet implements TranslationView {
   }
 
   public destroy(): void {
-    const shouldRestoreFocus = this.shadowRoot?.activeElement !== null;
+    const shouldRestoreFocus =
+      this.shadowRoot !== undefined && this.shadowRoot.activeElement !== null;
     const previouslyFocused = this.previouslyFocused;
 
-    this.documentRoot.removeEventListener('keydown', this.handleKeyDown);
-    this.host?.remove();
-    this.host = undefined;
-    this.shadowRoot = undefined;
-    this.styleElement = undefined;
+    this.releaseMount();
     this.currentState = undefined;
     this.previouslyFocused = undefined;
+    this.focusCaptureComplete = false;
     this.expanded = false;
 
     if (
@@ -71,11 +70,22 @@ export class TranslationSheet implements TranslationView {
   };
 
   private ensureMounted(): void {
-    if (this.host !== undefined && this.shadowRoot !== undefined) {
+    if (this.isMountConnected()) {
       return;
     }
 
-    this.previouslyFocused = getRestorableActiveElement(this.documentRoot);
+    if (
+      this.host !== undefined ||
+      this.shadowRoot !== undefined ||
+      this.styleElement !== undefined
+    ) {
+      this.releaseMount();
+    }
+
+    if (!this.focusCaptureComplete) {
+      this.previouslyFocused = getRestorableActiveElement(this.documentRoot);
+      this.focusCaptureComplete = true;
+    }
 
     const host = this.documentRoot.createElement('div');
     host.setAttribute('data-taptranslate-sheet-host', '');
@@ -89,6 +99,26 @@ export class TranslationSheet implements TranslationView {
     this.host = host;
     this.shadowRoot = shadowRoot;
     this.styleElement = styleElement;
+  }
+
+  private isMountConnected(): boolean {
+    return (
+      this.host !== undefined &&
+      this.shadowRoot !== undefined &&
+      this.styleElement !== undefined &&
+      this.host.isConnected &&
+      this.host.ownerDocument === this.documentRoot &&
+      this.host.shadowRoot === this.shadowRoot &&
+      this.styleElement.parentNode === this.shadowRoot
+    );
+  }
+
+  private releaseMount(): void {
+    this.documentRoot.removeEventListener('keydown', this.handleKeyDown);
+    this.host?.remove();
+    this.host = undefined;
+    this.shadowRoot = undefined;
+    this.styleElement = undefined;
   }
 
   private renderCurrentState(): void {
