@@ -6,7 +6,7 @@ import { MockTranslationProvider } from '../src/mock-translation-provider';
 import { TranslationController } from '../src/translation-controller';
 import { TranslationSheet } from '../src/translation-sheet';
 import { createTranslationRequest } from '../src/translation';
-import type { DetectionResult } from '../src/detection';
+import type { DetectionInput, DetectionResult } from '../src/detection';
 import type { TranslationRequest, TranslationResult } from '../src/translation';
 
 const detectionResult: DetectionResult = {
@@ -49,17 +49,26 @@ const turnOffResult: TranslationResult = {
 let startTapTranslateContent: typeof import('../src/content').startTapTranslateContent;
 
 beforeAll(async () => {
-  const originalAddEventListener = document.addEventListener.bind(document);
-  const addEventListener = vi
+  const originalDocumentAdd = document.addEventListener.bind(document);
+  const originalWindowAdd = window.addEventListener.bind(window);
+  const documentAdd = vi
     .spyOn(document, 'addEventListener')
     .mockImplementation((type, listener, options) => {
       if (type !== 'click') {
-        originalAddEventListener(type, listener, options);
+        originalDocumentAdd(type, listener, options);
+      }
+    });
+  const windowAdd = vi
+    .spyOn(window, 'addEventListener')
+    .mockImplementation((type, listener, options) => {
+      if (type !== 'pagehide') {
+        originalWindowAdd(type, listener, options);
       }
     });
   const contentModule = await import('../src/content');
   startTapTranslateContent = contentModule.startTapTranslateContent;
-  addEventListener.mockRestore();
+  documentAdd.mockRestore();
+  windowAdd.mockRestore();
 });
 
 afterEach(() => {
@@ -107,6 +116,79 @@ function createTarget(): HTMLElement {
 }
 
 describe('startTapTranslateContent', () => {
+  it('detects eligible content inserted after startup', () => {
+    const controller = createControllerBoundary();
+    const target = document.createElement('p');
+    const detect = vi.fn((input: DetectionInput) =>
+      input.target === target ? detectionResult : null,
+    );
+    const stop = startTapTranslateContent({
+      documentRoot: document,
+      controller: controller.boundary,
+      sheet: { containsEventPath: () => false },
+      detect,
+    });
+
+    target.textContent = 'Turn the dynamically inserted light off.';
+    document.body.append(target);
+    target.click();
+
+    expect(detect).toHaveBeenCalledOnce();
+    expect(controller.translate).toHaveBeenCalledWith(
+      createTranslationRequest(detectionResult),
+    );
+    stop();
+  });
+
+  it('dismisses on pagehide while keeping detection active for bfcache', () => {
+    const controller = createControllerBoundary();
+    const detect = vi.fn(() => detectionResult);
+    const stop = startTapTranslateContent({
+      documentRoot: document,
+      controller: controller.boundary,
+      sheet: { containsEventPath: () => false },
+      detect,
+    });
+    const pageHide = new Event('pagehide');
+    Object.defineProperty(pageHide, 'persisted', { value: true });
+
+    window.dispatchEvent(pageHide);
+    createTarget().click();
+
+    expect(controller.dismiss).toHaveBeenCalledOnce();
+    expect(detect).toHaveBeenCalledOnce();
+    expect(controller.translate).toHaveBeenCalledOnce();
+    stop();
+  });
+
+  it('removes click and pagehide listeners once during cleanup', () => {
+    const documentRemove = vi.spyOn(document, 'removeEventListener');
+    const windowRemove = vi.spyOn(window, 'removeEventListener');
+    const controller = createControllerBoundary();
+    const detect = vi.fn(() => detectionResult);
+    const stop = startTapTranslateContent({
+      documentRoot: document,
+      controller: controller.boundary,
+      sheet: { containsEventPath: () => false },
+      detect,
+    });
+
+    stop();
+    stop();
+    createTarget().click();
+    window.dispatchEvent(new Event('pagehide'));
+
+    expect(
+      documentRemove.mock.calls.filter(([type]) => type === 'click'),
+    ).toHaveLength(1);
+    expect(
+      windowRemove.mock.calls.filter(([type]) => type === 'pagehide'),
+    ).toHaveLength(1);
+    expect(detect).not.toHaveBeenCalled();
+    expect(controller.translate).not.toHaveBeenCalled();
+    expect(controller.dismiss).toHaveBeenCalledOnce();
+  });
+
   it('converts eligible detection and preserves the page click', () => {
     const controller = createControllerBoundary();
     const detect = vi.fn(() => detectionResult);
