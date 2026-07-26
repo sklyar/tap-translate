@@ -80,15 +80,15 @@ Create `extension/package.json`:
   "engines": {
     "node": ">=22.13.0"
   },
-  "packageManager": "npm@11.8.0",
+  "packageManager": "npm@11.17.0",
   "scripts": {
     "build": "vite build",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
+    "format": "prettier --write . --ignore-path ../.gitignore",
+    "format:check": "prettier --check . --ignore-path ../.gitignore",
     "check": "npm run format:check && npm run lint && npm run typecheck && npm run test && npm run build"
   },
   "devDependencies": {
@@ -101,6 +101,9 @@ Create `extension/package.json`:
     "typescript-eslint": "8.65.0",
     "vite": "8.1.5",
     "vitest": "4.1.10"
+  },
+  "allowScripts": {
+    "fsevents@2.3.3": true
   }
 }
 ```
@@ -192,7 +195,7 @@ Run from `extension/`:
 rtk npm install
 ```
 
-Expected: npm creates `package-lock.json` and `node_modules/`, reports no peer-dependency conflict, and installs no production dependencies.
+Expected: npm creates `package-lock.json` and `node_modules/`, reports no peer-dependency conflict or unreviewed install scripts, and installs no production dependencies. The pinned `fsevents` install-script approval applies only to Vite's optional macOS development file watcher.
 
 Confirm the production dependency tree is empty:
 
