@@ -1,18 +1,25 @@
-import { findTextHitAtPoint } from './hit-testing';
-import { getEnglishWordAtOffset } from './word-segmentation';
+import { detectEnglishContext } from './detection';
 
 function handleClick(event: MouseEvent): void {
-  const hit = findTextHitAtPoint({
-    clientX: event.clientX,
-    clientY: event.clientY,
-  });
-  const word =
-    hit === null
-      ? null
-      : getEnglishWordAtOffset(hit.textNode.data, hit.characterOffset);
+  try {
+    const result = detectEnglishContext({
+      point: {
+        clientX: event.clientX,
+        clientY: event.clientY,
+      },
+      target: event.target,
+      eventPath: event.composedPath(),
+    });
 
-  if (word !== null) {
+    if (result === null) {
+      return;
+    }
+
+    const { text, word: wordSpan } = result.context.focusBlock;
+    const word = text.slice(wordSpan.start, wordSpan.end);
     console.log('[TapTranslate] Detected word:', word);
+  } catch {
+    console.error('[TapTranslate] Unexpected detection failure.');
   }
 }
 
