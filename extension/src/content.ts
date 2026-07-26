@@ -1,10 +1,15 @@
-import { findEnglishWordAtPoint } from './hit-testing';
+import { findTextHitAtPoint } from './hit-testing';
+import { getEnglishWordAtOffset } from './word-segmentation';
 
 function handleClick(event: MouseEvent): void {
-  const word = findEnglishWordAtPoint({
+  const hit = findTextHitAtPoint({
     clientX: event.clientX,
     clientY: event.clientY,
   });
+  const word =
+    hit === null
+      ? null
+      : getEnglishWordAtOffset(hit.textNode.data, hit.characterOffset);
 
   if (word !== null) {
     console.log('[TapTranslate] Detected word:', word);
