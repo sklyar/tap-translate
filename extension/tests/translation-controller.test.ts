@@ -229,6 +229,70 @@ describe('TranslationController', () => {
     });
   });
 
+  it('renders only the latest success from an out-of-order request burst', async () => {
+    const requestCount = 20;
+    const translations = Array.from({ length: requestCount }, () =>
+      createDeferred<TranslationResult>(),
+    );
+    let translationIndex = 0;
+    const translate = vi.fn<TranslationProvider['translate']>(() => {
+      const translation = translations[translationIndex];
+      translationIndex += 1;
+      if (translation === undefined) {
+        throw new Error('Missing deferred translation');
+      }
+      return translation.promise;
+    });
+    const requests = Array.from(
+      { length: requestCount },
+      (_, index) =>
+        ({
+          context: {
+            ...request.context,
+            focusBlock: {
+              ...request.context.focusBlock,
+              text: `${request.context.focusBlock.text} ${String(index)}`,
+            },
+          },
+        }) satisfies TranslationRequest,
+    );
+    const view = createView();
+    const controller = new TranslationController({ translate }, view.boundary);
+
+    for (const currentRequest of requests) {
+      controller.translate(currentRequest);
+    }
+
+    for (let index = requestCount - 1; index >= 0; index -= 1) {
+      const translation = translations[index];
+      if (translation === undefined) {
+        throw new Error('Missing deferred translation');
+      }
+      translation.resolve({
+        ...turnOffResult,
+        expression: `word-${String(index)}`,
+      });
+      await flushPromises();
+    }
+
+    const latestRequest = requests[requestCount - 1];
+    if (latestRequest === undefined) {
+      throw new Error('Missing latest translation request');
+    }
+    expect(view.render).toHaveBeenCalledTimes(requestCount + 1);
+    expect(view.render).toHaveBeenLastCalledWith({
+      kind: 'success',
+      request: latestRequest,
+      result: {
+        ...turnOffResult,
+        expression: `word-${String(requestCount - 1)}`,
+      },
+    });
+    for (const [, options] of translate.mock.calls.slice(0, -1)) {
+      expect(options?.signal?.aborted).toBe(true);
+    }
+  });
+
   it('cancels and unmounts on dismissal without accepting later completion', async () => {
     const translation = createDeferred<TranslationResult>();
     const translate = vi

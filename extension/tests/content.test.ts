@@ -6,7 +6,7 @@ import { MockTranslationProvider } from '../src/mock-translation-provider';
 import { TranslationController } from '../src/translation-controller';
 import { TranslationSheet } from '../src/translation-sheet';
 import { createTranslationRequest } from '../src/translation';
-import type { DetectionResult } from '../src/detection';
+import type { DetectionInput, DetectionResult } from '../src/detection';
 import type { TranslationRequest, TranslationResult } from '../src/translation';
 
 const detectionResult: DetectionResult = {
@@ -45,21 +45,32 @@ const turnOffResult: TranslationResult = {
   partOfSpeech: 'phrasal verb',
   explanation: 'Здесь означает выключить свет.',
 };
+const stylesheetUrl =
+  'safari-web-extension://taptranslate-test/translation-sheet.css';
 
 let startTapTranslateContent: typeof import('../src/content').startTapTranslateContent;
 
 beforeAll(async () => {
-  const originalAddEventListener = document.addEventListener.bind(document);
-  const addEventListener = vi
+  const originalDocumentAdd = document.addEventListener.bind(document);
+  const originalWindowAdd = window.addEventListener.bind(window);
+  const documentAdd = vi
     .spyOn(document, 'addEventListener')
     .mockImplementation((type, listener, options) => {
       if (type !== 'click') {
-        originalAddEventListener(type, listener, options);
+        originalDocumentAdd(type, listener, options);
+      }
+    });
+  const windowAdd = vi
+    .spyOn(window, 'addEventListener')
+    .mockImplementation((type, listener, options) => {
+      if (type !== 'pagehide') {
+        originalWindowAdd(type, listener, options);
       }
     });
   const contentModule = await import('../src/content');
   startTapTranslateContent = contentModule.startTapTranslateContent;
-  addEventListener.mockRestore();
+  documentAdd.mockRestore();
+  windowAdd.mockRestore();
 });
 
 afterEach(() => {
@@ -106,7 +117,96 @@ function createTarget(): HTMLElement {
   return target;
 }
 
+function loadMountedSheetStylesheet(): ShadowRoot {
+  const host = document.querySelector('[data-taptranslate-sheet-host]');
+  const shadowRoot = host?.shadowRoot;
+  const link = shadowRoot?.querySelector(
+    'link[rel="stylesheet"][data-taptranslate-stylesheet]',
+  );
+  if (shadowRoot === null || shadowRoot === undefined) {
+    throw new Error('Missing translation sheet shadow root');
+  }
+  if (!(link instanceof HTMLLinkElement)) {
+    throw new Error('Missing translation sheet stylesheet');
+  }
+  link.dispatchEvent(new Event('load'));
+  return shadowRoot;
+}
+
 describe('startTapTranslateContent', () => {
+  it('detects eligible content inserted after startup', () => {
+    const controller = createControllerBoundary();
+    const target = document.createElement('p');
+    const detect = vi.fn((input: DetectionInput) =>
+      input.target === target ? detectionResult : null,
+    );
+    const stop = startTapTranslateContent({
+      documentRoot: document,
+      controller: controller.boundary,
+      sheet: { containsEventPath: () => false },
+      detect,
+    });
+
+    target.textContent = 'Turn the dynamically inserted light off.';
+    document.body.append(target);
+    target.click();
+
+    expect(detect).toHaveBeenCalledOnce();
+    expect(controller.translate).toHaveBeenCalledWith(
+      createTranslationRequest(detectionResult),
+    );
+    stop();
+  });
+
+  it('dismisses on pagehide while keeping detection active for bfcache', () => {
+    const controller = createControllerBoundary();
+    const detect = vi.fn(() => detectionResult);
+    const stop = startTapTranslateContent({
+      documentRoot: document,
+      controller: controller.boundary,
+      sheet: { containsEventPath: () => false },
+      detect,
+    });
+    const pageHide = new Event('pagehide');
+    Object.defineProperty(pageHide, 'persisted', { value: true });
+
+    window.dispatchEvent(pageHide);
+    createTarget().click();
+
+    expect(controller.dismiss).toHaveBeenCalledOnce();
+    expect(detect).toHaveBeenCalledOnce();
+    expect(controller.translate).toHaveBeenCalledOnce();
+    stop();
+  });
+
+  it('removes click and pagehide listeners once during cleanup', () => {
+    const documentRemove = vi.spyOn(document, 'removeEventListener');
+    const windowRemove = vi.spyOn(window, 'removeEventListener');
+    const controller = createControllerBoundary();
+    const detect = vi.fn(() => detectionResult);
+    const stop = startTapTranslateContent({
+      documentRoot: document,
+      controller: controller.boundary,
+      sheet: { containsEventPath: () => false },
+      detect,
+    });
+
+    stop();
+    stop();
+    createTarget().click();
+    window.dispatchEvent(new Event('pagehide'));
+
+    expect(
+      documentRemove.mock.calls.filter(([type]) => type === 'click'),
+    ).toHaveLength(1);
+    expect(
+      windowRemove.mock.calls.filter(([type]) => type === 'pagehide'),
+    ).toHaveLength(1);
+    expect(detect).not.toHaveBeenCalled();
+    expect(controller.translate).not.toHaveBeenCalled();
+    expect(controller.dismiss).toHaveBeenCalledOnce();
+  });
+
   it('converts eligible detection and preserves the page click', () => {
     const controller = createControllerBoundary();
     const detect = vi.fn(() => detectionResult);
@@ -262,10 +362,14 @@ describe('startTapTranslateContent', () => {
     const provider = new MockTranslationProvider({
       attempts: [{ type: 'success', result: turnOffResult, delayMs: 50 }],
     });
-    const sheet = new TranslationSheet(document, {
-      onRetry: retryTranslation,
-      onDismiss: dismissTranslation,
-    });
+    const sheet = new TranslationSheet(
+      document,
+      {
+        onRetry: retryTranslation,
+        onDismiss: dismissTranslation,
+      },
+      stylesheetUrl,
+    );
     const controller = new TranslationController(provider, sheet);
     const stop = startTapTranslateContent({
       documentRoot: document,
@@ -276,14 +380,119 @@ describe('startTapTranslateContent', () => {
 
     createTarget().click();
     const host = document.querySelector('[data-taptranslate-sheet-host]');
-    expect(host?.shadowRoot?.textContent).toContain('Переводим');
+    if (!(host instanceof HTMLElement)) {
+      throw new Error('Missing translation sheet host');
+    }
+    expect(host.hidden).toBe(true);
+    expect(host.shadowRoot?.querySelector('[role="dialog"]')).toBeNull();
+    const shadowRoot = loadMountedSheetStylesheet();
+    expect(host.hidden).toBe(false);
+    expect(shadowRoot.textContent).toContain('Переводим');
 
     await vi.advanceTimersByTimeAsync(50);
 
-    expect(host?.shadowRoot?.textContent).toContain('turn off');
-    expect(host?.shadowRoot?.textContent).toContain('выключить');
+    expect(shadowRoot.textContent).toContain('turn off');
+    expect(shadowRoot.textContent).toContain('выключить');
+    expect(
+      shadowRoot.querySelectorAll(
+        'link[rel="stylesheet"][data-taptranslate-stylesheet]',
+      ),
+    ).toHaveLength(1);
     expect(fetchSpy).not.toHaveBeenCalled();
     stop();
+
+    function retryTranslation(): void {
+      controller.retry();
+    }
+
+    function dismissTranslation(): void {
+      controller.dismiss();
+    }
+  });
+
+  it('leaves no resources after repeated mock frontend interaction', async () => {
+    vi.useFakeTimers();
+    const addEventListener = vi.spyOn(document, 'addEventListener');
+    const removeEventListener = vi.spyOn(document, 'removeEventListener');
+    const fetchSpy = vi
+      .spyOn(globalThis, 'fetch')
+      .mockRejectedValue(new Error('Unexpected network call'));
+    const firstTarget = createTarget();
+    const replacementTarget = document.createElement('p');
+    replacementTarget.textContent = 'Open the window.';
+    const outsideTarget = document.createElement('button');
+    outsideTarget.textContent = 'Page control';
+    document.body.append(replacementTarget, outsideTarget);
+    const detect = vi.fn((input: DetectionInput) => {
+      if (input.target === firstTarget) {
+        return detectionResult;
+      }
+      if (input.target === replacementTarget) {
+        return secondDetectionResult;
+      }
+      return null;
+    });
+    const provider = new MockTranslationProvider({
+      attempts: [{ type: 'success', result: turnOffResult, delayMs: 5 }],
+    });
+    const sheet = new TranslationSheet(
+      document,
+      {
+        onRetry: retryTranslation,
+        onDismiss: dismissTranslation,
+      },
+      stylesheetUrl,
+    );
+    const controller = new TranslationController(provider, sheet);
+    const dismiss = vi.spyOn(controller, 'dismiss');
+    const stop = startTapTranslateContent({
+      documentRoot: document,
+      controller,
+      sheet,
+      detect,
+    });
+
+    for (let iteration = 0; iteration < 20; iteration += 1) {
+      firstTarget.click();
+      expect(
+        document.querySelectorAll('[data-taptranslate-sheet-host]'),
+      ).toHaveLength(1);
+      loadMountedSheetStylesheet();
+      await vi.advanceTimersByTimeAsync(5);
+
+      const host = document.querySelector('[data-taptranslate-sheet-host]');
+      const expand = host?.shadowRoot?.querySelector(
+        '[data-taptranslate-expand]',
+      );
+      if (!(expand instanceof HTMLElement)) {
+        throw new Error('Missing sheet expand control');
+      }
+      expand.click();
+
+      replacementTarget.click();
+      expect(
+        document.querySelectorAll('[data-taptranslate-sheet-host]'),
+      ).toHaveLength(1);
+      await vi.advanceTimersByTimeAsync(5);
+
+      outsideTarget.click();
+      expect(
+        document.querySelectorAll('[data-taptranslate-sheet-host]'),
+      ).toHaveLength(0);
+    }
+
+    expect(vi.getTimerCount()).toBe(0);
+    expect(fetchSpy).not.toHaveBeenCalled();
+    stop();
+    const dismissCount = dismiss.mock.calls.length;
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    expect(dismiss).toHaveBeenCalledTimes(dismissCount);
+    expect(
+      addEventListener.mock.calls.filter(([type]) => type === 'keydown'),
+    ).toHaveLength(
+      removeEventListener.mock.calls.filter(([type]) => type === 'keydown')
+        .length,
+    );
 
     function retryTranslation(): void {
       controller.retry();

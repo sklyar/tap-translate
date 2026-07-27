@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; style-src 'none'; img-src 'none'; object-src 'none'; base-uri 'none'"
+    />
+    <title>TapTranslate restrictive CSP fixture</title>
+  </head>
+  <body>
+    <header>
+      <h1>Restrictive Content Security Policy fixture</h1>
+      <p>
+        This deliberately unstyled page blocks document styles. Use Safari Web
+        Inspector to confirm whether the extension-created shadow stylesheet
+        remains effective.
+      </p>
+    </header>
+    <main>
+      <p>Turn the light off before leaving the room.</p>
+      <p>
+        The second paragraph supplies neighboring context for a translation.
+      </p>
+      <p>
+        <a href="#destination">An ordinary link must continue to navigate.</a>
+      </p>
+      <p>
+        <button type="button">An ordinary button must remain usable.</button>
+      </p>
+      <p id="destination">The link destination remains part of the page.</p>
+    </main>
+  </body>
+</html>

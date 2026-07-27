@@ -29,7 +29,20 @@ export function startTapTranslateContent(
   options: TapTranslateContentOptions,
 ): () => void {
   const detect = options.detect ?? detectEnglishContext;
+  const windowRoot = options.documentRoot.defaultView;
   let listening = true;
+
+  const dismissForLifecycle = (): void => {
+    try {
+      options.controller.dismiss();
+    } catch {
+      // Lifecycle cleanup must not surface extension failures onto the page.
+    }
+  };
+
+  const handlePageHide = (): void => {
+    dismissForLifecycle();
+  };
 
   const handleClick = (event: MouseEvent): void => {
     try {
@@ -65,6 +78,7 @@ export function startTapTranslateContent(
     capture: true,
     passive: true,
   });
+  windowRoot?.addEventListener('pagehide', handlePageHide);
 
   return (): void => {
     if (!listening) {
@@ -72,11 +86,8 @@ export function startTapTranslateContent(
     }
     listening = false;
     options.documentRoot.removeEventListener('click', handleClick, true);
-    try {
-      options.controller.dismiss();
-    } catch {
-      // Cleanup must not surface extension failures onto the page.
-    }
+    windowRoot?.removeEventListener('pagehide', handlePageHide);
+    dismissForLifecycle();
   };
 }
 
