@@ -1,89 +1,116 @@
-package translation
+package translation_test
 
 import (
-	"strings"
 	"testing"
+
+	"github.com/sklyar/tap-translate/backend/internal/translation"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestBuildPrompt(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
-		mode ContextMode
-		want string
+		giveMode translation.ContextMode
+		wantUser string
 	}{
 		{
-			mode: ContextModeSentence,
-			want: "Tapped word: bank\n\nText:\nWe sat on the ⟦bank⟧ of the river.",
+			giveMode: translation.ContextModeSentence,
+			wantUser: "Tapped word: bank\n\nText:\nWe sat on the ⟦bank⟧ of the river.",
 		},
 		{
-			mode: ContextModeBlock,
-			want: "Tapped word: bank\n\nText:\n“Hi.” 😀 We sat on the ⟦bank⟧ of the river. Then we left.…",
+			giveMode: translation.ContextModeBlock,
+			wantUser: "Tapped word: bank\n\n" +
+				"Text:\n“Hi.” 😀 We sat on the ⟦bank⟧ of the river. Then we left.…",
 		},
 		{
-			mode: ContextModeFull,
-			want: "Tapped word: bank\n\n" +
+			giveMode: translation.ContextModeFull,
+			wantUser: "Tapped word: bank\n\n" +
 				"Text before:\n…Chapter one\n\n" +
-				"Text with the tapped word:\n“Hi.” 😀 We sat on the ⟦bank⟧ of the river. Then we left.…\n\n" +
+				"Text with the tapped word:\n" +
+				"“Hi.” 😀 We sat on the ⟦bank⟧ of the river. Then we left.…\n\n" +
 				"Text after:\nThe end.",
 		},
 	}
 
-	for _, test := range tests {
-		t.Run(string(test.mode), func(t *testing.T) {
-			prompt, err := BuildPrompt(newContext(), test.mode)
-			if err != nil {
-				t.Fatalf("BuildPrompt() error = %v", err)
-			}
-			if prompt.User != test.want {
-				t.Errorf("BuildPrompt().User =\n%s\nwant\n%s", prompt.User, test.want)
-			}
-			if prompt.System != SystemPrompt {
-				t.Error("BuildPrompt().System is not SystemPrompt")
-			}
+	for _, tt := range tests {
+		t.Run(string(tt.giveMode), func(t *testing.T) {
+			t.Parallel()
+
+			prompt, err := translation.BuildPrompt(newContext(), tt.giveMode)
+
+			require.NoError(t, err)
+			assert.Equal(t, tt.wantUser, prompt.User)
+			assert.Equal(t, translation.SystemPrompt(), prompt.System)
 		})
 	}
 }
 
-func TestBuildPromptFullModeOmitsMissingNeighbors(t *testing.T) {
+func TestBuildPrompt_FullModeOmitsMissingNeighbors(t *testing.T) {
+	t.Parallel()
 	c := newContext()
 	c.BeforeBlocks = nil
 	c.AfterBlocks = nil
 
-	prompt, err := BuildPrompt(c, ContextModeFull)
-	if err != nil {
-		t.Fatalf("BuildPrompt() error = %v", err)
-	}
-	if strings.Contains(prompt.User, "Text before") || strings.Contains(prompt.User, "Text after") {
-		t.Errorf("BuildPrompt().User has an empty neighbor section:\n%s", prompt.User)
-	}
+	prompt, err := translation.BuildPrompt(c, translation.ContextModeFull)
+
+	require.NoError(t, err)
+	assert.Equal(t,
+		"Tapped word: bank\n\n"+
+			"Text with the tapped word:\n"+
+			"“Hi.” 😀 We sat on the ⟦bank⟧ of the river. Then we left.…",
+		prompt.User)
 }
 
-func TestBuildPromptRejectsInvalidInput(t *testing.T) {
-	c := newContext()
-	c.FocusBlock.Word = TextSpan{Start: 50, End: 60}
-	if _, err := BuildPrompt(c, ContextModeSentence); err == nil {
-		t.Error("BuildPrompt() with a bad word span returned no error")
-	}
+func TestBuildPrompt_RejectsInvalidInput(t *testing.T) {
+	t.Parallel()
+	badSpan := newContext()
+	badSpan.FocusBlock.Word = translation.TextSpan{Start: 50, End: 60}
 
-	if _, err := BuildPrompt(newContext(), ContextMode("page")); err == nil {
-		t.Error("BuildPrompt() with an unknown mode returned no error")
-	}
+	_, spanErr := translation.BuildPrompt(badSpan, translation.ContextModeSentence)
+	_, modeErr := translation.BuildPrompt(newContext(), translation.ContextMode("page"))
+
+	require.ErrorContains(t, spanErr, "word span [50, 60)")
+	assert.ErrorContains(t, modeErr, `unknown context mode "page"`)
 }
 
 func TestParseContextMode(t *testing.T) {
-	for _, value := range []string{"sentence", "block", "full"} {
-		if mode, err := ParseContextMode(value); err != nil || string(mode) != value {
-			t.Errorf("ParseContextMode(%q) = %q, %v", value, mode, err)
-		}
+	t.Parallel()
+	tests := []struct {
+		give string
+		want translation.ContextMode
+	}{
+		{give: "sentence", want: translation.ContextModeSentence},
+		{give: "block", want: translation.ContextModeBlock},
+		{give: "full", want: translation.ContextModeFull},
 	}
-	if _, err := ParseContextMode("page"); err == nil {
-		t.Error(`ParseContextMode("page") returned no error`)
+
+	for _, tt := range tests {
+		t.Run(tt.give, func(t *testing.T) {
+			t.Parallel()
+
+			mode, err := translation.ParseContextMode(tt.give)
+
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, mode)
+		})
 	}
 }
 
-func TestSystemPromptListsPartsOfSpeech(t *testing.T) {
-	for _, part := range PartsOfSpeech {
-		if !strings.Contains(SystemPrompt, part) {
-			t.Errorf("SystemPrompt does not mention %q", part)
-		}
+func TestParseContextMode_Unknown(t *testing.T) {
+	t.Parallel()
+
+	_, err := translation.ParseContextMode("page")
+
+	assert.ErrorContains(t, err, `unknown context mode "page"`)
+}
+
+func TestSystemPrompt_ListsPartsOfSpeech(t *testing.T) {
+	t.Parallel()
+
+	prompt := translation.SystemPrompt()
+
+	for _, part := range translation.PartsOfSpeech() {
+		assert.Contains(t, prompt, part)
 	}
 }

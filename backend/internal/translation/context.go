@@ -25,6 +25,7 @@ type ContextBlock struct {
 
 type FocusBlock struct {
 	ContextBlock
+
 	Word     TextSpan `json:"word"`
 	Sentence TextSpan `json:"sentence"`
 }
@@ -46,7 +47,7 @@ func (c *DetectionContext) UnmarshalJSON(data []byte) error {
 	type plain DetectionContext
 	var decoded plain
 	if err := json.Unmarshal(data, &decoded); err != nil {
-		return err
+		return fmt.Errorf("decode detection context: %w", err)
 	}
 
 	context := DetectionContext(decoded)
@@ -74,9 +75,19 @@ func (c DetectionContext) Validate() error {
 
 	switch {
 	case word.Start < 0 || word.Start >= word.End || word.End > length:
-		return fmt.Errorf("word span [%d, %d) is outside the focus block of length %d", word.Start, word.End, length)
+		return fmt.Errorf(
+			"word span [%d, %d) is outside the focus block of length %d",
+			word.Start,
+			word.End,
+			length,
+		)
 	case sentence.Start < 0 || sentence.Start >= sentence.End || sentence.End > length:
-		return fmt.Errorf("sentence span [%d, %d) is outside the focus block of length %d", sentence.Start, sentence.End, length)
+		return fmt.Errorf(
+			"sentence span [%d, %d) is outside the focus block of length %d",
+			sentence.Start,
+			sentence.End,
+			length,
+		)
 	case word.Start < sentence.Start || word.End > sentence.End:
 		return errors.New("the sentence span does not contain the word span")
 	}

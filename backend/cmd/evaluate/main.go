@@ -9,6 +9,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"os/signal"
@@ -24,9 +25,18 @@ import (
 	"github.com/sklyar/tap-translate/backend/internal/translation"
 )
 
-// maxAnswerTokens limits the answer length. Qwen does not count thinking
-// tokens against this limit.
-const maxAnswerTokens = 500
+const (
+	// _maxAnswerTokens limits the answer length. Qwen does not count thinking
+	// tokens against this limit.
+	_maxAnswerTokens = 500
+	// _warmUpMaxTokens limits the answer to the warm-up request.
+	_warmUpMaxTokens = 5
+
+	_defaultConcurrency = 4
+	_defaultTimeout     = time.Minute
+)
+
+var _unsafeNameCharacters = regexp.MustCompile(`[^A-Za-z0-9._-]+`)
 
 type config struct {
 	contextsPath  string
@@ -72,9 +82,10 @@ func (m ThinkingMode) enableThinking() *bool {
 		return new(false)
 	case ThinkingOn:
 		return new(true)
-	default:
+	case ThinkingDefault:
 		return nil
 	}
+	return nil
 }
 
 type Variant struct {
@@ -90,8 +101,9 @@ func (v Variant) Name() string {
 
 // Run is one request for one sample and one variant.
 type Run struct {
-	SampleID string `json:"sampleId"`
 	Variant
+
+	SampleID        string              `json:"sampleId"`
 	LatencyMs       int64               `json:"latencyMs"`
 	InputTokens     int                 `json:"inputTokens"`
 	OutputTokens    int                 `json:"outputTokens"`
@@ -108,15 +120,21 @@ type Run struct {
 	Content string `json:"content,omitempty"`
 }
 
+type job struct {
+	index   int
+	sample  Sample
+	variant Variant
+}
+
 func main() {
-	if err := run(os.Args[1:]); err != nil {
+	if err := run(os.Args[1:], os.Stdout, os.Stderr); err != nil {
 		fmt.Fprintln(os.Stderr, "evaluate:", err)
 		os.Exit(1)
 	}
 }
 
-func run(args []string) error {
-	cfg, err := parseFlags(args)
+func run(args []string, stdout, stderr io.Writer) error {
+	cfg, err := parseFlags(args, stderr)
 	if errors.Is(err, flag.ErrHelp) {
 		return nil
 	}
@@ -137,7 +155,7 @@ func run(args []string) error {
 		samples = samples[:cfg.limit]
 	}
 
-	var variants []Variant
+	variants := make([]Variant, 0, len(cfg.contextModes)*len(cfg.thinkingModes))
 	for _, mode := range cfg.contextModes {
 		for _, thinking := range cfg.thinkingModes {
 			variants = append(variants, Variant{ContextMode: mode, Thinking: thinking})
@@ -163,54 +181,99 @@ func run(args []string) error {
 	}()
 
 	client := llm.NewClient(cfg.baseURL, apiKey, &http.Client{})
-	if err := warmUp(ctx, client, cfg, variants[0].Thinking); err != nil {
+	err = warmUp(ctx, client, cfg, variants[0].Thinking)
+	if err != nil {
 		return err
 	}
 
 	startedAt := time.Now().UTC()
-	runs := runAll(ctx, client, cfg, samples, variants)
+	runs := runAll(ctx, client, cfg, samples, variants, stderr)
 	interrupted := ctx.Err() != nil
 
 	report := newReport(cfg, startedAt, time.Since(startedAt), samples, variants, runs)
 	report.Interrupted = interrupted
-	if err := report.write(directory); err != nil {
+	err = report.write(directory)
+	if err != nil {
 		return err
 	}
 	written = true
 
-	printSummary(os.Stdout, report)
-	fmt.Printf("\nReport: %s\n", filepath.Join(directory, reportFileName))
+	err = printSummary(stdout, report)
+	if err != nil {
+		return err
+	}
+	fmt.Fprintf(stdout, "\nReport: %s\n", filepath.Join(directory, _reportFileName))
 	if interrupted {
 		return fmt.Errorf("interrupted after %d requests; the report has only them", len(runs))
 	}
 	return nil
 }
 
-func parseFlags(args []string) (config, error) {
+func parseFlags(args []string, output io.Writer) (config, error) {
 	flags := flag.NewFlagSet("evaluate", flag.ContinueOnError)
+	flags.SetOutput(output)
 	cfg := config{}
 	var contextModes, thinkingModes string
 
 	flags.StringVar(&cfg.contextsPath, "contexts", "../eval/contexts.json", "captured samples")
 	flags.StringVar(&cfg.outputDir, "out", "../eval/results", "directory for run results")
-	flags.StringVar(&cfg.baseURL, "base-url", "", "OpenAI-compatible API root, for example https://host/compatible-mode/v1 (required)")
+	flags.StringVar(
+		&cfg.baseURL,
+		"base-url",
+		"",
+		"OpenAI-compatible API root, for example https://host/compatible-mode/v1 (required)",
+	)
 	flags.StringVar(&cfg.model, "model", "", "model name (required)")
-	flags.StringVar(&cfg.apiKeyFile, "api-key-file", "", "file that contains the API key (required)")
-	flags.StringVar(&contextModes, "context-modes", "sentence,block,full", "comma-separated context modes: sentence, block, full")
-	flags.StringVar(&thinkingModes, "thinking", "off", "comma-separated thinking modes: off, on, default (off and on send enable_thinking; default omits it)")
-	flags.IntVar(&cfg.concurrency, "concurrency", 4, "number of parallel requests")
-	flags.DurationVar(&cfg.timeout, "timeout", 60*time.Second, "timeout for one request")
+	flags.StringVar(
+		&cfg.apiKeyFile,
+		"api-key-file",
+		"",
+		"file that contains the API key (required)",
+	)
+	flags.StringVar(
+		&contextModes,
+		"context-modes",
+		"sentence,block,full",
+		"comma-separated context modes: sentence, block, full",
+	)
+	flags.StringVar(
+		&thinkingModes,
+		"thinking",
+		"off",
+		"comma-separated thinking modes: off, on, default "+
+			"(off and on send enable_thinking; default omits it)",
+	)
+	flags.IntVar(
+		&cfg.concurrency,
+		"concurrency",
+		_defaultConcurrency,
+		"number of parallel requests",
+	)
+	flags.DurationVar(&cfg.timeout, "timeout", _defaultTimeout, "timeout for one request")
 	flags.IntVar(&cfg.limit, "limit", 0, "use only the first N samples (0 means all)")
-	flags.Float64Var(&cfg.inputPrice, "input-price", 0, "USD per 1M input tokens, for the cost estimate")
-	flags.Float64Var(&cfg.outputPrice, "output-price", 0, "USD per 1M output tokens, including thinking tokens")
+	flags.Float64Var(
+		&cfg.inputPrice,
+		"input-price",
+		0,
+		"USD per 1M input tokens, for the cost estimate",
+	)
+	flags.Float64Var(
+		&cfg.outputPrice,
+		"output-price",
+		0,
+		"USD per 1M output tokens, including thinking tokens",
+	)
 
 	if err := flags.Parse(args); err != nil {
-		return config{}, err
+		return config{}, fmt.Errorf("parse flags: %w", err)
 	}
 	// The flag package stops at the first argument that is not a flag, so a
 	// stray argument would silently drop all flags after it.
 	if flags.NArg() > 0 {
-		return config{}, fmt.Errorf("unexpected argument %q: separate list values with commas, without spaces", flags.Arg(0))
+		return config{}, fmt.Errorf(
+			"unexpected argument %q: separate list values with commas, without spaces",
+			flags.Arg(0),
+		)
 	}
 
 	switch {
@@ -228,35 +291,57 @@ func parseFlags(args []string) (config, error) {
 		return config{}, errors.New("prices must not be negative")
 	}
 
-	for _, value := range splitList(contextModes) {
-		mode, err := translation.ParseContextMode(value)
-		if err != nil {
-			return config{}, err
-		}
-		if slices.Contains(cfg.contextModes, mode) {
-			return config{}, fmt.Errorf("-context-modes has %q twice", value)
-		}
-		cfg.contextModes = append(cfg.contextModes, mode)
+	var err error
+	cfg.contextModes, err = parseContextModes(contextModes)
+	if err != nil {
+		return config{}, err
 	}
-
-	for _, value := range splitList(thinkingModes) {
-		mode := ThinkingMode(value)
-		switch mode {
-		case ThinkingDefault, ThinkingOff, ThinkingOn:
-		default:
-			return config{}, fmt.Errorf("unknown thinking mode %q: use off, on, or default", value)
-		}
-		if slices.Contains(cfg.thinkingModes, mode) {
-			return config{}, fmt.Errorf("-thinking has %q twice", value)
-		}
-		cfg.thinkingModes = append(cfg.thinkingModes, mode)
-	}
-
-	if len(cfg.contextModes) == 0 || len(cfg.thinkingModes) == 0 {
-		return config{}, errors.New("-context-modes and -thinking must not be empty")
+	cfg.thinkingModes, err = parseThinkingModes(thinkingModes)
+	if err != nil {
+		return config{}, err
 	}
 
 	return cfg, nil
+}
+
+func parseContextModes(value string) ([]translation.ContextMode, error) {
+	items := splitList(value)
+	modes := make([]translation.ContextMode, 0, len(items))
+	for _, item := range items {
+		mode, err := translation.ParseContextMode(item)
+		if err != nil {
+			return nil, err
+		}
+		if slices.Contains(modes, mode) {
+			return nil, fmt.Errorf("-context-modes has %q twice", item)
+		}
+		modes = append(modes, mode)
+	}
+	if len(modes) == 0 {
+		return nil, errors.New("-context-modes must not be empty")
+	}
+	return modes, nil
+}
+
+func parseThinkingModes(value string) ([]ThinkingMode, error) {
+	items := splitList(value)
+	modes := make([]ThinkingMode, 0, len(items))
+	for _, item := range items {
+		mode := ThinkingMode(item)
+		switch mode {
+		case ThinkingDefault, ThinkingOff, ThinkingOn:
+		default:
+			return nil, fmt.Errorf("unknown thinking mode %q: use off, on, or default", item)
+		}
+		if slices.Contains(modes, mode) {
+			return nil, fmt.Errorf("-thinking has %q twice", item)
+		}
+		modes = append(modes, mode)
+	}
+	if len(modes) == 0 {
+		return nil, errors.New("-thinking must not be empty")
+	}
+	return modes, nil
 }
 
 func splitList(value string) []string {
@@ -288,7 +373,8 @@ func loadSamples(path string) ([]Sample, error) {
 	}
 
 	var samples []Sample
-	if err := json.Unmarshal(data, &samples); err != nil {
+	err = json.Unmarshal(data, &samples)
+	if err != nil {
 		return nil, fmt.Errorf("decode samples: %w", err)
 	}
 	if len(samples) == 0 {
@@ -298,11 +384,17 @@ func loadSamples(path string) ([]Sample, error) {
 	for _, sample := range samples {
 		// Decoding validates each context, but a missing "context" field is
 		// not decoded and stays empty.
-		if err := sample.Context.Validate(); err != nil {
+		err = sample.Context.Validate()
+		if err != nil {
 			return nil, fmt.Errorf("sample %s: %w", sample.ID, err)
 		}
 		if word := sample.Context.Word(); word != sample.Word {
-			return nil, fmt.Errorf("sample %s: the context word is %q, not %q", sample.ID, word, sample.Word)
+			return nil, fmt.Errorf(
+				"sample %s: the context word is %q, not %q",
+				sample.ID,
+				word,
+				sample.Word,
+			)
 		}
 	}
 
@@ -321,11 +413,11 @@ func warmUp(ctx context.Context, client *llm.Client, cfg config, thinking Thinki
 	_, err := client.Complete(requestCtx, llm.ChatRequest{
 		Model:          cfg.model,
 		Messages:       []llm.Message{{Role: "user", Content: "Reply with OK."}},
-		MaxTokens:      5,
+		MaxTokens:      _warmUpMaxTokens,
 		EnableThinking: thinking.enableThinking(),
 	})
 	if err != nil {
-		return fmt.Errorf("warm-up request failed: %w", err)
+		return fmt.Errorf("warm-up request: %w", err)
 	}
 	return nil
 }
@@ -333,23 +425,28 @@ func warmUp(ctx context.Context, client *llm.Client, cfg config, thinking Thinki
 // createRunDirectory creates a new directory for one run. It fails when the
 // directory exists, so a run never overwrites another.
 func createRunDirectory(outputDir, name string) (string, error) {
-	if err := os.MkdirAll(outputDir, 0o755); err != nil {
+	err := os.MkdirAll(outputDir, 0o750)
+	if err != nil {
 		return "", fmt.Errorf("create output directory: %w", err)
 	}
 	directory := filepath.Join(outputDir, name)
-	if err := os.Mkdir(directory, 0o755); err != nil {
+	err = os.Mkdir(directory, 0o750)
+	if err != nil {
 		return "", fmt.Errorf("create run directory: %w", err)
 	}
 	return directory, nil
 }
 
-type job struct {
-	index   int
-	sample  Sample
-	variant Variant
-}
-
-func runAll(ctx context.Context, client *llm.Client, cfg config, samples []Sample, variants []Variant) []Run {
+// runAll runs every sample with every variant and writes the progress to
+// progress. After an interrupt it returns only the finished runs.
+func runAll(
+	ctx context.Context,
+	client *llm.Client,
+	cfg config,
+	samples []Sample,
+	variants []Variant,
+	progress io.Writer,
+) []Run {
 	jobs := make(chan job)
 	runs := make([]Run, len(samples)*len(variants))
 	finished := make([]bool, len(runs))
@@ -359,8 +456,14 @@ func runAll(ctx context.Context, client *llm.Client, cfg config, samples []Sampl
 	for range cfg.concurrency {
 		wg.Go(func() {
 			for next := range jobs {
-				runs[next.index], finished[next.index] = runOne(ctx, client, cfg, next.sample, next.variant)
-				fmt.Fprintf(os.Stderr, "\r%d/%d requests", done.Add(1), len(runs))
+				runs[next.index], finished[next.index] = runOne(
+					ctx,
+					client,
+					cfg,
+					next.sample,
+					next.variant,
+				)
+				fmt.Fprintf(progress, "\r%d/%d requests", done.Add(1), len(runs))
 			}
 		})
 	}
@@ -379,7 +482,7 @@ send:
 	}
 	close(jobs)
 	wg.Wait()
-	fmt.Fprintln(os.Stderr)
+	fmt.Fprintln(progress)
 
 	completed := make([]Run, 0, index)
 	for i := range index {
@@ -392,7 +495,13 @@ send:
 
 // runOne sends one request. It returns false when the run was interrupted, so
 // the result says nothing about the model.
-func runOne(ctx context.Context, client *llm.Client, cfg config, sample Sample, variant Variant) (Run, bool) {
+func runOne(
+	ctx context.Context,
+	client *llm.Client,
+	cfg config,
+	sample Sample,
+	variant Variant,
+) (Run, bool) {
 	result := Run{SampleID: sample.ID, Variant: variant}
 
 	prompt, err := translation.BuildPrompt(sample.Context, variant.ContextMode)
@@ -416,7 +525,7 @@ func runOne(ctx context.Context, client *llm.Client, cfg config, sample Sample, 
 				Schema: translation.ResultSchema(),
 			},
 		},
-		MaxTokens:      maxAnswerTokens,
+		MaxTokens:      _maxAnswerTokens,
 		EnableThinking: variant.Thinking.enableThinking(),
 	}
 
@@ -451,8 +560,6 @@ func runOne(ctx context.Context, client *llm.Client, cfg config, sample Sample, 
 	return result, true
 }
 
-var unsafeNameCharacters = regexp.MustCompile(`[^A-Za-z0-9._-]+`)
-
 func safeName(value string) string {
-	return unsafeNameCharacters.ReplaceAllString(value, "-")
+	return _unsafeNameCharacters.ReplaceAllString(value, "-")
 }
