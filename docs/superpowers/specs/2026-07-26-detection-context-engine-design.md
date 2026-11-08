@@ -124,7 +124,9 @@ Click eligibility and context inclusion are separate policies. Clicking linked o
 
 ## Text blocks and context
 
-The focus block is the nearest matching ancestor of the clicked word. The semantic set is `p`, `li`, `blockquote`, `figcaption`, `dt`, `dd`, `h1`–`h6`, `caption`, `td`, and `th`; the nearest match wins. If none exists, the nearest ancestor whose computed display is `block`, `flow-root`, `list-item`, `table-cell`, `table-caption`, `flex`, or `grid` is used. `html` and `body` are never focus blocks.
+The focus block is the nearest logical-block ancestor of the clicked word. An element is a logical block when it is in the semantic set or its computed display is `block`, `flow-root`, `list-item`, `table-cell`, `table-caption`, `flex`, or `grid`. The semantic set is `p`, `li`, `blockquote`, `figcaption`, `dt`, `dd`, `h1`–`h6`, `caption`, `td`, and `th`. `html` and `body` are never focus blocks.
+
+The snapshot builder uses the same logical-block rule to prune nested blocks. Therefore, the focus block must be the nearest logical block, not the nearest semantic block. Otherwise, text in `<li><div>…</div></li>`, `<td><div>…</div></td>`, or a blockified flex or grid item inside a semantic block would be pruned from its own snapshot.
 
 The reading region is the nearest `article`, `main`, `section`, `aside`, `nav`, `header`, or `footer`. Neighbors must belong to that same nearest region. If no region exists, lookup remains in the focus block's parent flow; when that parent is `html` or `body`, no neighbors are collected.
 
