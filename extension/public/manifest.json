@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "TapTranslate",
-  "description": "Detects English words clicked on webpages.",
+  "description": "Translates English words on webpages using their surrounding context.",
   "version": "0.1.0",
   "content_scripts": [
     {
