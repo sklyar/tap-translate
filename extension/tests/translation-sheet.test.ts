@@ -580,6 +580,7 @@ function pointer(
   target: HTMLElement,
   clientY: number,
   pointerId = 1,
+  pointerType = 'mouse',
 ): void {
   target.dispatchEvent(
     new PointerEvent(type, {
@@ -587,7 +588,9 @@ function pointer(
       clientY,
       pointerId,
       isPrimary: true,
-      pointerType: 'touch',
+      pointerType,
+      button: 0,
+      buttons: type === 'pointerup' ? 0 : 1,
     }),
   );
 }
@@ -596,6 +599,59 @@ function swipe(target: HTMLElement, fromY: number, toY: number): void {
   pointer('pointerdown', target, fromY);
   pointer('pointermove', target, toY);
   pointer('pointerup', target, toY);
+}
+
+interface FakeTouchOptions {
+  readonly cancelable?: boolean;
+  readonly touchCount?: number;
+}
+
+// jsdom has no Touch constructor, so tests build touch events by hand.
+function touch(
+  type: 'touchstart' | 'touchmove' | 'touchend' | 'touchcancel',
+  target: HTMLElement,
+  clientY: number,
+  options: FakeTouchOptions = {},
+): Event {
+  const event = new Event(type, {
+    bubbles: true,
+    composed: true,
+    cancelable: options.cancelable ?? true,
+  });
+  const point = { identifier: 1, clientX: 10, clientY, target };
+  const active =
+    type === 'touchend' || type === 'touchcancel'
+      ? []
+      : Array.from({ length: options.touchCount ?? 1 }, (_, index) => ({
+          ...point,
+          identifier: index + 1,
+        }));
+  Object.defineProperties(event, {
+    touches: { value: active },
+    targetTouches: { value: active },
+    changedTouches: { value: [point] },
+  });
+  target.dispatchEvent(event);
+  return event;
+}
+
+function touchSwipe(target: HTMLElement, fromY: number, toY: number): Event {
+  touch('touchstart', target, fromY);
+  const move = touch('touchmove', target, toY);
+  touch('touchend', target, toY);
+  return move;
+}
+
+function setContentScroll(
+  scrollTop: number,
+  scrollHeight: number,
+  clientHeight: number,
+): void {
+  Object.defineProperties(requiredElement('.content'), {
+    scrollTop: { configurable: true, value: scrollTop },
+    scrollHeight: { configurable: true, value: scrollHeight },
+    clientHeight: { configurable: true, value: clientHeight },
+  });
 }
 
 describe('TranslationSheet visual viewport', () => {
@@ -657,7 +713,7 @@ describe('TranslationSheet visual viewport', () => {
   });
 });
 
-describe('TranslationSheet swipe gestures', () => {
+describe('TranslationSheet mouse swipe gestures', () => {
   it('expands on an upward swipe and collapses on a downward swipe', () => {
     const { sheet, dismiss } = createSheet();
     renderReady(sheet, successState);
@@ -773,6 +829,168 @@ describe('TranslationSheet swipe gestures', () => {
     expect(dismiss).not.toHaveBeenCalled();
     expect(isExpanded()).toBe(false);
   });
+
+  it('leaves touch pointers to the touch event handlers', () => {
+    const { sheet, dismiss } = createSheet();
+    renderReady(sheet, successState);
+    const handle = requiredElement('[data-taptranslate-expand]');
+
+    pointer('pointerdown', handle, 300, 1, 'touch');
+    pointer('pointermove', handle, 360, 1, 'touch');
+    pointer('pointerup', handle, 360, 1, 'touch');
+
+    expect(dismiss).not.toHaveBeenCalled();
+  });
+});
+
+describe('TranslationSheet touch gestures', () => {
+  it('expands the compact sheet on an upward swipe on its content', () => {
+    const { sheet } = createSheet();
+    renderReady(sheet, successState);
+
+    const move = touchSwipe(
+      requiredElement('[data-taptranslate-explanation]'),
+      500,
+      440,
+    );
+
+    expect(move.defaultPrevented).toBe(true);
+    expect(isExpanded()).toBe(true);
+  });
+
+  it('closes the compact sheet on a downward swipe on its content', () => {
+    const { sheet, dismiss } = createSheet();
+    renderReady(sheet, successState);
+
+    const move = touchSwipe(
+      requiredElement('[data-taptranslate-explanation]'),
+      500,
+      560,
+    );
+
+    expect(move.defaultPrevented).toBe(true);
+    expect(dismiss).toHaveBeenCalledOnce();
+  });
+
+  it('keeps a short touch on the compact sheet from scrolling the page', () => {
+    const { sheet, dismiss } = createSheet();
+    renderReady(sheet, successState);
+    const explanation = requiredElement('[data-taptranslate-explanation]');
+
+    const move = touchSwipe(explanation, 500, 497);
+    touch('touchstart', explanation, 500);
+    touch('touchend', explanation, 500);
+
+    expect(move.defaultPrevented).toBe(true);
+    expect(isExpanded()).toBe(false);
+    expect(dismiss).not.toHaveBeenCalled();
+    requiredElement('[data-taptranslate-expand]').click();
+    expect(isExpanded()).toBe(true);
+  });
+
+  it('follows a downward touch drag and restores the sheet on release', () => {
+    const { sheet, dismiss } = createSheet();
+    renderReady(sheet, successState);
+    const explanation = requiredElement('[data-taptranslate-explanation]');
+    const sheetElement = requiredElement('[data-taptranslate-sheet]');
+
+    touch('touchstart', explanation, 500);
+    touch('touchmove', explanation, 530);
+    expect(sheetElement.style.transform).toBe('translateY(30px)');
+
+    touch('touchend', explanation, 510);
+    expect(sheetElement.style.transform).toBe('');
+    expect(dismiss).not.toHaveBeenCalled();
+  });
+
+  it('collapses the expanded sheet when its content is at the top', () => {
+    const { sheet, dismiss } = createSheet();
+    renderReady(sheet, successState);
+    requiredElement('[data-taptranslate-expand]').click();
+    setContentScroll(0, 1000, 400);
+
+    const move = touchSwipe(
+      requiredElement('[data-taptranslate-explanation]'),
+      300,
+      360,
+    );
+
+    expect(move.defaultPrevented).toBe(true);
+    expect(isExpanded()).toBe(false);
+    expect(dismiss).not.toHaveBeenCalled();
+  });
+
+  it('lets the expanded content scroll natively', () => {
+    const { sheet } = createSheet();
+    renderReady(sheet, successState);
+    requiredElement('[data-taptranslate-expand]').click();
+    const explanation = requiredElement('[data-taptranslate-explanation]');
+
+    setContentScroll(120, 1000, 400);
+    const down = touchSwipe(explanation, 300, 360);
+    setContentScroll(0, 1000, 400);
+    const up = touchSwipe(explanation, 300, 240);
+
+    expect(down.defaultPrevented).toBe(false);
+    expect(up.defaultPrevented).toBe(false);
+    expect(isExpanded()).toBe(true);
+  });
+
+  it('blocks page scrolling when the expanded content cannot scroll', () => {
+    const { sheet, dismiss } = createSheet();
+    renderReady(sheet, successState);
+    requiredElement('[data-taptranslate-expand]').click();
+    const explanation = requiredElement('[data-taptranslate-explanation]');
+
+    setContentScroll(0, 300, 400);
+    const shortContent = touchSwipe(explanation, 300, 240);
+    setContentScroll(600, 1000, 400);
+    const atBottom = touchSwipe(explanation, 300, 240);
+
+    expect(shortContent.defaultPrevented).toBe(true);
+    expect(atBottom.defaultPrevented).toBe(true);
+    expect(isExpanded()).toBe(true);
+    expect(dismiss).not.toHaveBeenCalled();
+  });
+
+  it('drags the expanded sheet by its top bar', () => {
+    const { sheet } = createSheet();
+    renderReady(sheet, successState);
+    requiredElement('[data-taptranslate-expand]').click();
+
+    touchSwipe(requiredElement('[data-taptranslate-expand]'), 100, 160);
+
+    expect(isExpanded()).toBe(false);
+  });
+
+  it('stops handling a swipe after the browser starts scrolling', () => {
+    const { sheet, dismiss } = createSheet();
+    renderReady(sheet, successState);
+    const explanation = requiredElement('[data-taptranslate-explanation]');
+
+    touch('touchstart', explanation, 500);
+    const move = touch('touchmove', explanation, 560, { cancelable: false });
+    touch('touchend', explanation, 560);
+
+    expect(move.defaultPrevented).toBe(false);
+    expect(dismiss).not.toHaveBeenCalled();
+    expect(requiredElement('[data-taptranslate-sheet]').style.transform).toBe(
+      '',
+    );
+  });
+
+  it('ignores multi-touch gestures', () => {
+    const { sheet, dismiss } = createSheet();
+    renderReady(sheet, successState);
+    const explanation = requiredElement('[data-taptranslate-explanation]');
+
+    touch('touchstart', explanation, 500, { touchCount: 2 });
+    const move = touch('touchmove', explanation, 560, { touchCount: 2 });
+    touch('touchend', explanation, 560);
+
+    expect(move.defaultPrevented).toBe(false);
+    expect(dismiss).not.toHaveBeenCalled();
+  });
 });
 
 describe('translationSheetStyles', () => {
@@ -788,6 +1006,9 @@ describe('translationSheetStyles', () => {
     expect(translationSheetStyles).not.toMatch(/\d+vh\b/);
     expect(translationSheetStyles).toMatch(
       /\.topbar\s*\{[\s\S]*?touch-action: none;[\s\S]*?\}/,
+    );
+    expect(translationSheetStyles).toMatch(
+      /\.sheet\[data-expanded='false'\]\s*\{[\s\S]*?touch-action: none;[\s\S]*?\}/,
     );
     expect(translationSheetStyles).toContain('max-width: 640px');
     expect(translationSheetStyles).toContain(':focus-visible');

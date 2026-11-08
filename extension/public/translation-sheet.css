@@ -60,6 +60,12 @@
     transform 180ms ease;
 }
 
+/* A swipe on the compact sheet expands or closes it, and it must never scroll
+   the page under the sheet. */
+.sheet[data-expanded='false'] {
+  touch-action: none;
+}
+
 .sheet[data-expanded='true'] {
   height: calc(100% - 16px - env(safe-area-inset-top));
   max-height: calc(100% - 16px - env(safe-area-inset-top));
