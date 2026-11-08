@@ -1,0 +1,2054 @@
+[
+  {
+    "id": "holmes-make-out",
+    "url": "https://www.gutenberg.org/cache/epub/1661/pg1661-images.html",
+    "license": "Public domain in the USA",
+    "kind": "fiction",
+    "case": "phrasal-verb",
+    "word": "make",
+    "expected": "понять, разобрать (make out)",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "“‘Tell me all about it,’ said I.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "“‘Well,’ said he, showing me the advertisement, ‘you can see for yourself that the League has a vacancy, and there is the address where you should apply for particulars. As far as I can make out, the League was founded by an American millionaire, Ezekiah Hopkins, who was very peculiar in his ways. He was himself red-headed, and he had a great sympathy for all red-headed men; so, when he died, it was found that he had left his enormous fortune in the hands of trustees, with instructions to apply the interest to the providing of easy berths to men whose hair is of that colour. From all I hear it is splendid pay and very little to do.’",
+        "word": {
+          "start": 186,
+          "end": 190
+        },
+        "sentence": {
+          "start": 170,
+          "end": 298
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "“‘But,’ said I, ‘there would be millions of red-headed men who would apply.’",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "holmes-took-to-heels",
+    "url": "https://www.gutenberg.org/cache/epub/1661/pg1661-images.html",
+    "license": "Public domain in the USA",
+    "kind": "fiction",
+    "case": "idiom",
+    "word": "heels",
+    "expected": "пуститься наутёк, броситься бежать (take to one's heels)",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "“She will not be able to. But I hear the rumble of wheels. It is her carriage. Now carry out my orders to the letter.”",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "As he spoke the gleam of the sidelights of a carriage came round the curve of the avenue. It was a smart little landau which rattled up to the door of Briony Lodge. As it pulled up, one of the loafing men at the corner dashed forward to open the door in the hope of earning a copper, but was elbowed away by another loafer, who had rushed up with the same intention. A fierce quarrel broke out, which was increased by the two guardsmen, who took sides with one of the loungers, and by the scissors-grinder, who was equally hot upon the other side. A blow was struck, and in an instant the lady, who had stepped from her carriage, was the centre of a little knot of flushed and struggling men, who struck savagely at each other with their fists and sticks. Holmes dashed into the crowd to protect the lady; but, just as he reached her, he gave a cry and dropped to the ground, with the blood running freely down his face. At his fall the guardsmen took to their heels in one direction and the loungers in the other, while a number of better dressed people, who had watched the scuffle without taking part in it, crowded in to help the lady and to attend to the injured man. Irene Adler, as I will still call her, had hurried up the steps; but she stood at the top with her superb figure outlined against the lights of the hall, looking back into the street.",
+        "word": {
+          "start": 961,
+          "end": 966
+        },
+        "sentence": {
+          "start": 921,
+          "end": 1172
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "“Is the poor gentleman much hurt?” she asked.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "holmes-carried-on",
+    "url": "https://www.gutenberg.org/cache/epub/1661/pg1661-images.html",
+    "license": "Public domain in the USA",
+    "kind": "fiction",
+    "case": "phrasal-verb",
+    "word": "carried",
+    "expected": "вёл (дело), занимался (carry on a business); не «продолжал»",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "“Then put on your hat and come. I am going through the City first, and we can have some lunch on the way. I observe that there is a good deal of German music on the programme, which is rather more to my taste than Italian or French. It is introspective, and I want to introspect. Come along!”",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "We travelled by the Underground as far as Aldersgate; and a short walk took us to Saxe-Coburg Square, the scene of the singular story which we had listened to in the morning. It was a poky, little, shabby-genteel place, where four lines of dingy two-storied brick houses looked out into a small railed-in enclosure, where a lawn of weedy grass and a few clumps of faded laurel bushes made a hard fight against a smoke-laden and uncongenial atmosphere. Three gilt balls and a brown board with “JABEZ WILSON” in white letters, upon a corner house, announced the place where our red-headed client carried on his business. Sherlock Holmes stopped in front of it with his head on one side and looked it all over, with his eyes shining brightly between puckered lids. Then he walked slowly up the street, and then down again to the corner, still looking keenly at the houses. Finally he returned to the pawnbroker’s, and, having thumped vigorously upon the pavement with his stick two or three times, he went up to the door and knocked. It was instantly opened by a bright-looking, clean-shaven young fellow, who asked him to step in.",
+        "word": {
+          "start": 594,
+          "end": 601
+        },
+        "sentence": {
+          "start": 452,
+          "end": 618
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "“Thank you,” said Holmes, “I only wished to ask you how you would go from here to the Strand.”",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "holmes-cardboard",
+    "url": "https://www.gutenberg.org/cache/epub/1661/pg1661-images.html",
+    "license": "Public domain in the USA",
+    "kind": "fiction",
+    "case": "plain",
+    "word": "cardboard",
+    "expected": "картон",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "“Yes, sir. And no later than this morning. I went to my work as usual at ten o’clock, but the door was shut and locked, with a little square of cardboard hammered on to the middle of the panel with a tack. Here it is, and you can read for yourself.”",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "He held up a piece of white cardboard about the size of a sheet of note-paper. It read in this fashion:",
+        "word": {
+          "start": 28,
+          "end": 37
+        },
+        "sentence": {
+          "start": 0,
+          "end": 78
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "“THE RED-HEADED LEAGUE IS DISSOLVED. October 9, 1890.”",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "jeeves-old-bean",
+    "url": "https://www.gutenberg.org/cache/epub/8164/pg8164-images.html",
+    "license": "Public domain in the USA",
+    "kind": "fiction",
+    "case": "slang",
+    "word": "bean",
+    "expected": "голова, мозги (the old bean, шутл.); «напряг мозги»",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "“You don’t know him. Even if he did like Muriel he wouldn’t admit it. That’s the sort of pig-headed guy he is. It would be a matter of principle with him to kick. All he would consider would be that I had gone and taken an important step without asking his advice, and he would raise Cain automatically. He’s always done it.”",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "I strained the old bean to meet this emergency.",
+        "word": {
+          "start": 19,
+          "end": 23
+        },
+        "sentence": {
+          "start": 0,
+          "end": 47
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "“You want to work it so that he makes Miss Singer’s acquaintance without knowing that you know her. Then you come along——”",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "jeeves-rummy",
+    "url": "https://www.gutenberg.org/cache/epub/8164/pg8164-images.html",
+    "license": "Public domain in the USA",
+    "kind": "fiction",
+    "case": "slang",
+    "word": "rummy",
+    "expected": "странный, чудной (брит. разг., устар.)",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "And I rang the bell.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "“Sir?” said Jeeves, kind of manifesting himself. One of the rummy things about Jeeves is that, unless you watch like a hawk, you very seldom see him come into a room. He’s like one of those weird chappies in India who dissolve themselves into thin air and nip through space in a sort of disembodied way and assemble the parts again just where they want them. I’ve got a cousin who’s what they call a Theosophist, and he says he’s often nearly worked the thing himself, but couldn’t quite bring it off, probably owing to having fed in his boyhood on the flesh of animals slain in anger and pie.",
+        "word": {
+          "start": 60,
+          "end": 65
+        },
+        "sentence": {
+          "start": 49,
+          "end": 166
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "The moment I saw the man standing there, registering respectful attention, a weight seemed to roll off my mind. I felt like a lost child who spots his father in the offing. There was something about him that gave me confidence.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "jeeves-hawk",
+    "url": "https://www.gutenberg.org/cache/epub/8164/pg8164-images.html",
+    "license": "Public domain in the USA",
+    "kind": "fiction",
+    "case": "idiom",
+    "word": "hawk",
+    "expected": "следить в оба, не спускать глаз (watch like a hawk)",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "And I rang the bell.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "“Sir?” said Jeeves, kind of manifesting himself. One of the rummy things about Jeeves is that, unless you watch like a hawk, you very seldom see him come into a room. He’s like one of those weird chappies in India who dissolve themselves into thin air and nip through space in a sort of disembodied way and assemble the parts again just where they want them. I’ve got a cousin who’s what they call a Theosophist, and he says he’s often nearly worked the thing himself, but couldn’t quite bring it off, probably owing to having fed in his boyhood on the flesh of animals slain in anger and pie.",
+        "word": {
+          "start": 119,
+          "end": 123
+        },
+        "sentence": {
+          "start": 49,
+          "end": 166
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "The moment I saw the man standing there, registering respectful attention, a weight seemed to roll off my mind. I felt like a lost child who spots his father in the offing. There was something about him that gave me confidence.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "jeeves-nip",
+    "url": "https://www.gutenberg.org/cache/epub/8164/pg8164-images.html",
+    "license": "Public domain in the USA",
+    "kind": "fiction",
+    "case": "slang",
+    "word": "nip",
+    "expected": "юркнуть, быстро переместиться (nip, брит. разг.); не «щипать»",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "And I rang the bell.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "“Sir?” said Jeeves, kind of manifesting himself. One of the rummy things about Jeeves is that, unless you watch like a hawk, you very seldom see him come into a room. He’s like one of those weird chappies in India who dissolve themselves into thin air and nip through space in a sort of disembodied way and assemble the parts again just where they want them. I’ve got a cousin who’s what they call a Theosophist, and he says he’s often nearly worked the thing himself, but couldn’t quite bring it off, probably owing to having fed in his boyhood on the flesh of animals slain in anger and pie.",
+        "word": {
+          "start": 256,
+          "end": 259
+        },
+        "sentence": {
+          "start": 167,
+          "end": 358
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "The moment I saw the man standing there, registering respectful attention, a weight seemed to roll off my mind. I felt like a lost child who spots his father in the offing. There was something about him that gave me confidence.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "jeeves-let-down",
+    "url": "https://www.gutenberg.org/cache/epub/8164/pg8164-images.html",
+    "license": "Public domain in the USA",
+    "kind": "fiction",
+    "case": "phrasal-verb",
+    "word": "down",
+    "expected": "подвести (let down)",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "“Why should not the young lady write a small volume, to be entitled—let us say—The Children’s Book of American Birds, and dedicate it to Mr. Worple? A limited edition could be published at your expense, sir, and a great deal of the book would, of course, be given over to eulogistic remarks concerning Mr. Worple’s own larger treatise on the same subject. I should recommend the dispatching of a presentation copy to Mr. Worple, immediately on publication, accompanied by a letter in which the young lady asks to be allowed to make the acquaintance of one to whom she owes so much. This would, I fancy, produce the desired result, but as I say, the expense involved would be considerable.”",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "I felt like the proprietor of a performing dog on the vaudeville stage when the tyke has just pulled off his trick without a hitch. I had betted on Jeeves all along, and I had known that he wouldn’t let me down. It beats me sometimes why a man with his genius is satisfied to hang around pressing my clothes and what-not. If I had half Jeeves’s brain, I should have a stab at being Prime Minister or something.",
+        "word": {
+          "start": 206,
+          "end": 210
+        },
+        "sentence": {
+          "start": 132,
+          "end": 211
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "“Jeeves,” I said, “that is absolutely ripping! One of your very best efforts.”",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "jeeves-soup",
+    "url": "https://www.gutenberg.org/cache/epub/8164/pg8164-images.html",
+    "license": "Public domain in the USA",
+    "kind": "fiction",
+    "case": "idiom",
+    "word": "soup",
+    "expected": "в беде, по уши в неприятностях (in the soup)",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "Corky and I looked at the picture, then at each other in an awed way. Jeeves was right. There could be no other title.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "“Jeeves,” I said. It was a few weeks later, and I had just finished looking at the comic section of the Sunday Star. “I’m an optimist. I always have been. The older I get, the more I agree with Shakespeare and those poet Johnnies about it always being darkest before the dawn and there’s a silver lining and what you lose on the swings you make up on the roundabouts. Look at Mr. Corcoran, for instance. There was a fellow, one would have said, clear up to the eyebrows in the soup. To all appearances he had got it right in the neck. Yet look at him now. Have you seen these pictures?”",
+        "word": {
+          "start": 477,
+          "end": 481
+        },
+        "sentence": {
+          "start": 404,
+          "end": 482
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "“I took the liberty of glancing at them before bringing them to you, sir. Extremely diverting.”",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "jeeves-come-round",
+    "url": "https://www.gutenberg.org/cache/epub/8164/pg8164-images.html",
+    "license": "Public domain in the USA",
+    "kind": "fiction",
+    "case": "phrasal-verb",
+    "word": "round",
+    "expected": "смягчиться, изменить отношение (come round)",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "“About a month. Your aunt gave me your address and told me to be sure and call on you.”",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "I was glad to hear this, as it showed that Aunt Agatha was beginning to come round a bit. There had been some unpleasantness a year before, when she had sent me over to New York to disentangle my Cousin Gussie from the clutches of a girl on the music-hall stage. When I tell you that by the time I had finished my operations, Gussie had not only married the girl but had gone on the stage himself, and was doing well, you’ll understand that Aunt Agatha was upset to no small extent. I simply hadn’t dared go back and face her, and it was a relief to find that time had healed the wound and all that sort of thing enough to make her tell her pals to look me up. What I mean is, much as I liked America, I didn’t want to have England barred to me for the rest of my natural; and, believe me, England is a jolly sight too small for anyone to live in with Aunt Agatha, if she’s really on the warpath. So I was braced on hearing these kind words and smiled genially on the assemblage.",
+        "word": {
+          "start": 77,
+          "end": 82
+        },
+        "sentence": {
+          "start": 0,
+          "end": 89
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "“Your aunt said that you would do anything that was in your power to be of assistance to us.”",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "gatsby-turned-out",
+    "url": "https://www.gutenberg.org/cache/epub/64317/pg64317-images.html",
+    "license": "Public domain in the USA",
+    "kind": "fiction",
+    "case": "phrasal-verb",
+    "word": "turned",
+    "expected": "оказались (turn out to be)",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "We shook hands with him gravely and went back outdoors.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "There was dancing now on the canvas in the garden; old men pushing young girls backward in eternal graceless circles, superior couples holding each other tortuously, fashionably, and keeping in the corners—and a great number of single girls dancing individually or relieving the orchestra for a moment of the burden of the banjo or the traps. By midnight the hilarity had increased. A celebrated tenor had sung in Italian, and a notorious contralto had sung in jazz, and between the numbers people were doing “stunts” all over the garden, while happy, vacuous bursts of laughter rose toward the summer sky. A pair of stage twins, who turned out to be the girls in yellow, did a baby act in costume, and champagne was served in glasses bigger than finger-bowls. The moon had risen higher, and floating in the Sound was a triangle of silver scales, trembling a little to the stiff, tinny drip of the banjoes on the lawn.",
+        "word": {
+          "start": 634,
+          "end": 640
+        },
+        "sentence": {
+          "start": 607,
+          "end": 760
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "I was still with Jordan Baker. We were sitting at a table with a man of about my age and a rowdy little girl, who gave way upon the slightest provocation to uncontrollable laughter. I was enjoying myself now. I had taken two finger-bowls of champagne, and the scene had changed before my eyes into something significant, elemental, and profound.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "gatsby-side-line",
+    "url": "https://www.gutenberg.org/cache/epub/64317/pg64317-images.html",
+    "license": "Public domain in the USA",
+    "kind": "fiction",
+    "case": "ambiguous",
+    "word": "line",
+    "expected": "побочное занятие, подработка (side line)",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "This seemed to reassure him and he continued more confidently.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "“I thought you didn’t, if you’ll pardon my—you see, I carry on a little business on the side, a sort of side line, you understand. And I thought that if you don’t make very much—You’re selling bonds, aren’t you, old sport?”",
+        "word": {
+          "start": 109,
+          "end": 113
+        },
+        "sentence": {
+          "start": 0,
+          "end": 130
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "“Trying to.”",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "callwild-cooks-turned-out",
+    "url": "https://www.gutenberg.org/cache/epub/215/pg215-images.html",
+    "license": "Public domain in the USA",
+    "kind": "fiction",
+    "case": "phrasal-verb",
+    "word": "turned",
+    "expected": "вставали, выходили на работу (turn out); не «оказались»",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "A Scotch half-breed took charge of him and his mates, and in company with a dozen other dog-teams he started back over the weary trail to Dawson. It was no light running now, nor record time, but heavy toil each day, with a heavy load behind; for this was the mail train, carrying word from the world to the men who sought gold under the shadow of the Pole.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "Buck did not like it, but he bore up well to the work, taking pride in it after the manner of Dave and Sol-leks, and seeing that his mates, whether they prided in it or not, did their fair share. It was a monotonous life, operating with machine-like regularity. One day was very like another. At a certain time each morning the cooks turned out, fires were built, and breakfast was eaten. Then, while some broke camp, others harnessed the dogs, and they were under way an hour or so before the darkness fell which gave warning of dawn. At night, camp was made. Some pitched the flies, others cut firewood and pine boughs for the beds, and still others carried water or ice for the cooks. Also, the dogs were fed. To them, this was the one feature of the day, though it was good to loaf around, after the fish was eaten, for an hour or so with the other dogs, of which there were fivescore and odd. There were fierce fighters among them, but three battles with the fiercest brought Buck to mastery, so that when he bristled and showed his teeth they got out of his way.",
+        "word": {
+          "start": 334,
+          "end": 340
+        },
+        "sentence": {
+          "start": 293,
+          "end": 388
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "Best of all, perhaps, he loved to lie near the fire, hind legs crouched under him, fore legs stretched out in front, head raised, and eyes blinking dreamily at the flames. Sometimes he thought of Judge Miller’s big house in the sun-kissed Santa Clara Valley, and of the cement swimming-tank, and Ysabel, the Mexican hairless, and Toots, the Japanese pug; but oftener he remembered the man in the red sweater, the death of Curly, the great fight with Spitz, and the good things he had eaten or would like to eat. He was not homesick. The Sunland was very dim and distant, and such memories had no power over him. Far more potent were the memories of his heredity that gave things he had never seen before a seeming familiarity; the instincts (which were but the memories of his ancestors become habits) which had lapsed in later days, and still later, in him, quickened and become alive again.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "callwild-took-to-wandering",
+    "url": "https://www.gutenberg.org/cache/epub/215/pg215-images.html",
+    "license": "Public domain in the USA",
+    "kind": "fiction",
+    "case": "phrasal-verb",
+    "word": "took",
+    "expected": "снова стал (бродить), начал регулярно (take to doing)",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "John Thornton was eating dinner when Buck dashed into camp and sprang upon him in a frenzy of affection, overturning him, scrambling upon him, licking his face, biting his hand—“playing the general tom-fool,” as John Thornton characterized it, the while he shook Buck back and forth and cursed him lovingly.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "For two days and nights Buck never left camp, never let Thornton out of his sight. He followed him about at his work, watched him while he ate, saw him into his blankets at night and out of them in the morning. But after two days the call in the forest began to sound more imperiously than ever. Buck’s restlessness came back on him, and he was haunted by recollections of the wild brother, and of the smiling land beyond the divide and the run side by side through the wide forest stretches. Once again he took to wandering in the woods, but the wild brother came no more; and though he listened through long vigils, the mournful howl was never raised.",
+        "word": {
+          "start": 507,
+          "end": 511
+        },
+        "sentence": {
+          "start": 493,
+          "end": 653
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "He began to sleep out at night, staying away from camp for days at a time; and once he crossed the divide at the head of the creek and went down into the land of timber and streams. There he wandered for a week, seeking vainly for fresh sign of the wild brother, killing his meat as he travelled and travelling with the long, easy lope that seems never to tire. He fished for salmon in a broad stream that emptied somewhere into the sea, and by this stream he killed a large black bear, blinded by the mosquitoes while likewise fishing, and raging through the forest helpless and terrible. Even so, it was a hard fight, and it aroused the last latent remnants of Buck’s ferocity. And two days later, when he returned to his kill and found a dozen wolverenes quarrelling over the spoil, he scattered them like chaff; and those that fled left two behind who would quarrel no more.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "go-work-around",
+    "url": "https://go.dev/doc/effective_go",
+    "license": "CC BY 4.0",
+    "kind": "docs",
+    "case": "phrasal-verb",
+    "word": "around",
+    "expected": "обходить (проблему), искать обходной путь (work around)",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "Formatting issues are the most contentious but the least consequential. People can adapt to different formatting styles but it's better if they don't have to, and less time is devoted to the topic if everyone adheres to the same style. The problem is how to approach this Utopia without a long prescriptive style guide.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "With Go we take an unusual approach and let the machine take care of most formatting issues. The program (also available as , which operates at the package level rather than source file level) reads a Go program and emits the source in a standard style of indentation and vertical alignment, retaining and if necessary reformatting comments. If you want to know how to handle some new layout situation, run ; if the answer doesn't seem right, rearrange your program (or file a bug about ), don't work around it.",
+        "word": {
+          "start": 501,
+          "end": 507
+        },
+        "sentence": {
+          "start": 342,
+          "end": 511
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "As an example, there's no need to spend time lining up the comments on the fields of a structure. will do that for you. Given the declaration",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "go-file-bug",
+    "url": "https://go.dev/doc/effective_go",
+    "license": "CC BY 4.0",
+    "kind": "docs",
+    "case": "ambiguous",
+    "word": "file",
+    "expected": "сообщить об ошибке, завести баг (file a bug); не «файл»",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "Formatting issues are the most contentious but the least consequential. People can adapt to different formatting styles but it's better if they don't have to, and less time is devoted to the topic if everyone adheres to the same style. The problem is how to approach this Utopia without a long prescriptive style guide.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "With Go we take an unusual approach and let the machine take care of most formatting issues. The program (also available as , which operates at the package level rather than source file level) reads a Go program and emits the source in a standard style of indentation and vertical alignment, retaining and if necessary reformatting comments. If you want to know how to handle some new layout situation, run ; if the answer doesn't seem right, rearrange your program (or file a bug about ), don't work around it.",
+        "word": {
+          "start": 470,
+          "end": 474
+        },
+        "sentence": {
+          "start": 342,
+          "end": 511
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "As an example, there's no need to spend time lining up the comments on the fields of a structure. will do that for you. Given the declaration",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "go-line-up",
+    "url": "https://go.dev/doc/effective_go",
+    "license": "CC BY 4.0",
+    "kind": "docs",
+    "case": "phrasal-verb",
+    "word": "line",
+    "expected": "выровнять (line up)",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "As an example, there's no need to spend time lining up the comments on the fields of a structure. will do that for you. Given the declaration",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "will line up the columns:",
+        "word": {
+          "start": 5,
+          "end": 9
+        },
+        "sentence": {
+          "start": 0,
+          "end": 25
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "All Go code in the standard packages has been formatted with .",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "go-break-out",
+    "url": "https://go.dev/doc/effective_go",
+    "license": "CC BY 4.0",
+    "kind": "docs",
+    "case": "phrasal-verb",
+    "word": "break",
+    "expected": "выйти из (внешнего цикла) (break out of)",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "There is no automatic fall through, but cases can be presented in comma-separated lists.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "Although they are not nearly as common in Go as some other C-like languages, statements can be used to terminate a early. Sometimes, though, it's necessary to break out of a surrounding loop, not the switch, and in Go that can be accomplished by putting a label on the loop and \"breaking\" to that label. This example shows both uses.",
+        "word": {
+          "start": 159,
+          "end": 164
+        },
+        "sentence": {
+          "start": 122,
+          "end": 303
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "Of course, the statement also accepts an optional label but it applies only to loops.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "go-fall-through",
+    "url": "https://go.dev/doc/effective_go",
+    "license": "CC BY 4.0",
+    "kind": "docs",
+    "case": "term",
+    "word": "fall",
+    "expected": "переход к следующему case (fall through, fallthrough)",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "Go's is more general than C's. The expressions need not be constants or even integers, the cases are evaluated top to bottom until a match is found, and if the has no expression it switches on . It's therefore possible—and idiomatic—to write an --- chain as a .",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "There is no automatic fall through, but cases can be presented in comma-separated lists.",
+        "word": {
+          "start": 22,
+          "end": 26
+        },
+        "sentence": {
+          "start": 0,
+          "end": 88
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "Although they are not nearly as common in Go as some other C-like languages, statements can be used to terminate a early. Sometimes, though, it's necessary to break out of a surrounding loop, not the switch, and in Go that can be accomplished by putting a label on the loop and \"breaking\" to that label. This example shows both uses.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "go-idiomatic",
+    "url": "https://go.dev/doc/effective_go",
+    "license": "CC BY 4.0",
+    "kind": "docs",
+    "case": "term",
+    "word": "idiomatic",
+    "expected": "идиоматичный, принятый в языке (стиль кода)",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "Getters¶",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "Go doesn't provide automatic support for getters and setters. There's nothing wrong with providing getters and setters yourself, and it's often appropriate to do so, but it's neither idiomatic nor necessary to put into the getter's name. If you have a field called (lower case, unexported), the getter method should be called (upper case, exported), not . The use of upper-case names for export provides the hook to discriminate the field from the method. A setter function, if needed, will likely be called . Both names read well in practice:",
+        "word": {
+          "start": 183,
+          "end": 192
+        },
+        "sentence": {
+          "start": 62,
+          "end": 237
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "Interface names¶",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "mdn-kitchen-sink",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Caching",
+    "license": "CC BY-SA 2.5",
+    "kind": "docs",
+    "case": "idiom",
+    "word": "Kitchen",
+    "expected": "«всё подряд», избыточный набор (kitchen-sink)",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "In addition to the function of access control, some proxies implement caching to reduce traffic out of the network. This is usually not managed by the service developer, so it must be controlled by appropriate HTTP headers and so on. However, in the past, outdated proxy-cache implementations — such as implementations that do not properly understand the HTTP Caching standard — have often caused problems for developers.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "Kitchen-sink headers like the following are used to try to work around \"old and not updated proxy cache\" implementations that do not understand current HTTP Caching spec directives like .",
+        "word": {
+          "start": 0,
+          "end": 7
+        },
+        "sentence": {
+          "start": 0,
+          "end": 187
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "However, in recent years, as HTTPS has become more common and client/server communication has become encrypted, proxy caches in the path can only tunnel a response and can't behave as a cache, in many cases. So in that scenario, there is no need to worry about outdated proxy cache implementations that cannot even see the response.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "mdn-stale",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Caching",
+    "license": "CC BY-SA 2.5",
+    "kind": "docs",
+    "case": "term",
+    "word": "stale",
+    "expected": "устаревший (о кэше)",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "Fresh and stale based on age",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "Stored HTTP responses have two states: fresh and stale. The fresh state usually indicates that the response is still valid and can be reused, while the stale state means that the cached response has already expired.",
+        "word": {
+          "start": 152,
+          "end": 157
+        },
+        "sentence": {
+          "start": 56,
+          "end": 215
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "The criterion for determining when a response is fresh and when it is stale is age. In HTTP, age is the time elapsed since the response was generated. This is similar to the TTL in other caching mechanisms.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "k8s-pods",
+    "url": "https://kubernetes.io/docs/concepts/workloads/pods/",
+    "license": "CC BY 4.0",
+    "kind": "docs",
+    "case": "term",
+    "word": "Pods",
+    "expected": "поды (Pod, термин Kubernetes); не «стручки»",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "Pods",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "Pods are the smallest deployable units of computing that you can create and manage in Kubernetes.",
+        "word": {
+          "start": 0,
+          "end": 4
+        },
+        "sentence": {
+          "start": 0,
+          "end": 97
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "A Pod (as in a pod of whales or pea pod) is a group of one or more containers, with shared storage and network resources, and a specification for how to run the containers. A Pod's contents are always co-located and co-scheduled, and run in a shared context. A Pod models an application-specific \"logical host\": it contains one or more application containers which are relatively tightly coupled. In non-cloud contexts, applications executed on the same physical or virtual machine are analogous to cloud applications executed on the same logical host.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "k8s-sidecars",
+    "url": "https://kubernetes.io/docs/concepts/workloads/pods/",
+    "license": "CC BY 4.0",
+    "kind": "docs",
+    "case": "term",
+    "word": "sidecars",
+    "expected": "sidecar-контейнеры, вспомогательные контейнеры",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "This is a stable feature in Kubernetes, and has been since version v1.33. It was first available in the v1.28 release. You can no longer disable or opt out of this feature or behavior (it is locked); if you explicitly set a value for the associated feature gate SidecarContainers, Kubernetes ignores it but does not report any error.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "Enabled by default, the feature gate allows you to specify for init containers. Setting the restart policy ensures that the containers where you set it are treated as sidecars that are kept running during the entire lifetime of the Pod. Containers that you explicitly define as sidecar containers start up before the main application Pod and remain running until the Pod is shut down.",
+        "word": {
+          "start": 167,
+          "end": 175
+        },
+        "sentence": {
+          "start": 80,
+          "end": 236
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "Container probes",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "k8s-shut-down",
+    "url": "https://kubernetes.io/docs/concepts/workloads/pods/",
+    "license": "CC BY 4.0",
+    "kind": "docs",
+    "case": "phrasal-verb",
+    "word": "shut",
+    "expected": "остановлен, завершён (shut down)",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "This is a stable feature in Kubernetes, and has been since version v1.33. It was first available in the v1.28 release. You can no longer disable or opt out of this feature or behavior (it is locked); if you explicitly set a value for the associated feature gate SidecarContainers, Kubernetes ignores it but does not report any error.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "Enabled by default, the feature gate allows you to specify for init containers. Setting the restart policy ensures that the containers where you set it are treated as sidecars that are kept running during the entire lifetime of the Pod. Containers that you explicitly define as sidecar containers start up before the main application Pod and remain running until the Pod is shut down.",
+        "word": {
+          "start": 374,
+          "end": 378
+        },
+        "sentence": {
+          "start": 237,
+          "end": 384
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "Container probes",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "nasa-groundwork",
+    "url": "https://www.nasa.gov/news-release/nasa-seeks-next-generation-of-explorers-to-join-astronaut-corps/",
+    "license": "Public domain (U.S. Government work)",
+    "kind": "news",
+    "case": "idiom",
+    "word": "groundwork",
+    "expected": "заложить основу (lay the groundwork)",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "NASA is looking for the explorers who will help write the next chapter of human spaceflight.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "Applications are now open for the agency’s next class of astronauts, who will join NASA as America returns to the Moon, builds the Moon Base, and lays the groundwork for the first crewed missions to Mars.",
+        "word": {
+          "start": 155,
+          "end": 165
+        },
+        "sentence": {
+          "start": 0,
+          "end": 204
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "The next generation of astronauts will train to operate on the lunar surface, live and work beyond Earth, and take on missions that will push the boundaries of human exploration farther than ever before.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "nasa-take-on",
+    "url": "https://www.nasa.gov/news-release/nasa-seeks-next-generation-of-explorers-to-join-astronaut-corps/",
+    "license": "Public domain (U.S. Government work)",
+    "kind": "news",
+    "case": "phrasal-verb",
+    "word": "take",
+    "expected": "взяться за, браться (take on)",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "Applications are now open for the agency’s next class of astronauts, who will join NASA as America returns to the Moon, builds the Moon Base, and lays the groundwork for the first crewed missions to Mars.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "The next generation of astronauts will train to operate on the lunar surface, live and work beyond Earth, and take on missions that will push the boundaries of human exploration farther than ever before.",
+        "word": {
+          "start": 110,
+          "end": 114
+        },
+        "sentence": {
+          "start": 0,
+          "end": 203
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "U.S. citizens interested in joining the astronaut corps have until 11:59 p.m. EST Thursday, Dec. 3, to submit their completed application materials at:",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "nasa-push-boundaries",
+    "url": "https://www.nasa.gov/news-release/nasa-seeks-next-generation-of-explorers-to-join-astronaut-corps/",
+    "license": "Public domain (U.S. Government work)",
+    "kind": "news",
+    "case": "idiom",
+    "word": "boundaries",
+    "expected": "раздвигать границы (push the boundaries)",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "Applications are now open for the agency’s next class of astronauts, who will join NASA as America returns to the Moon, builds the Moon Base, and lays the groundwork for the first crewed missions to Mars.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "The next generation of astronauts will train to operate on the lunar surface, live and work beyond Earth, and take on missions that will push the boundaries of human exploration farther than ever before.",
+        "word": {
+          "start": 146,
+          "end": 156
+        },
+        "sentence": {
+          "start": 0,
+          "end": 203
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "U.S. citizens interested in joining the astronaut corps have until 11:59 p.m. EST Thursday, Dec. 3, to submit their completed application materials at:",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "nasa-sound-judgment",
+    "url": "https://www.nasa.gov/news-release/nasa-seeks-next-generation-of-explorers-to-join-astronaut-corps/",
+    "license": "Public domain (U.S. Government work)",
+    "kind": "news",
+    "case": "ambiguous",
+    "word": "sound",
+    "expected": "здравое (суждение), здравомыслие; не «звук»",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "https://go.nasa.gov/3WyvlQi",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "“This is an extraordinary time to join NASA’s astronaut corps,” said NASA Administrator Jared Isaacman. “The people we select could walk on the Moon, live and work at the Moon Base, and help pioneer the systems and operations that will ultimately carry crews to Mars. Those missions will demand technical excellence, sound judgment, teamwork, and courage. NASA’s astronaut corps has always called on remarkable Americans willing to take on extraordinary challenges in service to the nation. If you are ready to join that tradition, come help write the next chapter of humanity’s greatest adventure.”",
+        "word": {
+          "start": 317,
+          "end": 322
+        },
+        "sentence": {
+          "start": 268,
+          "end": 355
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "NASA expects to make its final selection in late 2027 to begin training as the next class of astronaut candidates.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "nasa-window",
+    "url": "https://www.nasa.gov/news-release/nasa-seeks-next-generation-of-explorers-to-join-astronaut-corps/",
+    "license": "Public domain (U.S. Government work)",
+    "kind": "news",
+    "case": "ambiguous",
+    "word": "window",
+    "expected": "окно возможностей; приём заявок открыт",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "NASA expects to make its final selection in late 2027 to begin training as the next class of astronaut candidates.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "“The window is open. The mission is waiting. And the only thing missing from the greatest adventure humanity has ever embarked upon is you,” said NASA Deputy Administrator Matt Anderson.",
+        "word": {
+          "start": 5,
+          "end": 11
+        },
+        "sentence": {
+          "start": 0,
+          "end": 20
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "The agency last opened applications in 2024. From more than 8,000 applications, 10 astronaut candidates were selected in 2025 and are currently completing nearly two years of training.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "nasa-on-track",
+    "url": "https://www.nasa.gov/missions/artemis/nasa-shares-plans-to-accelerate-artemis-return-to-moon/",
+    "license": "Public domain (U.S. Government work)",
+    "kind": "news",
+    "case": "idiom",
+    "word": "track",
+    "expected": "идёт по плану (on track)",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "The Artemis III mission will unfold in sequence: Blue Origin will launch a Blue Moon lander test article into Earth orbit, SLS will launch Orion and its crew, docking with the Blue Moon lander test article, then SpaceX will launch a Version 3 Starship lander test article while Orion will undock from Blue Moon and dock with Starship.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "The Oct. 23 updates follow other recent updates about the Artemis missions. Hardware for Artemis III is on track, with processing timelines sharply reduced by about half. NASA also redesigned, built, and tested a critical fuel-line component in-house in five months, at roughly a tenth of the cost of an earlier outside-vendor estimate.",
+        "word": {
+          "start": 107,
+          "end": 112
+        },
+        "sentence": {
+          "start": 76,
+          "end": 170
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "“NASA should be expected to do this kind of work, and we have some of the best technical knowledge in the world on rocket hardware and operations to do it,” said Jeremy Parsons, the agency’s Artemis program manager. “It’s an example of how we are rebuilding our core competencies and developing centers of excellence in technical functions instead of continuing to outsource expertise.”",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "nasa-test-article",
+    "url": "https://www.nasa.gov/missions/artemis/nasa-shares-plans-to-accelerate-artemis-return-to-moon/",
+    "license": "Public domain (U.S. Government work)",
+    "kind": "news",
+    "case": "term",
+    "word": "article",
+    "expected": "испытательный образец, изделие (test article); не «статья»",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "The agency shared details of the Artemis III mission, which will test rendezvous, docking, and operations between NASA’s Orion spacecraft and lunar lander test vehicles from SpaceX and Blue Origin in Earth orbit. Four astronauts will fly aboard Orion, launched on NASA’s SLS (Space Launch System) rocket, for a planned 14-day mission in Earth orbit to reduce risk ahead of the Artemis IV moon landing mission.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "The Artemis III mission will unfold in sequence: Blue Origin will launch a Blue Moon lander test article into Earth orbit, SLS will launch Orion and its crew, docking with the Blue Moon lander test article, then SpaceX will launch a Version 3 Starship lander test article while Orion will undock from Blue Moon and dock with Starship.",
+        "word": {
+          "start": 97,
+          "end": 104
+        },
+        "sentence": {
+          "start": 0,
+          "end": 334
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "The Oct. 23 updates follow other recent updates about the Artemis missions. Hardware for Artemis III is on track, with processing timelines sharply reduced by about half. NASA also redesigned, built, and tested a critical fuel-line component in-house in five months, at roughly a tenth of the cost of an earlier outside-vendor estimate.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "nasa-unfold",
+    "url": "https://www.nasa.gov/missions/artemis/nasa-shares-plans-to-accelerate-artemis-return-to-moon/",
+    "license": "Public domain (U.S. Government work)",
+    "kind": "news",
+    "case": "ambiguous",
+    "word": "unfold",
+    "expected": "проходить, разворачиваться (о событиях); не «развернуть (лист)»",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "The agency shared details of the Artemis III mission, which will test rendezvous, docking, and operations between NASA’s Orion spacecraft and lunar lander test vehicles from SpaceX and Blue Origin in Earth orbit. Four astronauts will fly aboard Orion, launched on NASA’s SLS (Space Launch System) rocket, for a planned 14-day mission in Earth orbit to reduce risk ahead of the Artemis IV moon landing mission.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "The Artemis III mission will unfold in sequence: Blue Origin will launch a Blue Moon lander test article into Earth orbit, SLS will launch Orion and its crew, docking with the Blue Moon lander test article, then SpaceX will launch a Version 3 Starship lander test article while Orion will undock from Blue Moon and dock with Starship.",
+        "word": {
+          "start": 29,
+          "end": 35
+        },
+        "sentence": {
+          "start": 0,
+          "end": 334
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "The Oct. 23 updates follow other recent updates about the Artemis missions. Hardware for Artemis III is on track, with processing timelines sharply reduced by about half. NASA also redesigned, built, and tested a critical fuel-line component in-house in five months, at roughly a tenth of the cost of an earlier outside-vendor estimate.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "nasa-hubble-owe",
+    "url": "https://science.nasa.gov/missions/hubble/nasa-explores-potential-commercial-servicing-for-hubble-telescope/",
+    "license": "Public domain (U.S. Government work)",
+    "kind": "news",
+    "case": "idiom",
+    "word": "owe",
+    "expected": "мы обязаны (перед кем-то) это сделать (owe it to someone to do something)",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "NASA",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "NASA issued a Request for Information Oct. 29 to learn more about industry capabilities for in-space servicing to support the agency’s Hubble Space Telescope.\n\n“Hubble still has important science ahead of it, and we should be looking at every reasonable opportunity to keep it delivering for as long as possible,” said NASA Administrator Jared Isaacman. “If there are innovative and cost-effective ways to extend the life of an asset already on orbit, we owe it to the American taxpayer and the scientific community to explore them. Extending Hubble’s life would mean more discoveries, more science, and more opportunities to expand our understanding of the universe.”\n\nThe Request for Information seeks commercial interest in: potentially conducting a mission to boost Hubble to a higher altitude to extend its science lifetime; servicing Hubble to enhance its capabilities; or performing a safe, controlled re-entry into Earth’s atmosphere or orbital disposal at the end of Hubble’s mission.\n\n“Hubble is a national icon that has fundamentally changed how humanity views our universe for more than 35 years,” said Nicky Fox, associate administrator, Science Mission Directorate, NASA Headquarters in Washington. “Commercial industry has rapidly evolved in recent years to offer new capabilities for in-space satellite capture and servicing. Given the time we have until Hubble’s anticipated re-entry, we are eager to explore the breadth of possibilities to boost Hubble to a higher orbit while we develop the flagship mission to follow.”\n\nThe Request for Information is available online and will remain open for responses until 3 p.m. EST, Monday, Nov. 30.\n\nLike all spacecraft in low Earth orbit, Hubble’s altitude is slowly decreasing over time because of atmospheric drag. Hubble does not have a propulsion system to maintain its own orbit, and analysis predicts Hubble is likely to re-enter the atmosphere in the 2033 to 2034 timeframe. As such, NASA anticipates that a mission would need to take place by 2032.\n\nThe Hubble Space Telescope has been operating for more than three decades and continues to make ground-breaking discoveries that shape our fundamental understanding of the universe. Hubble is a project of international cooperation between NASA and ESA (European Space Agency). NASA’s Goddard Space Flight Center in Greenbelt, Maryland, manages the telescope and mission operations. Lockheed Martin Space, based in Denver, also supports mission operations at Goddard. The Space Telescope Science Institute in Baltimore, which is operated by the Association of Universities for Research in Astronomy, conducts Hubble science operations for NASA.\n\nTo learn more about NASA’s Hubble Space Telescope, visit:",
+        "word": {
+          "start": 455,
+          "end": 458
+        },
+        "sentence": {
+          "start": 354,
+          "end": 532
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "https://www.nasa.gov/hubble",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "nasa-hubble-asset",
+    "url": "https://science.nasa.gov/missions/hubble/nasa-explores-potential-commercial-servicing-for-hubble-telescope/",
+    "license": "Public domain (U.S. Government work)",
+    "kind": "news",
+    "case": "ambiguous",
+    "word": "asset",
+    "expected": "ценный объект, аппарат (здесь — телескоп); не «актив» в финансовом смысле",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "NASA",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "NASA issued a Request for Information Oct. 29 to learn more about industry capabilities for in-space servicing to support the agency’s Hubble Space Telescope.\n\n“Hubble still has important science ahead of it, and we should be looking at every reasonable opportunity to keep it delivering for as long as possible,” said NASA Administrator Jared Isaacman. “If there are innovative and cost-effective ways to extend the life of an asset already on orbit, we owe it to the American taxpayer and the scientific community to explore them. Extending Hubble’s life would mean more discoveries, more science, and more opportunities to expand our understanding of the universe.”\n\nThe Request for Information seeks commercial interest in: potentially conducting a mission to boost Hubble to a higher altitude to extend its science lifetime; servicing Hubble to enhance its capabilities; or performing a safe, controlled re-entry into Earth’s atmosphere or orbital disposal at the end of Hubble’s mission.\n\n“Hubble is a national icon that has fundamentally changed how humanity views our universe for more than 35 years,” said Nicky Fox, associate administrator, Science Mission Directorate, NASA Headquarters in Washington. “Commercial industry has rapidly evolved in recent years to offer new capabilities for in-space satellite capture and servicing. Given the time we have until Hubble’s anticipated re-entry, we are eager to explore the breadth of possibilities to boost Hubble to a higher orbit while we develop the flagship mission to follow.”\n\nThe Request for Information is available online and will remain open for responses until 3 p.m. EST, Monday, Nov. 30.\n\nLike all spacecraft in low Earth orbit, Hubble’s altitude is slowly decreasing over time because of atmospheric drag. Hubble does not have a propulsion system to maintain its own orbit, and analysis predicts Hubble is likely to re-enter the atmosphere in the 2033 to 2034 timeframe. As such, NASA anticipates that a mission would need to take place by 2032.\n\nThe Hubble Space Telescope has been operating for more than three decades and continues to make ground-breaking discoveries that shape our fundamental understanding of the universe. Hubble is a project of international cooperation between NASA and ESA (European Space Agency). NASA’s Goddard Space Flight Center in Greenbelt, Maryland, manages the telescope and mission operations. Lockheed Martin Space, based in Denver, also supports mission operations at Goddard. The Space Telescope Science Institute in Baltimore, which is operated by the Association of Universities for Research in Astronomy, conducts Hubble science operations for NASA.\n\nTo learn more about NASA’s Hubble Space Telescope, visit:",
+        "word": {
+          "start": 428,
+          "end": 433
+        },
+        "sentence": {
+          "start": 354,
+          "end": 532
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "https://www.nasa.gov/hubble",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "nasa-hubble-boost",
+    "url": "https://science.nasa.gov/missions/hubble/nasa-explores-potential-commercial-servicing-for-hubble-telescope/",
+    "license": "Public domain (U.S. Government work)",
+    "kind": "news",
+    "case": "term",
+    "word": "boost",
+    "expected": "поднять (на более высокую орбиту); не «усилить»",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "NASA",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "NASA issued a Request for Information Oct. 29 to learn more about industry capabilities for in-space servicing to support the agency’s Hubble Space Telescope.\n\n“Hubble still has important science ahead of it, and we should be looking at every reasonable opportunity to keep it delivering for as long as possible,” said NASA Administrator Jared Isaacman. “If there are innovative and cost-effective ways to extend the life of an asset already on orbit, we owe it to the American taxpayer and the scientific community to explore them. Extending Hubble’s life would mean more discoveries, more science, and more opportunities to expand our understanding of the universe.”\n\nThe Request for Information seeks commercial interest in: potentially conducting a mission to boost Hubble to a higher altitude to extend its science lifetime; servicing Hubble to enhance its capabilities; or performing a safe, controlled re-entry into Earth’s atmosphere or orbital disposal at the end of Hubble’s mission.\n\n“Hubble is a national icon that has fundamentally changed how humanity views our universe for more than 35 years,” said Nicky Fox, associate administrator, Science Mission Directorate, NASA Headquarters in Washington. “Commercial industry has rapidly evolved in recent years to offer new capabilities for in-space satellite capture and servicing. Given the time we have until Hubble’s anticipated re-entry, we are eager to explore the breadth of possibilities to boost Hubble to a higher orbit while we develop the flagship mission to follow.”\n\nThe Request for Information is available online and will remain open for responses until 3 p.m. EST, Monday, Nov. 30.\n\nLike all spacecraft in low Earth orbit, Hubble’s altitude is slowly decreasing over time because of atmospheric drag. Hubble does not have a propulsion system to maintain its own orbit, and analysis predicts Hubble is likely to re-enter the atmosphere in the 2033 to 2034 timeframe. As such, NASA anticipates that a mission would need to take place by 2032.\n\nThe Hubble Space Telescope has been operating for more than three decades and continues to make ground-breaking discoveries that shape our fundamental understanding of the universe. Hubble is a project of international cooperation between NASA and ESA (European Space Agency). NASA’s Goddard Space Flight Center in Greenbelt, Maryland, manages the telescope and mission operations. Lockheed Martin Space, based in Denver, also supports mission operations at Goddard. The Space Telescope Science Institute in Baltimore, which is operated by the Association of Universities for Research in Astronomy, conducts Hubble science operations for NASA.\n\nTo learn more about NASA’s Hubble Space Telescope, visit:",
+        "word": {
+          "start": 764,
+          "end": 769
+        },
+        "sentence": {
+          "start": 670,
+          "end": 993
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "https://www.nasa.gov/hubble",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "nasa-hubble-drag",
+    "url": "https://science.nasa.gov/missions/hubble/nasa-explores-potential-commercial-servicing-for-hubble-telescope/",
+    "license": "Public domain (U.S. Government work)",
+    "kind": "news",
+    "case": "term",
+    "word": "drag",
+    "expected": "сопротивление (атмосферы), торможение; не «тащить»",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "NASA",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "NASA issued a Request for Information Oct. 29 to learn more about industry capabilities for in-space servicing to support the agency’s Hubble Space Telescope.\n\n“Hubble still has important science ahead of it, and we should be looking at every reasonable opportunity to keep it delivering for as long as possible,” said NASA Administrator Jared Isaacman. “If there are innovative and cost-effective ways to extend the life of an asset already on orbit, we owe it to the American taxpayer and the scientific community to explore them. Extending Hubble’s life would mean more discoveries, more science, and more opportunities to expand our understanding of the universe.”\n\nThe Request for Information seeks commercial interest in: potentially conducting a mission to boost Hubble to a higher altitude to extend its science lifetime; servicing Hubble to enhance its capabilities; or performing a safe, controlled re-entry into Earth’s atmosphere or orbital disposal at the end of Hubble’s mission.\n\n“Hubble is a national icon that has fundamentally changed how humanity views our universe for more than 35 years,” said Nicky Fox, associate administrator, Science Mission Directorate, NASA Headquarters in Washington. “Commercial industry has rapidly evolved in recent years to offer new capabilities for in-space satellite capture and servicing. Given the time we have until Hubble’s anticipated re-entry, we are eager to explore the breadth of possibilities to boost Hubble to a higher orbit while we develop the flagship mission to follow.”\n\nThe Request for Information is available online and will remain open for responses until 3 p.m. EST, Monday, Nov. 30.\n\nLike all spacecraft in low Earth orbit, Hubble’s altitude is slowly decreasing over time because of atmospheric drag. Hubble does not have a propulsion system to maintain its own orbit, and analysis predicts Hubble is likely to re-enter the atmosphere in the 2033 to 2034 timeframe. As such, NASA anticipates that a mission would need to take place by 2032.\n\nThe Hubble Space Telescope has been operating for more than three decades and continues to make ground-breaking discoveries that shape our fundamental understanding of the universe. Hubble is a project of international cooperation between NASA and ESA (European Space Agency). NASA’s Goddard Space Flight Center in Greenbelt, Maryland, manages the telescope and mission operations. Lockheed Martin Space, based in Denver, also supports mission operations at Goddard. The Space Telescope Science Institute in Baltimore, which is operated by the Association of Universities for Research in Astronomy, conducts Hubble science operations for NASA.\n\nTo learn more about NASA’s Hubble Space Telescope, visit:",
+        "word": {
+          "start": 1771,
+          "end": 1775
+        },
+        "sentence": {
+          "start": 1659,
+          "end": 1776
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "https://www.nasa.gov/hubble",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "nasa-x70-swap",
+    "url": "https://www.nasa.gov/news-release/nasa-announces-x-70-experimental-aircraft-to-advance-flight-research/",
+    "license": "Public domain (U.S. Government work)",
+    "kind": "news",
+    "case": "plain",
+    "word": "swap",
+    "expected": "менять, заменять",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "The crewed X-70 features advanced, rapidly reconfigurable flight-control technology that will allow NASA to explore aircraft maneuverability in ways never before demonstrated in crewed flight. The aircraft can also accommodate up to 2,000 pounds of experimental payloads in internal and external locations, enabling a wide range of research and flight-testing opportunities.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "“The X-70 Fractal gives NASA a crewed, high-performance platform to test advanced flight-control, maneuverability, and other cutting-edge technologies in real flight,” said NASA Administrator Jared Isaacman. “Its modular design and ability to rapidly swap internal and external payloads will keep our teams flying, learning, and moving quickly from one experiment to the next. We expect her first flight under the NASA banner within the next two years, and X-70 is just one part of this new beginning for aeronautics. This is why people come to NASA: to build, to learn, and most importantly, to fly.”",
+        "word": {
+          "start": 251,
+          "end": 255
+        },
+        "sentence": {
+          "start": 208,
+          "end": 376
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "The X-70 Fractal has a takeoff weight of 10,000 pounds and is designed to cruise at Mach .75, reach altitudes of up to 45,000 feet, and provide an operational range exceeding about 1,726 miles (1,500 nautical miles). These capabilities will enable NASA to conduct demanding flight research across a broad range of operating conditions.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "nasa-x70-banner",
+    "url": "https://www.nasa.gov/news-release/nasa-announces-x-70-experimental-aircraft-to-advance-flight-research/",
+    "license": "Public domain (U.S. Government work)",
+    "kind": "news",
+    "case": "idiom",
+    "word": "banner",
+    "expected": "под флагом NASA, от имени NASA (under the banner of)",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "The crewed X-70 features advanced, rapidly reconfigurable flight-control technology that will allow NASA to explore aircraft maneuverability in ways never before demonstrated in crewed flight. The aircraft can also accommodate up to 2,000 pounds of experimental payloads in internal and external locations, enabling a wide range of research and flight-testing opportunities.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "“The X-70 Fractal gives NASA a crewed, high-performance platform to test advanced flight-control, maneuverability, and other cutting-edge technologies in real flight,” said NASA Administrator Jared Isaacman. “Its modular design and ability to rapidly swap internal and external payloads will keep our teams flying, learning, and moving quickly from one experiment to the next. We expect her first flight under the NASA banner within the next two years, and X-70 is just one part of this new beginning for aeronautics. This is why people come to NASA: to build, to learn, and most importantly, to fly.”",
+        "word": {
+          "start": 419,
+          "end": 425
+        },
+        "sentence": {
+          "start": 377,
+          "end": 517
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "The X-70 Fractal has a takeoff weight of 10,000 pounds and is designed to cruise at Mach .75, reach altitudes of up to 45,000 feet, and provide an operational range exceeding about 1,726 miles (1,500 nautical miles). These capabilities will enable NASA to conduct demanding flight research across a broad range of operating conditions.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "nasa-nav-slated",
+    "url": "https://www.nasa.gov/centers-and-facilities/armstrong/nasa-navigation-experiment-shows-promise-for-planetary-landings/",
+    "license": "Public domain (U.S. Government work)",
+    "kind": "news",
+    "case": "ambiguous",
+    "word": "slated",
+    "expected": "запланированные, предназначенные (slated for)",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "“This flight test is the culmination of almost a decade of work, for the SPLICE project,” said Davis Adams, NASA project manager. “This flight raised the technology readiness level, priming it for integration into future robotic and crewed lunar flights. Validation of the guidance and navigation systems are applicable to terrestrial, lunar, and Martian descent and landing missions.”",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "NASA has worked with a number of commercial lunar lander providers to implement iterations of SPLICE into their platforms. A number of the landers slated for upcoming Moon Base missions leverage data collected by NASA through the development of systems like SPLICE to execute soft touchdowns on the lunar surface.",
+        "word": {
+          "start": 147,
+          "end": 153
+        },
+        "sentence": {
+          "start": 123,
+          "end": 313
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "Justin Link, a small uncrewed aircraft pilot, left, Justin Hall, chief pilot, and Davis Adams, project manager, test an advanced guidance and navigation system known as the Safe and Precise Landing – Integrated Capabilities Evolution (SPLICE) experiment on an Alta-X drone near NASA’s Armstrong Flight Research Center in Edwards, California, on Wednesday, July 15, 2026. Researchers at NASA’s Johnson Space Center in Houston developed SPLICE, which successfully communicated with the remotely piloted aircraft during hover maneuvers in flight. SPLICE will help spacecraft land precisely and detect and avoid potential hazards, which is critical for NASA missions to the Moon and to Mars.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "nasa-nav-touchdowns",
+    "url": "https://www.nasa.gov/centers-and-facilities/armstrong/nasa-navigation-experiment-shows-promise-for-planetary-landings/",
+    "license": "Public domain (U.S. Government work)",
+    "kind": "news",
+    "case": "ambiguous",
+    "word": "touchdowns",
+    "expected": "посадки, касания поверхности; не «тачдаун» в футболе",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "“This flight test is the culmination of almost a decade of work, for the SPLICE project,” said Davis Adams, NASA project manager. “This flight raised the technology readiness level, priming it for integration into future robotic and crewed lunar flights. Validation of the guidance and navigation systems are applicable to terrestrial, lunar, and Martian descent and landing missions.”",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "NASA has worked with a number of commercial lunar lander providers to implement iterations of SPLICE into their platforms. A number of the landers slated for upcoming Moon Base missions leverage data collected by NASA through the development of systems like SPLICE to execute soft touchdowns on the lunar surface.",
+        "word": {
+          "start": 281,
+          "end": 291
+        },
+        "sentence": {
+          "start": 123,
+          "end": 313
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "Justin Link, a small uncrewed aircraft pilot, left, Justin Hall, chief pilot, and Davis Adams, project manager, test an advanced guidance and navigation system known as the Safe and Precise Landing – Integrated Capabilities Evolution (SPLICE) experiment on an Alta-X drone near NASA’s Armstrong Flight Research Center in Edwards, California, on Wednesday, July 15, 2026. Researchers at NASA’s Johnson Space Center in Houston developed SPLICE, which successfully communicated with the remotely piloted aircraft during hover maneuvers in flight. SPLICE will help spacecraft land precisely and detect and avoid potential hazards, which is critical for NASA missions to the Moon and to Mars.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "wikinews-fell-short",
+    "url": "https://en.wikinews.org/wiki/Australian_Minister_for_Energy_lowers_fuel_standards_for_60_days_amid_rising_oil_prices,_panic_buying",
+    "license": "CC BY 2.5",
+    "kind": "news",
+    "case": "idiom",
+    "word": "short",
+    "expected": "не дотягивали до, не соответствовали (fall short of)",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "President of the National Farmer Federation commented noting the government regulation was direly needed in this situation as farmers and fishers were struggling to access fuel, especially in remote areas. He also noted that government should prepare strategies in case the situation 'deteriorates', mentioning access to diesel was a pre-requisite for the farmers running the agricultural areas, collecting crops, transporting crops, and providing food to the country.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "In reserve, Australia had 36 days worth of petrol, 32 days worth of diesel, and 29 days worth of jet fuel, respectively. These fell short of the 90 days requirement under obligations for the IEA, of which Australia is a member. Opposition was calling on the government to ensure fuel security, ABC News reported.",
+        "word": {
+          "start": 132,
+          "end": 137
+        },
+        "sentence": {
+          "start": 121,
+          "end": 227
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "Have an opinion on this story? Share it!",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "wikinews-calling-on",
+    "url": "https://en.wikinews.org/wiki/Australian_Minister_for_Energy_lowers_fuel_standards_for_60_days_amid_rising_oil_prices,_panic_buying",
+    "license": "CC BY 2.5",
+    "kind": "news",
+    "case": "phrasal-verb",
+    "word": "calling",
+    "expected": "призывала (call on)",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "President of the National Farmer Federation commented noting the government regulation was direly needed in this situation as farmers and fishers were struggling to access fuel, especially in remote areas. He also noted that government should prepare strategies in case the situation 'deteriorates', mentioning access to diesel was a pre-requisite for the farmers running the agricultural areas, collecting crops, transporting crops, and providing food to the country.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "In reserve, Australia had 36 days worth of petrol, 32 days worth of diesel, and 29 days worth of jet fuel, respectively. These fell short of the 90 days requirement under obligations for the IEA, of which Australia is a member. Opposition was calling on the government to ensure fuel security, ABC News reported.",
+        "word": {
+          "start": 243,
+          "end": 250
+        },
+        "sentence": {
+          "start": 228,
+          "end": 312
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "Have an opinion on this story? Share it!",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "wikinews-right-around",
+    "url": "https://en.wikinews.org/wiki/Australian_Minister_for_Energy_lowers_fuel_standards_for_60_days_amid_rising_oil_prices,_panic_buying",
+    "license": "CC BY 2.5",
+    "kind": "news",
+    "case": "ambiguous",
+    "word": "right",
+    "expected": "по всему миру (right around the world); right = «прямо, повсюду», не «правый»",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "Additionally, Bowen announced Australia would release 100 million liters from its reserve oil supply per month, in response to a request from the International Energy Agency (IEA).",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "If [the Strait of Hormuz] shipping route remains effectively closed then that will have ongoing consequences for fuel prices, production, supply chains and of course an inflationary impact right around the world. --Prime Minister Anthony Albanese",
+        "word": {
+          "start": 189,
+          "end": 194
+        },
+        "sentence": {
+          "start": 0,
+          "end": 246
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "The issue appeared related to the growing demand while supply was essentially unchanged. As people stockpiled fuel, and the demand has doubled, there were concerns over panic buying by Australians. Prime Minister Anthony Albanese commented on longer term impacts of the situation on economics in Australia, talking with ABC Television on Thursday.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "wikinews-direly",
+    "url": "https://en.wikinews.org/wiki/Australian_Minister_for_Energy_lowers_fuel_standards_for_60_days_amid_rising_oil_prices,_panic_buying",
+    "license": "CC BY 2.5",
+    "kind": "news",
+    "case": "plain",
+    "word": "direly",
+    "expected": "крайне, отчаянно (нужно)",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "The issue appeared related to the growing demand while supply was essentially unchanged. As people stockpiled fuel, and the demand has doubled, there were concerns over panic buying by Australians. Prime Minister Anthony Albanese commented on longer term impacts of the situation on economics in Australia, talking with ABC Television on Thursday.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "President of the National Farmer Federation commented noting the government regulation was direly needed in this situation as farmers and fishers were struggling to access fuel, especially in remote areas. He also noted that government should prepare strategies in case the situation 'deteriorates', mentioning access to diesel was a pre-requisite for the farmers running the agricultural areas, collecting crops, transporting crops, and providing food to the country.",
+        "word": {
+          "start": 91,
+          "end": 97
+        },
+        "sentence": {
+          "start": 0,
+          "end": 205
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "In reserve, Australia had 36 days worth of petrol, 32 days worth of diesel, and 29 days worth of jet fuel, respectively. These fell short of the 90 days requirement under obligations for the IEA, of which Australia is a member. Opposition was calling on the government to ensure fuel security, ABC News reported.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "coffee-took-up",
+    "url": "https://en.wikipedia.org/wiki/Coffee",
+    "license": "CC BY-SA 4.0",
+    "kind": "encyclopedia",
+    "case": "phrasal-verb",
+    "word": "took",
+    "expected": "занялись, начали (take up)",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "Coffee was introduced to Brazil in 1727, but its cultivation did not gather momentum until independence in 1822.[54] After this time, massive tracts of rainforest were cleared for coffee plantations, first around Rio de Janeiro and later São Paulo.[55] Brazil went from having essentially no coffee exports in 1800 to being a significant regional producer in 1830, to being the largest producer in the world by 1852. Between 1910 and 1920, Brazil exported around 70% of the world's coffee; Colombia, Guatemala, and Venezuela exported 15%; and Old World production accounted for less than 5% of world exports.[56]",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "Many countries in Central America took up cultivation in the latter half of the 19th century, and almost all were involved in the large-scale displacement and exploitation of indigenous people. Harsh conditions led to many uprisings, coups, and bloody suppression of peasants.[57] The notable exception was Costa Rica, where a lack of ready labor prevented the formation of large farms. Smaller farms and more egalitarian conditions ameliorated unrest over the 19th and 20th centuries.[58]",
+        "word": {
+          "start": 34,
+          "end": 38
+        },
+        "sentence": {
+          "start": 0,
+          "end": 193
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "Rapid growth in coffee production in South America during the second half of the 19th century was matched by an increase in consumption in developed countries. Nowhere was this growth been as pronounced as in the United States, where a high rate of population growth was compounded by doubling of per capita consumption between 1860 and 1920. Though the United States was not the heaviest coffee-drinking nation at the time (Belgium, the Netherlands and Nordic countries all had comparable or higher levels of per capita consumption), due to its sheer size, the US was already the largest consumer of coffee in the world by 1860. By 1920, around half of all coffee produced worldwide was consumed in the US.[56]",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "coffee-run-off",
+    "url": "https://en.wikipedia.org/wiki/Coffee",
+    "license": "CC BY-SA 4.0",
+    "kind": "encyclopedia",
+    "case": "phrasal-verb",
+    "word": "run",
+    "expected": "стекать (run off)",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "include leguminous trees of the genera Acacia, Albizia, Cassia, Erythrina, Gliricidia, Inga, and Leucaena, as well as the nitrogen-fixing non-legume sheoaks of the genus Casuarina, and the silky oak Grevillea robusta.[92] This method is commonly called \"shade-grown coffee\". Starting in the 1970s, many farmers switched their production methods to sun cultivation, in which coffee is grown in rows under full sun with little or no forest canopy. This causes berries to ripen more rapidly and bushes to produce higher yields, but the method requires the clearing of trees and increased use of fertilizer and pesticides, which damage the environment and cause health problems.[93] Unshaded coffee plants grown with fertilizer yield the most coffee, although unfertilized shaded crops generally yield more than unfertilized unshaded crops: the response to fertilizer is much greater in full sun.[94] While traditional coffee production causes berries to ripen more slowly and produce lower yields, the quality of the coffee is allegedly superior.[95] According to The International Coffee Organization factors such as drought, unfavourable temperature and climate change greatly affect coffee quality.[96] In addition, the traditional shaded method provides living space for many wildlife species. Proponents of shade cultivation say environmental problems such as deforestation, pesticide pollution, habitat destruction, and soil and water degradation are the side effects of the practices employed in sun cultivation.[91][97] The American Birding Association, Smithsonian Migratory Bird Center,[98] National Arbor Day Foundation,[99] and the Rainforest Alliance have led a campaign for 'shade-grown' and organic coffees, which can be sustainably harvested.[100] Shaded coffee cultivation systems show greater biodiversity than full-sun systems, and those more distant from continuous forest compare rather poorly to undisturbed native forest in terms of habitat value for some bird species.[101][102]",
+          "truncatedBefore": true,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "Coffee production uses a large volume of water. On average it takes about 140 liters (37 U.S. gal) of water to grow the coffee beans needed to produce one cup of coffee. Growing the plants needed to produce 1 kg (2.2 lb) of roasted coffee in Africa, South America or Asia requires 26,400 liters (7,000 U.S. gal) of water.[103] As with many other forms of agriculture, often much of this is rainwater, much of which would otherwise run off into rivers or coastlines, while much water actually absorbed by the plants is transpired back into the local environment through the plants' leaves (especially for cooling effects); broad estimates aside, consequential margins vary considerably based on details of local geography and horticultural practice. Coffee is often grown in countries where there is a water shortage, such as Ethiopia.[104]",
+        "word": {
+          "start": 431,
+          "end": 434
+        },
+        "sentence": {
+          "start": 322,
+          "end": 748
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "Used coffee grounds may be used for composting or as a mulch. They are especially appreciated by worms and acid-loving plants such as blueberries.[105] Climate change may significantly impact coffee yields during the 21st century, such as in Nicaragua and Ethiopia which could lose more than half of the farming land suitable for growing (Arabica) coffee.[106][107][108] As of 2016, at least 34% of global coffee production was compliant with voluntary sustainability standards such as Fairtrade, UTZ, and 4C (The Common Code for the Coffee Community).[109]",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "coffee-scale",
+    "url": "https://en.wikipedia.org/wiki/Coffee",
+    "license": "CC BY-SA 4.0",
+    "kind": "encyclopedia",
+    "case": "ambiguous",
+    "word": "scale",
+    "expected": "щитовка (насекомое-вредитель); не «масштаб», «шкала», «чешуя»",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "Over 900 species of insect have been recorded as pests of coffee crops worldwide. Of these, over a third are beetles, and over a quarter are bugs. Some 20 species of nematodes, 9 species of mites, and several snails and slugs also attack the crop. Birds and rodents sometimes eat coffee berries, but their impact is minor compared to invertebrates.[86] In general, C. arabica is the more sensitive species to invertebrate predation overall. Each part of the coffee plant is assailed by different animals. Nematodes attack the roots, coffee borer beetles burrow into stems and woody material,[87] and the foliage is attacked by over 100 species of larvae of butterflies and moths.[88]",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "Mass spraying of insecticides has often proven disastrous, as predators of the pests are more sensitive than the pests themselves.[89] Instead, integrated pest management has been developed, using techniques such as targeted treatment of pest outbreaks and managing crop environment away from conditions favoring pests. Branches infested with scale are often cut and left on the ground, which causes scale parasites to attack the scale on the fallen branches as well as in the plant.[90]",
+        "word": {
+          "start": 343,
+          "end": 348
+        },
+        "sentence": {
+          "start": 320,
+          "end": 484
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "The 2-mm-long coffee borer beetle (Hypothenemus hampei) is the most damaging insect pest of the world's coffee industry, destroying up to 50 percent or more of the coffee berries on plantations in most coffee-producing countries. The adult female beetle nibbles a single tiny hole in a coffee berry and lays 35 to 50 eggs. Inside, the offspring grow, mate, and then emerge from the commercially ruined berry to disperse, repeating the cycle. Pesticides are mostly ineffective because the beetle juveniles are protected inside the berry nurseries, but they are vulnerable to predation by birds when they emerge. When groves of trees are nearby, the American yellow warbler, rufous-capped warbler, and other insectivorous birds have been shown to reduce by 50 percent the number of coffee berry borers in Costa Rica coffee plantations.[85]",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "coffee-breaks-down",
+    "url": "https://en.wikipedia.org/wiki/Coffee",
+    "license": "CC BY-SA 4.0",
+    "kind": "encyclopedia",
+    "case": "phrasal-verb",
+    "word": "breaks",
+    "expected": "расщепляет (break down)",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "The next step in the process is the roasting of the green coffee. Coffee is usually sold in a roasted state, and with rare exceptions, such as infusions from green coffee beans,[115] coffee is roasted before it is consumed. It can be sold roasted by the supplier, or it can be home roasted.[116] The roasting process influences the taste by changing the coffee bean physically and chemically. The bean decreases in weight as moisture is lost and increases in volume, causing it to become less dense. The density of the bean also influences the strength of the coffee and the requirements for packaging.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "The actual roasting begins when the temperature inside the bean reaches approximately 200 °C (392 °F), though different varieties of seeds differ in moisture and density and therefore roast at different rates.[117] During roasting, caramelization occurs as intense heat breaks down starches, changing them to simple sugars that begin to brown, which darkens the color of the bean.[118]",
+        "word": {
+          "start": 270,
+          "end": 276
+        },
+        "sentence": {
+          "start": 210,
+          "end": 381
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "Sucrose is rapidly lost during the roasting process and may disappear entirely in darker roasts. During roasting, aromatic oils and acids weaken, changing the flavor; at 205 °C (401 °F), other oils start to develop.[117] One of these oils, caffeol, is created at about 200 °C (392 °F), and is largely responsible for coffee's aroma and flavor.[38] The difference in caffeine content between a light roast and a dark roast is only about 0.1%.[119]",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "procrastination-end-up",
+    "url": "https://en.wikipedia.org/wiki/Procrastination",
+    "license": "CC BY-SA 4.0",
+    "kind": "encyclopedia",
+    "case": "phrasal-verb",
+    "word": "end",
+    "expected": "в итоге оказываются (end up)",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "According to an Educational Science Professor, Hatice Odaci, academic procrastination is a significant problem during college years in part because many college students lack efficient time management skills in using the Internet. Also, Odaci notes that most colleges provide free and fast twenty-four-hour Internet service which some students are not usually accustomed to, and as a result of irresponsible use or lack of firewalls these students become engulfed in distractions, and thus in procrastination.[39] Psychologist William J. Knaus estimated that more than 90% of college students procrastinate. Of these students, 25% are chronic procrastinators and typically abandon higher education.[40]",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "Student syndrome is the phenomenon where a student will begin to fully apply themselves to a task only immediately before a deadline. This negates the usefulness of any buffers built into individual task duration estimates. Procrastinators end up being the ones doing most of the work in the final week before a deadline.[28] Additionally, students can delay making important decisions such as \"I'll get my degree out of the way first then worry about jobs and careers when I finish University\".[41] Other reasons cited on why students procrastinate include fear of failure and success, perfectionist expectations, as well as legitimate activities that may take precedence over school work, such as a job.[42]",
+        "word": {
+          "start": 240,
+          "end": 243
+        },
+        "sentence": {
+          "start": 224,
+          "end": 322
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "Procrastinators have been found to receive worse grades than non-procrastinators. Tice et al. (1997) report that more than one-third of the variation in final exam scores could be attributed to procrastination. The negative association between procrastination and academic performance is recurring and consistent. The students in the study not only received poor academic grades, but they also reported high levels of stress and poor self-health. Howell et al. (2006) found that, though scores on two widely used procrastination scales[11][43] were not significantly associated with the grade received for an assignment, self-report measures of procrastination on the assessment itself were negatively associated with grade.[44]",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "procrastination-hard-and-fast",
+    "url": "https://en.wikipedia.org/wiki/Procrastination",
+    "license": "CC BY-SA 4.0",
+    "kind": "encyclopedia",
+    "case": "idiom",
+    "word": "hard",
+    "expected": "строгое, жёсткое (правило) (hard-and-fast)",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "To prevent relapse, reinforce pre-set goals based on needs and allow yourself to be rewarded in a balanced way for accomplished tasks.",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "Making a plan to complete tasks in a rigid schedule format might not work for everyone. There is no hard-and-fast rule to follow such a process if it turns out to be counter-productive. Instead of scheduling, it may be better to execute tasks in a flexible, unstructured schedule which has time slots for only necessary activities.[52] Piers Steel suggests[53] that better time management is a key to overcoming procrastination, including being aware of and using one's \"power hours\" (being a \"morning person\" or \"night owl\"). A good approach is to creatively utilize one's internal circadian rhythms that are best suited for the most challenging and productive work. Steel states that it is essential to have realistic goals, to tackle one problem at a time and to cherish the \"small successes\". Brian O'Leary supports that \"finding a work-life balance...may actually help us find ways to be more productive\", suggesting that dedicating leisure activities as motivation can increase one's efficiency at handling tasks.[54] Procrastination is not a lifelong trait. Those likely to worry can learn to let go, those who procrastinate can find different methods and strategies to help focus and avoid impulses.[55]",
+        "word": {
+          "start": 100,
+          "end": 104
+        },
+        "sentence": {
+          "start": 88,
+          "end": 185
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "In his book Extreme Productivity, Robert Pozen introduces the \"OHIO principle\", short for \"only handle it once\".[56] This principle suggests that when a task is encountered, deal with it immediately to avoid procrastination. With the OHIO principle, an encountered task should lead to one of three actions: a) Complete the task. If a task takes just a few minutes, act immediately for completion. b) Schedule the task. If the task requires a longer process, schedule a time for completion. c) Delegate the task. If the task is appropriate for others, convey the task for completion. After contemplating his own procrastination habits, philosopher John Perry authored an essay entitled \"Structured Procrastination\",[57] wherein he proposes a \"cheat\" method as a safer approach for tackling procrastination: using a pyramid scheme to reinforce the unpleasant tasks needed to be completed in a quasi-prioritized order.[citation needed]",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "procrastination-buffers",
+    "url": "https://en.wikipedia.org/wiki/Procrastination",
+    "license": "CC BY-SA 4.0",
+    "kind": "encyclopedia",
+    "case": "ambiguous",
+    "word": "buffers",
+    "expected": "запас (времени), резерв",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "According to an Educational Science Professor, Hatice Odaci, academic procrastination is a significant problem during college years in part because many college students lack efficient time management skills in using the Internet. Also, Odaci notes that most colleges provide free and fast twenty-four-hour Internet service which some students are not usually accustomed to, and as a result of irresponsible use or lack of firewalls these students become engulfed in distractions, and thus in procrastination.[39] Psychologist William J. Knaus estimated that more than 90% of college students procrastinate. Of these students, 25% are chronic procrastinators and typically abandon higher education.[40]",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "Student syndrome is the phenomenon where a student will begin to fully apply themselves to a task only immediately before a deadline. This negates the usefulness of any buffers built into individual task duration estimates. Procrastinators end up being the ones doing most of the work in the final week before a deadline.[28] Additionally, students can delay making important decisions such as \"I'll get my degree out of the way first then worry about jobs and careers when I finish University\".[41] Other reasons cited on why students procrastinate include fear of failure and success, perfectionist expectations, as well as legitimate activities that may take precedence over school work, such as a job.[42]",
+        "word": {
+          "start": 169,
+          "end": 176
+        },
+        "sentence": {
+          "start": 134,
+          "end": 223
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "Procrastinators have been found to receive worse grades than non-procrastinators. Tice et al. (1997) report that more than one-third of the variation in final exam scores could be attributed to procrastination. The negative association between procrastination and academic performance is recurring and consistent. The students in the study not only received poor academic grades, but they also reported high levels of stress and poor self-health. Howell et al. (2006) found that, though scores on two widely used procrastination scales[11][43] were not significantly associated with the grade received for an assignment, self-report measures of procrastination on the assessment itself were negatively associated with grade.[44]",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "procrastination-out-of-the-way",
+    "url": "https://en.wikipedia.org/wiki/Procrastination",
+    "license": "CC BY-SA 4.0",
+    "kind": "encyclopedia",
+    "case": "idiom",
+    "word": "way",
+    "expected": "разделаться, покончить с (get something out of the way)",
+    "context": {
+      "beforeBlocks": [
+        {
+          "text": "According to an Educational Science Professor, Hatice Odaci, academic procrastination is a significant problem during college years in part because many college students lack efficient time management skills in using the Internet. Also, Odaci notes that most colleges provide free and fast twenty-four-hour Internet service which some students are not usually accustomed to, and as a result of irresponsible use or lack of firewalls these students become engulfed in distractions, and thus in procrastination.[39] Psychologist William J. Knaus estimated that more than 90% of college students procrastinate. Of these students, 25% are chronic procrastinators and typically abandon higher education.[40]",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ],
+      "focusBlock": {
+        "text": "Student syndrome is the phenomenon where a student will begin to fully apply themselves to a task only immediately before a deadline. This negates the usefulness of any buffers built into individual task duration estimates. Procrastinators end up being the ones doing most of the work in the final week before a deadline.[28] Additionally, students can delay making important decisions such as \"I'll get my degree out of the way first then worry about jobs and careers when I finish University\".[41] Other reasons cited on why students procrastinate include fear of failure and success, perfectionist expectations, as well as legitimate activities that may take precedence over school work, such as a job.[42]",
+        "word": {
+          "start": 425,
+          "end": 428
+        },
+        "sentence": {
+          "start": 322,
+          "end": 496
+        },
+        "truncatedBefore": false,
+        "truncatedAfter": false
+      },
+      "afterBlocks": [
+        {
+          "text": "Procrastinators have been found to receive worse grades than non-procrastinators. Tice et al. (1997) report that more than one-third of the variation in final exam scores could be attributed to procrastination. The negative association between procrastination and academic performance is recurring and consistent. The students in the study not only received poor academic grades, but they also reported high levels of stress and poor self-health. Howell et al. (2006) found that, though scores on two widely used procrastination scales[11][43] were not significantly associated with the grade received for an assignment, self-report measures of procrastination on the assessment itself were negatively associated with grade.[44]",
+          "truncatedBefore": false,
+          "truncatedAfter": false
+        }
+      ]
+    }
+  }
+]

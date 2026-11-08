@@ -1,0 +1,542 @@
+[
+  {
+    "id": "holmes-make-out",
+    "url": "https://www.gutenberg.org/cache/epub/1661/pg1661-images.html",
+    "license": "Public domain in the USA",
+    "kind": "fiction",
+    "case": "phrasal-verb",
+    "quote": "As far as I can make out, the League was founded by an American millionaire",
+    "word": "make",
+    "expected": "понять, разобрать (make out)"
+  },
+  {
+    "id": "holmes-took-to-heels",
+    "url": "https://www.gutenberg.org/cache/epub/1661/pg1661-images.html",
+    "license": "Public domain in the USA",
+    "kind": "fiction",
+    "case": "idiom",
+    "quote": "At his fall the guardsmen took to their heels in one direction",
+    "word": "heels",
+    "expected": "пуститься наутёк, броситься бежать (take to one's heels)"
+  },
+  {
+    "id": "holmes-carried-on",
+    "url": "https://www.gutenberg.org/cache/epub/1661/pg1661-images.html",
+    "license": "Public domain in the USA",
+    "kind": "fiction",
+    "case": "phrasal-verb",
+    "quote": "announced the place where our red-headed client carried on his business",
+    "word": "carried",
+    "expected": "вёл (дело), занимался (carry on a business); не «продолжал»"
+  },
+  {
+    "id": "holmes-cardboard",
+    "url": "https://www.gutenberg.org/cache/epub/1661/pg1661-images.html",
+    "license": "Public domain in the USA",
+    "kind": "fiction",
+    "case": "plain",
+    "quote": "He held up a piece of white cardboard about the size of a sheet of note-paper",
+    "word": "cardboard",
+    "expected": "картон"
+  },
+  {
+    "id": "jeeves-old-bean",
+    "url": "https://www.gutenberg.org/cache/epub/8164/pg8164-images.html",
+    "license": "Public domain in the USA",
+    "kind": "fiction",
+    "case": "slang",
+    "quote": "I strained the old bean to meet this emergency",
+    "word": "bean",
+    "expected": "голова, мозги (the old bean, шутл.); «напряг мозги»"
+  },
+  {
+    "id": "jeeves-rummy",
+    "url": "https://www.gutenberg.org/cache/epub/8164/pg8164-images.html",
+    "license": "Public domain in the USA",
+    "kind": "fiction",
+    "case": "slang",
+    "quote": "One of the rummy things about Jeeves is that, unless you watch like a hawk",
+    "word": "rummy",
+    "expected": "странный, чудной (брит. разг., устар.)"
+  },
+  {
+    "id": "jeeves-hawk",
+    "url": "https://www.gutenberg.org/cache/epub/8164/pg8164-images.html",
+    "license": "Public domain in the USA",
+    "kind": "fiction",
+    "case": "idiom",
+    "quote": "One of the rummy things about Jeeves is that, unless you watch like a hawk",
+    "word": "hawk",
+    "expected": "следить в оба, не спускать глаз (watch like a hawk)"
+  },
+  {
+    "id": "jeeves-nip",
+    "url": "https://www.gutenberg.org/cache/epub/8164/pg8164-images.html",
+    "license": "Public domain in the USA",
+    "kind": "fiction",
+    "case": "slang",
+    "quote": "dissolve themselves into thin air and nip through space",
+    "word": "nip",
+    "expected": "юркнуть, быстро переместиться (nip, брит. разг.); не «щипать»"
+  },
+  {
+    "id": "jeeves-let-down",
+    "url": "https://www.gutenberg.org/cache/epub/8164/pg8164-images.html",
+    "license": "Public domain in the USA",
+    "kind": "fiction",
+    "case": "phrasal-verb",
+    "quote": "I had known that he wouldn’t let me down",
+    "word": "down",
+    "expected": "подвести (let down)"
+  },
+  {
+    "id": "jeeves-soup",
+    "url": "https://www.gutenberg.org/cache/epub/8164/pg8164-images.html",
+    "license": "Public domain in the USA",
+    "kind": "fiction",
+    "case": "idiom",
+    "quote": "clear up to the eyebrows in the soup",
+    "word": "soup",
+    "expected": "в беде, по уши в неприятностях (in the soup)"
+  },
+  {
+    "id": "jeeves-come-round",
+    "url": "https://www.gutenberg.org/cache/epub/8164/pg8164-images.html",
+    "license": "Public domain in the USA",
+    "kind": "fiction",
+    "case": "phrasal-verb",
+    "quote": "Aunt Agatha was beginning to come round a bit",
+    "word": "round",
+    "expected": "смягчиться, изменить отношение (come round)"
+  },
+  {
+    "id": "gatsby-turned-out",
+    "url": "https://www.gutenberg.org/cache/epub/64317/pg64317-images.html",
+    "license": "Public domain in the USA",
+    "kind": "fiction",
+    "case": "phrasal-verb",
+    "quote": "A pair of stage twins, who turned out to be the girls in yellow",
+    "word": "turned",
+    "expected": "оказались (turn out to be)"
+  },
+  {
+    "id": "gatsby-side-line",
+    "url": "https://www.gutenberg.org/cache/epub/64317/pg64317-images.html",
+    "license": "Public domain in the USA",
+    "kind": "fiction",
+    "case": "ambiguous",
+    "quote": "I carry on a little business on the side, a sort of side line",
+    "word": "line",
+    "expected": "побочное занятие, подработка (side line)"
+  },
+  {
+    "id": "callwild-cooks-turned-out",
+    "url": "https://www.gutenberg.org/cache/epub/215/pg215-images.html",
+    "license": "Public domain in the USA",
+    "kind": "fiction",
+    "case": "phrasal-verb",
+    "quote": "At a certain time each morning the cooks turned out, fires were built",
+    "word": "turned",
+    "expected": "вставали, выходили на работу (turn out); не «оказались»"
+  },
+  {
+    "id": "callwild-took-to-wandering",
+    "url": "https://www.gutenberg.org/cache/epub/215/pg215-images.html",
+    "license": "Public domain in the USA",
+    "kind": "fiction",
+    "case": "phrasal-verb",
+    "quote": "Once again he took to wandering in the woods",
+    "word": "took",
+    "expected": "снова стал (бродить), начал регулярно (take to doing)"
+  },
+  {
+    "id": "go-work-around",
+    "url": "https://go.dev/doc/effective_go",
+    "license": "CC BY 4.0",
+    "kind": "docs",
+    "case": "phrasal-verb",
+    "quote": "rearrange your program (or file a bug about gofmt), don't work around it",
+    "word": "around",
+    "expected": "обходить (проблему), искать обходной путь (work around)"
+  },
+  {
+    "id": "go-file-bug",
+    "url": "https://go.dev/doc/effective_go",
+    "license": "CC BY 4.0",
+    "kind": "docs",
+    "case": "ambiguous",
+    "quote": "rearrange your program (or file a bug about gofmt), don't work around it",
+    "word": "file",
+    "expected": "сообщить об ошибке, завести баг (file a bug); не «файл»"
+  },
+  {
+    "id": "go-line-up",
+    "url": "https://go.dev/doc/effective_go",
+    "license": "CC BY 4.0",
+    "kind": "docs",
+    "case": "phrasal-verb",
+    "quote": "gofmt will line up the columns",
+    "word": "line",
+    "expected": "выровнять (line up)"
+  },
+  {
+    "id": "go-break-out",
+    "url": "https://go.dev/doc/effective_go",
+    "license": "CC BY 4.0",
+    "kind": "docs",
+    "case": "phrasal-verb",
+    "quote": "it's necessary to break out of a surrounding loop, not the switch",
+    "word": "break",
+    "expected": "выйти из (внешнего цикла) (break out of)"
+  },
+  {
+    "id": "go-fall-through",
+    "url": "https://go.dev/doc/effective_go",
+    "license": "CC BY 4.0",
+    "kind": "docs",
+    "case": "term",
+    "quote": "There is no automatic fall through, but cases can be presented in comma-separated lists",
+    "word": "fall",
+    "expected": "переход к следующему case (fall through, fallthrough)"
+  },
+  {
+    "id": "go-idiomatic",
+    "url": "https://go.dev/doc/effective_go",
+    "license": "CC BY 4.0",
+    "kind": "docs",
+    "case": "term",
+    "quote": "it's neither idiomatic nor necessary to put Get into the getter's name",
+    "word": "idiomatic",
+    "expected": "идиоматичный, принятый в языке (стиль кода)"
+  },
+  {
+    "id": "mdn-kitchen-sink",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Caching",
+    "license": "CC BY-SA 2.5",
+    "kind": "docs",
+    "case": "idiom",
+    "quote": "Kitchen-sink headers like the following are used to try to work around",
+    "word": "Kitchen",
+    "expected": "«всё подряд», избыточный набор (kitchen-sink)"
+  },
+  {
+    "id": "mdn-stale",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Caching",
+    "license": "CC BY-SA 2.5",
+    "kind": "docs",
+    "case": "term",
+    "quote": "while the stale state means that the cached response has already expired",
+    "word": "stale",
+    "expected": "устаревший (о кэше)"
+  },
+  {
+    "id": "k8s-pods",
+    "url": "https://kubernetes.io/docs/concepts/workloads/pods/",
+    "license": "CC BY 4.0",
+    "kind": "docs",
+    "case": "term",
+    "quote": "Pods are the smallest deployable units of computing that you can create and manage in Kubernetes.",
+    "word": "Pods",
+    "expected": "поды (Pod, термин Kubernetes); не «стручки»"
+  },
+  {
+    "id": "k8s-sidecars",
+    "url": "https://kubernetes.io/docs/concepts/workloads/pods/",
+    "license": "CC BY 4.0",
+    "kind": "docs",
+    "case": "term",
+    "quote": "are treated as sidecars that are kept running",
+    "word": "sidecars",
+    "expected": "sidecar-контейнеры, вспомогательные контейнеры"
+  },
+  {
+    "id": "k8s-shut-down",
+    "url": "https://kubernetes.io/docs/concepts/workloads/pods/",
+    "license": "CC BY 4.0",
+    "kind": "docs",
+    "case": "phrasal-verb",
+    "quote": "remain running until the Pod is shut down",
+    "word": "shut",
+    "expected": "остановлен, завершён (shut down)"
+  },
+  {
+    "id": "nasa-groundwork",
+    "url": "https://www.nasa.gov/news-release/nasa-seeks-next-generation-of-explorers-to-join-astronaut-corps/",
+    "license": "Public domain (U.S. Government work)",
+    "kind": "news",
+    "case": "idiom",
+    "quote": "lays the groundwork for the first crewed missions to Mars",
+    "word": "groundwork",
+    "expected": "заложить основу (lay the groundwork)"
+  },
+  {
+    "id": "nasa-take-on",
+    "url": "https://www.nasa.gov/news-release/nasa-seeks-next-generation-of-explorers-to-join-astronaut-corps/",
+    "license": "Public domain (U.S. Government work)",
+    "kind": "news",
+    "case": "phrasal-verb",
+    "quote": "take on missions that will push the boundaries of human exploration",
+    "word": "take",
+    "expected": "взяться за, браться (take on)"
+  },
+  {
+    "id": "nasa-push-boundaries",
+    "url": "https://www.nasa.gov/news-release/nasa-seeks-next-generation-of-explorers-to-join-astronaut-corps/",
+    "license": "Public domain (U.S. Government work)",
+    "kind": "news",
+    "case": "idiom",
+    "quote": "take on missions that will push the boundaries of human exploration",
+    "word": "boundaries",
+    "expected": "раздвигать границы (push the boundaries)"
+  },
+  {
+    "id": "nasa-sound-judgment",
+    "url": "https://www.nasa.gov/news-release/nasa-seeks-next-generation-of-explorers-to-join-astronaut-corps/",
+    "license": "Public domain (U.S. Government work)",
+    "kind": "news",
+    "case": "ambiguous",
+    "quote": "technical excellence, sound judgment, teamwork, and courage",
+    "word": "sound",
+    "expected": "здравое (суждение), здравомыслие; не «звук»"
+  },
+  {
+    "id": "nasa-window",
+    "url": "https://www.nasa.gov/news-release/nasa-seeks-next-generation-of-explorers-to-join-astronaut-corps/",
+    "license": "Public domain (U.S. Government work)",
+    "kind": "news",
+    "case": "ambiguous",
+    "quote": "The window is open. The mission is waiting.",
+    "word": "window",
+    "expected": "окно возможностей; приём заявок открыт"
+  },
+  {
+    "id": "nasa-on-track",
+    "url": "https://www.nasa.gov/missions/artemis/nasa-shares-plans-to-accelerate-artemis-return-to-moon/",
+    "license": "Public domain (U.S. Government work)",
+    "kind": "news",
+    "case": "idiom",
+    "quote": "Hardware for Artemis III is on track",
+    "word": "track",
+    "expected": "идёт по плану (on track)"
+  },
+  {
+    "id": "nasa-test-article",
+    "url": "https://www.nasa.gov/missions/artemis/nasa-shares-plans-to-accelerate-artemis-return-to-moon/",
+    "license": "Public domain (U.S. Government work)",
+    "kind": "news",
+    "case": "term",
+    "quote": "Blue Origin will launch a Blue Moon lander test article into Earth orbit",
+    "word": "article",
+    "expected": "испытательный образец, изделие (test article); не «статья»"
+  },
+  {
+    "id": "nasa-unfold",
+    "url": "https://www.nasa.gov/missions/artemis/nasa-shares-plans-to-accelerate-artemis-return-to-moon/",
+    "license": "Public domain (U.S. Government work)",
+    "kind": "news",
+    "case": "ambiguous",
+    "quote": "The Artemis III mission will unfold in sequence",
+    "word": "unfold",
+    "expected": "проходить, разворачиваться (о событиях); не «развернуть (лист)»"
+  },
+  {
+    "id": "nasa-hubble-owe",
+    "url": "https://science.nasa.gov/missions/hubble/nasa-explores-potential-commercial-servicing-for-hubble-telescope/",
+    "license": "Public domain (U.S. Government work)",
+    "kind": "news",
+    "case": "idiom",
+    "quote": "we owe it to the American taxpayer and the scientific community to explore them",
+    "word": "owe",
+    "expected": "мы обязаны (перед кем-то) это сделать (owe it to someone to do something)"
+  },
+  {
+    "id": "nasa-hubble-asset",
+    "url": "https://science.nasa.gov/missions/hubble/nasa-explores-potential-commercial-servicing-for-hubble-telescope/",
+    "license": "Public domain (U.S. Government work)",
+    "kind": "news",
+    "case": "ambiguous",
+    "quote": "extend the life of an asset already on orbit",
+    "word": "asset",
+    "expected": "ценный объект, аппарат (здесь — телескоп); не «актив» в финансовом смысле"
+  },
+  {
+    "id": "nasa-hubble-boost",
+    "url": "https://science.nasa.gov/missions/hubble/nasa-explores-potential-commercial-servicing-for-hubble-telescope/",
+    "license": "Public domain (U.S. Government work)",
+    "kind": "news",
+    "case": "term",
+    "quote": "potentially conducting a mission to boost Hubble to a higher altitude",
+    "word": "boost",
+    "expected": "поднять (на более высокую орбиту); не «усилить»"
+  },
+  {
+    "id": "nasa-hubble-drag",
+    "url": "https://science.nasa.gov/missions/hubble/nasa-explores-potential-commercial-servicing-for-hubble-telescope/",
+    "license": "Public domain (U.S. Government work)",
+    "kind": "news",
+    "case": "term",
+    "quote": "altitude is slowly decreasing over time because of atmospheric drag",
+    "word": "drag",
+    "expected": "сопротивление (атмосферы), торможение; не «тащить»"
+  },
+  {
+    "id": "nasa-x70-swap",
+    "url": "https://www.nasa.gov/news-release/nasa-announces-x-70-experimental-aircraft-to-advance-flight-research/",
+    "license": "Public domain (U.S. Government work)",
+    "kind": "news",
+    "case": "plain",
+    "quote": "ability to rapidly swap internal and external payloads",
+    "word": "swap",
+    "expected": "менять, заменять"
+  },
+  {
+    "id": "nasa-x70-banner",
+    "url": "https://www.nasa.gov/news-release/nasa-announces-x-70-experimental-aircraft-to-advance-flight-research/",
+    "license": "Public domain (U.S. Government work)",
+    "kind": "news",
+    "case": "idiom",
+    "quote": "We expect her first flight under the NASA banner within the next two years",
+    "word": "banner",
+    "expected": "под флагом NASA, от имени NASA (under the banner of)"
+  },
+  {
+    "id": "nasa-nav-slated",
+    "url": "https://www.nasa.gov/centers-and-facilities/armstrong/nasa-navigation-experiment-shows-promise-for-planetary-landings/",
+    "license": "Public domain (U.S. Government work)",
+    "kind": "news",
+    "case": "ambiguous",
+    "quote": "A number of the landers slated for upcoming Moon Base missions",
+    "word": "slated",
+    "expected": "запланированные, предназначенные (slated for)"
+  },
+  {
+    "id": "nasa-nav-touchdowns",
+    "url": "https://www.nasa.gov/centers-and-facilities/armstrong/nasa-navigation-experiment-shows-promise-for-planetary-landings/",
+    "license": "Public domain (U.S. Government work)",
+    "kind": "news",
+    "case": "ambiguous",
+    "quote": "to execute soft touchdowns on the lunar surface",
+    "word": "touchdowns",
+    "expected": "посадки, касания поверхности; не «тачдаун» в футболе"
+  },
+  {
+    "id": "wikinews-fell-short",
+    "url": "https://en.wikinews.org/wiki/Australian_Minister_for_Energy_lowers_fuel_standards_for_60_days_amid_rising_oil_prices,_panic_buying",
+    "license": "CC BY 2.5",
+    "kind": "news",
+    "case": "idiom",
+    "quote": "These fell short of the 90 days requirement",
+    "word": "short",
+    "expected": "не дотягивали до, не соответствовали (fall short of)"
+  },
+  {
+    "id": "wikinews-calling-on",
+    "url": "https://en.wikinews.org/wiki/Australian_Minister_for_Energy_lowers_fuel_standards_for_60_days_amid_rising_oil_prices,_panic_buying",
+    "license": "CC BY 2.5",
+    "kind": "news",
+    "case": "phrasal-verb",
+    "quote": "Opposition was calling on the government to ensure fuel security",
+    "word": "calling",
+    "expected": "призывала (call on)"
+  },
+  {
+    "id": "wikinews-right-around",
+    "url": "https://en.wikinews.org/wiki/Australian_Minister_for_Energy_lowers_fuel_standards_for_60_days_amid_rising_oil_prices,_panic_buying",
+    "license": "CC BY 2.5",
+    "kind": "news",
+    "case": "ambiguous",
+    "quote": "an inflationary impact right around the world",
+    "word": "right",
+    "expected": "по всему миру (right around the world); right = «прямо, повсюду», не «правый»"
+  },
+  {
+    "id": "wikinews-direly",
+    "url": "https://en.wikinews.org/wiki/Australian_Minister_for_Energy_lowers_fuel_standards_for_60_days_amid_rising_oil_prices,_panic_buying",
+    "license": "CC BY 2.5",
+    "kind": "news",
+    "case": "plain",
+    "quote": "the government regulation was direly needed",
+    "word": "direly",
+    "expected": "крайне, отчаянно (нужно)"
+  },
+  {
+    "id": "coffee-took-up",
+    "url": "https://en.wikipedia.org/wiki/Coffee",
+    "license": "CC BY-SA 4.0",
+    "kind": "encyclopedia",
+    "case": "phrasal-verb",
+    "quote": "Many countries in Central America took up cultivation in the latter half of the 19th century",
+    "word": "took",
+    "expected": "занялись, начали (take up)"
+  },
+  {
+    "id": "coffee-run-off",
+    "url": "https://en.wikipedia.org/wiki/Coffee",
+    "license": "CC BY-SA 4.0",
+    "kind": "encyclopedia",
+    "case": "phrasal-verb",
+    "quote": "much of which would otherwise run off into rivers or coastlines",
+    "word": "run",
+    "expected": "стекать (run off)"
+  },
+  {
+    "id": "coffee-scale",
+    "url": "https://en.wikipedia.org/wiki/Coffee",
+    "license": "CC BY-SA 4.0",
+    "kind": "encyclopedia",
+    "case": "ambiguous",
+    "quote": "Branches infested with scale are often cut and left on the ground",
+    "word": "scale",
+    "expected": "щитовка (насекомое-вредитель); не «масштаб», «шкала», «чешуя»"
+  },
+  {
+    "id": "coffee-breaks-down",
+    "url": "https://en.wikipedia.org/wiki/Coffee",
+    "license": "CC BY-SA 4.0",
+    "kind": "encyclopedia",
+    "case": "phrasal-verb",
+    "quote": "intense heat breaks down starches",
+    "word": "breaks",
+    "expected": "расщепляет (break down)"
+  },
+  {
+    "id": "procrastination-end-up",
+    "url": "https://en.wikipedia.org/wiki/Procrastination",
+    "license": "CC BY-SA 4.0",
+    "kind": "encyclopedia",
+    "case": "phrasal-verb",
+    "quote": "Procrastinators end up being the ones doing most of the work in the final week before a deadline",
+    "word": "end",
+    "expected": "в итоге оказываются (end up)"
+  },
+  {
+    "id": "procrastination-hard-and-fast",
+    "url": "https://en.wikipedia.org/wiki/Procrastination",
+    "license": "CC BY-SA 4.0",
+    "kind": "encyclopedia",
+    "case": "idiom",
+    "quote": "There is no hard-and-fast rule to follow such a process",
+    "word": "hard",
+    "expected": "строгое, жёсткое (правило) (hard-and-fast)"
+  },
+  {
+    "id": "procrastination-buffers",
+    "url": "https://en.wikipedia.org/wiki/Procrastination",
+    "license": "CC BY-SA 4.0",
+    "kind": "encyclopedia",
+    "case": "ambiguous",
+    "quote": "This negates the usefulness of any buffers built into individual task duration estimates",
+    "word": "buffers",
+    "expected": "запас (времени), резерв"
+  },
+  {
+    "id": "procrastination-out-of-the-way",
+    "url": "https://en.wikipedia.org/wiki/Procrastination",
+    "license": "CC BY-SA 4.0",
+    "kind": "encyclopedia",
+    "case": "idiom",
+    "quote": "I'll get my degree out of the way first then worry about jobs and careers",
+    "word": "way",
+    "expected": "разделаться, покончить с (get something out of the way)"
+  }
+]
