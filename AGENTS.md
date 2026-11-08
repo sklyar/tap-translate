@@ -9,3 +9,4 @@ The user taps a word, and the extension shows its translation and explanation ba
 - `extension` — Safari Web Extension: detects tapped text, extracts context, and displays translation UI.
 - `ios` — iOS container application used to install, configure, and distribute the Safari extension.
 - `backend` — Go service that handles translation requests and communicates with translation or AI providers.
+- `eval` — samples and results for the evaluation of contextual translation.

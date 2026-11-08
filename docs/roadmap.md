@@ -22,7 +22,8 @@ Done:
 - translation contract (`TranslationRequest`, `TranslationResult`, `TranslationProvider`) and a deterministic mock provider;
 - mobile-first translation sheet in a Shadow DOM, styled by the packaged `translation-sheet.css`;
 - hardening for hostile page CSS, restrictive CSP, page lifecycle, bfcache, and a removed sheet host;
-- CI that runs `npm run check` for each pull request.
+- CI that runs `npm run check` for each pull request;
+- evaluation of contextual translation: 54 captured samples in `eval/`, a capture script, and a Go command that runs a model on them (`backend/cmd/evaluate`).
 
 Not done:
 
@@ -67,6 +68,37 @@ Question: can an LLM give a good contextual translation fast enough and cheap en
 - Find how much context the model really needs. Now the extension can send up to 8,000 characters per tap.
 
 Result: a provider and model, a first prompt, and target values for latency and cost.
+
+The data and tools are in `eval/`; see [eval/README.md](../eval/README.md). The capture script runs the real detection code in WebKit, so the samples contain what the extension really sends.
+
+First run (2026-11-08): `qwen3.8-flash` on Alibaba Cloud Model Studio, Singapore region, requests from Belgrade. 54 samples from Project Gutenberg, Go, MDN, and Kubernetes documentation, NASA news, Wikinews, and Wikipedia. Prices: $0.15 per 1M input tokens and $0.47 per 1M output tokens.
+
+| Variant                | Valid answers | p50    | p95    | Input tokens | Output tokens | USD per 1,000 taps | Correct / partly / wrong |
+| ---------------------- | ------------- | ------ | ------ | ------------ | ------------- | ------------------ | ------------------------ |
+| sentence, thinking off | 51/54         | 1.34 s | 2.99 s | 332          | 98            | 0.10               | 41 / 9 / 4               |
+| block, thinking off    | 52/54         | 1.36 s | 1.71 s | 436          | 95            | 0.11               | 42 / 8 / 4               |
+| full, thinking off     | 54/54         | 1.33 s | 2.00 s | 575          | 94            | 0.13               | 46 / 7 / 1               |
+| sentence, thinking on  | 42/54         | 4.36 s | 12.8 s | 368          | 525           | 0.30               | not rated                |
+| block, thinking on     | 41/54         | 4.86 s | 11.3 s | 472          | 525           | 0.32               | not rated                |
+| full, thinking on      | 42/54         | 4.93 s | 33.9 s | 611          | 755           | 0.45               | not rated                |
+
+"Wrong" includes invalid answers. The quality columns are a first manual assessment against the expected meanings in `eval/sources.json`. A native Russian speaker has not reviewed them yet.
+
+Conclusions so far:
+
+- Thinking is not usable for a tap. It is 3–4 times slower, p95 reaches 34 s, and 23% of the answers are invalid, mostly with an empty explanation.
+- Without thinking, `qwen3.8-flash` is a candidate: p50 1.3 s, p95 2.0 s, and about $0.13 per 1,000 taps with the full context.
+- The full context (the focus block and its neighbors) gives the best quality at the same latency. A typical tap sends about 1,000 characters; the largest sample has 3,400.
+- A strict JSON Schema does not guarantee non-empty fields (`minLength` is ignored), and one answer had a 788-character translation. The backend must validate each answer and retry or return an error.
+- The prompt needs work. Explanations are long: the median is 213 characters, often 2–3 sentences that start with «В данном контексте». The model sometimes misses an idiom, for example `watch like a hawk` becomes «ястреб».
+
+Defects in the extension found while capturing:
+
+- Hit-testing drops a tap between two letters. WebKit returns character rectangles rounded to whole pixels, so neighbor letters overlap by 1 px. When the point hits two characters, `findTextHitAtPoint` returns `null`, and the tap does nothing or closes the sheet.
+- Inline `<code>` is removed from the context text: "run `gofmt`; if the answer" becomes "run ; if the answer".
+- Wikipedia citation marks move sentence boundaries: a sentence can start with "103] As with".
+
+Still required: a review of the report by a native speaker, a shorter and stricter prompt with a new run, and a comparison with 1–2 other models.
 
 ### 3. Backend and transport
 
