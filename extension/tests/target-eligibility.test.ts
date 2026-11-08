@@ -93,6 +93,17 @@ describe('isEligibleTextTarget', () => {
       '<p><span style="cursor: pointer">glossary word</span></p>',
       'span',
     ],
+    ['empty tabindex', '<p><span tabindex="">plain word</span></p>', 'span'],
+    [
+      'non-numeric tabindex',
+      '<p><span tabindex="auto">plain word</span></p>',
+      'span',
+    ],
+    [
+      'negative tabindex',
+      '<p><span tabindex="-1">plain word</span></p>',
+      'span',
+    ],
   ])('accepts %s', (_name, html, selector) => {
     document.body.innerHTML = html;
     const target = requiredElement(selector);

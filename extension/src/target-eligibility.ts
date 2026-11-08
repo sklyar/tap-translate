@@ -189,7 +189,9 @@ function hasClickHandler(element: Element): boolean {
 
 function hasNonNegativeTabIndex(element: Element): boolean {
   const value = element.getAttribute('tabindex');
-  return value !== null && Number(value) >= 0;
+  // HTML parses tabindex with the rules for integers, so an empty or
+  // non-numeric value is ignored. Number('') would wrongly return 0.
+  return value !== null && Number.parseInt(value, 10) >= 0;
 }
 
 function isHidden(element: Element): boolean {

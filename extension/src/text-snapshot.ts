@@ -50,19 +50,11 @@ interface SnapshotState {
   sourceOffset: number | null;
 }
 
+// Uses the same block rule as buildTextSnapshot, so the snapshot of the
+// returned block never prunes the subtree that contains the text node.
 export function findFocusBlock(textNode: Text): Element | null {
-  const parent = textNode.parentElement;
-  if (parent === null) {
-    return null;
-  }
-
-  const semanticBlock = parent.closest(semanticBlockSelector);
-  if (semanticBlock !== null) {
-    return semanticBlock;
-  }
-
   for (
-    let element: Element | null = parent;
+    let element: Element | null = textNode.parentElement;
     element !== null;
     element = element.parentElement
   ) {
@@ -70,7 +62,7 @@ export function findFocusBlock(textNode: Text): Element | null {
       return null;
     }
 
-    if (hasLogicalDisplay(element)) {
+    if (isLogicalBlock(element)) {
       return element;
     }
   }

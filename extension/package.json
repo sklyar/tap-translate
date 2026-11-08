@@ -2,7 +2,7 @@
   "name": "tap-translate-extension",
   "version": "0.1.0",
   "private": true,
-  "description": "Safari Web Extension for detecting English words on webpages.",
+  "description": "Safari Web Extension that translates English words on webpages in context.",
   "type": "module",
   "engines": {
     "node": ">=22.13.0"

@@ -66,6 +66,35 @@ describe('detectEnglishContext', () => {
     expect(JSON.parse(JSON.stringify(result)) as unknown).toEqual(result);
   });
 
+  it.each([
+    [
+      'list item',
+      '<ul><li><div id="target">Turn the light off.</div></li></ul>',
+    ],
+    [
+      'table cell',
+      '<table><tbody><tr><td><div id="target">Turn the light off.</div></td></tr></tbody></table>',
+    ],
+  ])('detects text in a block nested inside a %s', (_name, html) => {
+    document.body.innerHTML = `<main>${html}</main>`;
+    const target = requiredElement('#target');
+    const textNode = requiredText(target);
+    setCaretPositionFromPoint(document, { offsetNode: textNode, offset: 1 });
+    stubCharacterRectangles(document, new Map([[1, [TEST_RECT]]]));
+
+    const result = detectEnglishContext(
+      {
+        point: { clientX: 15, clientY: 15 },
+        target,
+        eventPath: [target, document.body, document],
+      },
+      document,
+    );
+
+    expect(result?.context.focusBlock.text).toBe('Turn the light off.');
+    expect(result?.context.focusBlock.word).toEqual({ start: 0, end: 4 });
+  });
+
   it('returns null when hit-testing fails', () => {
     expect(
       detectEnglishContext(

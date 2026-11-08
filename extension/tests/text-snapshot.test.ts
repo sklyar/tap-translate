@@ -53,6 +53,21 @@ describe('logical block resolution', () => {
       '<div id="focus"><span>Target</span></div>',
       'DIV',
     ],
+    [
+      'block inside list item',
+      '<li><div id="focus"><span>Target</span></div></li>',
+      'DIV',
+    ],
+    [
+      'block inside table cell',
+      '<table><tbody><tr><td><div id="focus">Target</div></td></tr></tbody></table>',
+      'DIV',
+    ],
+    [
+      'blockified flex item inside paragraph',
+      '<p style="display: flex"><span id="focus" style="display: block">Target</span></p>',
+      'SPAN',
+    ],
   ])('chooses the nearest logical block for %s', (_name, html, tagName) => {
     document.body.innerHTML = html;
     expect(

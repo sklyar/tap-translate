@@ -48,7 +48,11 @@ const turnOffResult: TranslationResult = {
 const stylesheetUrl =
   'safari-web-extension://taptranslate-test/translation-sheet.css';
 
-let startTapTranslateContent: typeof import('../src/content').startTapTranslateContent;
+type StartTapTranslateContent =
+  typeof import('../src/content').startTapTranslateContent;
+
+let startProductionContent: StartTapTranslateContent;
+let startTapTranslateContent: StartTapTranslateContent;
 
 beforeAll(async () => {
   const originalDocumentAdd = document.addEventListener.bind(document);
@@ -68,7 +72,10 @@ beforeAll(async () => {
       }
     });
   const contentModule = await import('../src/content');
-  startTapTranslateContent = contentModule.startTapTranslateContent;
+  startProductionContent = contentModule.startTapTranslateContent;
+  // jsdom cannot dispatch trusted events, so other tests accept synthetic clicks.
+  startTapTranslateContent = (options) =>
+    startProductionContent({ isTrustedClick: () => true, ...options });
   documentAdd.mockRestore();
   windowAdd.mockRestore();
 });
@@ -293,6 +300,89 @@ describe('startTapTranslateContent', () => {
     expect(event.defaultPrevented).toBe(false);
     stop();
     document.removeEventListener('click', pageClick);
+  });
+
+  it('ignores untrusted page-dispatched clicks by default', () => {
+    const controller = createControllerBoundary();
+    const detect = vi.fn(() => detectionResult);
+    const stop = startProductionContent({
+      documentRoot: document,
+      controller: controller.boundary,
+      sheet: { containsEventPath: () => false },
+      detect,
+    });
+    const target = createTarget();
+
+    target.click();
+    target.dispatchEvent(
+      new MouseEvent('click', { bubbles: true, clientX: 12, clientY: 34 }),
+    );
+
+    expect(detect).not.toHaveBeenCalled();
+    expect(controller.translate).not.toHaveBeenCalled();
+    expect(controller.dismiss).not.toHaveBeenCalled();
+    stop();
+  });
+
+  it('passes each click to the trust check', () => {
+    const controller = createControllerBoundary();
+    const isTrustedClick = vi.fn(() => false);
+    const stop = startProductionContent({
+      documentRoot: document,
+      controller: controller.boundary,
+      sheet: { containsEventPath: () => false },
+      detect: () => detectionResult,
+      isTrustedClick,
+    });
+    const event = new MouseEvent('click', { bubbles: true });
+
+    createTarget().dispatchEvent(event);
+
+    expect(isTrustedClick).toHaveBeenCalledExactlyOnceWith(event);
+    expect(controller.translate).not.toHaveBeenCalled();
+    stop();
+  });
+
+  it('ignores a click that finishes a text selection', () => {
+    const controller = createControllerBoundary();
+    const detect = vi.fn(() => detectionResult);
+    const stop = startTapTranslateContent({
+      documentRoot: document,
+      controller: controller.boundary,
+      sheet: { containsEventPath: () => false },
+      detect,
+    });
+    const target = createTarget();
+    document.getSelection()?.selectAllChildren(target);
+
+    target.click();
+
+    expect(detect).not.toHaveBeenCalled();
+    expect(controller.translate).not.toHaveBeenCalled();
+    expect(controller.dismiss).not.toHaveBeenCalled();
+    document.getSelection()?.removeAllRanges();
+    stop();
+  });
+
+  it('detects a click when the selection is only a collapsed caret', () => {
+    const controller = createControllerBoundary();
+    const detect = vi.fn(() => detectionResult);
+    const stop = startTapTranslateContent({
+      documentRoot: document,
+      controller: controller.boundary,
+      sheet: { containsEventPath: () => false },
+      detect,
+    });
+    const target = createTarget();
+    document.getSelection()?.collapse(target, 0);
+
+    target.click();
+
+    expect(controller.translate).toHaveBeenCalledWith(
+      createTranslationRequest(detectionResult),
+    );
+    document.getSelection()?.removeAllRanges();
+    stop();
   });
 
   it('ignores a click whose composed path belongs to the sheet', () => {
