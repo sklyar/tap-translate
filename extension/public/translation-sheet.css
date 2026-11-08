@@ -14,12 +14,16 @@
   box-sizing: border-box;
 }
 
+/* The script sizes the overlay to the visual viewport. Percentage heights
+   below are relative to it, because vh units on iOS use the largest viewport
+   and do not fit when the Safari toolbar is expanded. */
 .overlay {
   position: absolute;
   inset: 0;
   display: flex;
   align-items: flex-end;
   pointer-events: none;
+  transform-origin: 0 0;
 }
 
 .scrim {
@@ -33,7 +37,7 @@
   position: relative;
   display: flex;
   width: 100%;
-  max-height: 52vh;
+  max-height: 52%;
   flex-direction: column;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -57,14 +61,19 @@
 }
 
 .sheet[data-expanded='true'] {
-  height: calc(100vh - 16px - env(safe-area-inset-top));
-  max-height: calc(100vh - 16px - env(safe-area-inset-top));
+  height: calc(100% - 16px - env(safe-area-inset-top));
+  max-height: calc(100% - 16px - env(safe-area-inset-top));
 }
 
+/* A vertical swipe on the top bar expands, collapses, or closes the sheet,
+   so the browser must not scroll the page for this gesture. */
 .topbar {
   position: relative;
   min-height: 46px;
   flex: none;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 button {
@@ -263,6 +272,15 @@ mark {
   }
   to {
     background-position: -100% 0;
+  }
+}
+
+/* On iPhone, the collapsed Safari toolbar floats over the bottom ~46px of the
+   page, and pages without viewport-fit=cover report a zero safe area. Keep
+   the end of the content and the retry button above it. */
+@media (pointer: coarse) {
+  .content {
+    padding-bottom: calc(56px + env(safe-area-inset-bottom));
   }
 }
 
