@@ -149,9 +149,39 @@ describe('buildTextSnapshot', () => {
 
   it('prunes hidden and unsupported descendants', () => {
     document.body.innerHTML =
-      '<p id="focus">Visible <span hidden>Hidden</span><code>Code</code>end</p>';
+      '<p id="focus">Visible <span hidden>Hidden</span><canvas>Fallback</canvas>end</p>';
     expect(buildTextSnapshot(requiredElement('#focus'), null)?.text).toBe(
       'Visible end',
+    );
+  });
+
+  it('keeps inline code', () => {
+    document.body.innerHTML =
+      '<p id="focus">Run <code>gofmt</code>; if the answer is wrong, file a bug.</p>';
+    expect(buildTextSnapshot(requiredElement('#focus'), null)?.text).toBe(
+      'Run gofmt; if the answer is wrong, file a bug.',
+    );
+  });
+
+  it('prunes preformatted blocks', () => {
+    document.body.innerHTML =
+      '<div id="focus">Before <pre>func main() {}</pre> after</div>';
+    expect(buildTextSnapshot(requiredElement('#focus'), null)?.text).toBe(
+      'Before after',
+    );
+  });
+
+  it('prunes bracketed footnote references and keeps other superscripts', () => {
+    document.body.innerHTML = [
+      '<p id="focus">',
+      'Coffee spread in 1822.<sup><a href="#cite-54">[54]</a></sup>',
+      ' Other scales<sup>[11]</sup><sup>[43]</sup> were not used',
+      '<sup><span>[</span><i>citation needed</i><span>]</span></sup>.',
+      ' The area is 10 m<sup>2</sup>.',
+      '</p>',
+    ].join('');
+    expect(buildTextSnapshot(requiredElement('#focus'), null)?.text).toBe(
+      'Coffee spread in 1822. Other scales were not used. The area is 10 m2.',
     );
   });
 
@@ -167,7 +197,7 @@ describe('buildTextSnapshot', () => {
   });
 
   it('returns null when a block has no eligible text', () => {
-    document.body.innerHTML = '<p id="focus"><code>return</code></p>';
+    document.body.innerHTML = '<p id="focus"><sup>[1]</sup></p>';
     expect(buildTextSnapshot(requiredElement('#focus'), null)).toBeNull();
   });
 });

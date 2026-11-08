@@ -254,12 +254,22 @@ describe('extractTextContext', () => {
     ]);
   });
 
-  it('skips hidden, code-only, and empty candidate blocks', () => {
+  it('starts the sentence after a footnote reference', () => {
+    document.body.innerHTML =
+      '<p id="focus">Coffee spread fast.<sup><a href="#cite-1">[1]</a></sup> Many countries took up cultivation.</p>';
+    const result = extractFixtureContext('#focus', 'took');
+    const focus = result?.focusBlock;
+    expect(focus?.text.slice(focus.sentence.start, focus.sentence.end)).toBe(
+      'Many countries took up cultivation.',
+    );
+  });
+
+  it('skips hidden, preformatted, and empty candidate blocks', () => {
     document.body.innerHTML = `
       <article>
         <p>Previous visible.</p>
         <p hidden>Hidden.</p>
-        <p><code>return</code></p>
+        <pre>return</pre>
         <p></p>
         <p id="focus">Click the target word.</p>
         <p>Next visible.</p>

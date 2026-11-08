@@ -17,9 +17,14 @@ const interactiveTargetSelector = [
   'video[controls]',
 ].join(',');
 
-const excludedTextSelector = 'script,style,template,canvas,svg,code,pre';
+const excludedTargetSelector = 'script,style,template,canvas,svg,code,pre';
+// Inline code stays in the context text: without it, "run <code>gofmt</code>;"
+// becomes "run ;", and the model gets a broken sentence.
+const excludedContextSelector = 'script,style,template,canvas,svg,pre';
 const excludedContextControlSelector =
   'input,select,textarea,option,audio[controls],video[controls]';
+// A footnote reference such as <sup>[54]</sup> or <sup>[citation needed]</sup>.
+const footnoteReferenceText = /^\s*\[[^[\]]*\]\s*$/;
 
 const interactiveRoles = new Set([
   'button',
@@ -96,8 +101,18 @@ export function isVisibleContextElement(element: Element): boolean {
   return !ancestryBelowBody(element).some(
     (ancestor) =>
       isHidden(ancestor) ||
-      ancestor.matches(excludedTextSelector) ||
-      ancestor.matches(excludedContextControlSelector),
+      ancestor.matches(excludedContextSelector) ||
+      ancestor.matches(excludedContextControlSelector) ||
+      isFootnoteReference(ancestor),
+  );
+}
+
+// Footnote references are noise for the translation. They also move sentence
+// boundaries: Intl.Segmenter splits "end.[54] Next" after the "[", so the next
+// sentence starts with "54]".
+function isFootnoteReference(element: Element): boolean {
+  return (
+    element.matches('sup') && footnoteReferenceText.test(element.textContent)
   );
 }
 
@@ -144,7 +159,7 @@ function ancestryBelowBody(start: Element): readonly Element[] {
 function isHardRejectedTarget(element: Element): boolean {
   return (
     element.matches(interactiveTargetSelector) ||
-    element.matches(excludedTextSelector) ||
+    element.matches(excludedTargetSelector) ||
     hasInteractiveRole(element) ||
     isHidden(element)
   );
