@@ -30,8 +30,9 @@ type FocusBlock struct {
 }
 
 // DetectionContext is the context of one tap. Word, SentenceParts, and
-// BlockParts need valid spans. A DetectionContext decoded from JSON is always
-// valid; a value built in code must pass Validate first.
+// BlockParts need valid spans. UnmarshalJSON rejects invalid spans, but a
+// missing JSON field is not decoded and keeps the zero value, which is not
+// valid. Call Validate when the value can be empty or was built in code.
 type DetectionContext struct {
 	BeforeBlocks []ContextBlock `json:"beforeBlocks"`
 	FocusBlock   FocusBlock     `json:"focusBlock"`

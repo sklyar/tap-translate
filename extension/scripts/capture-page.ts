@@ -17,6 +17,12 @@ declare global {
 document.addEventListener(
   'click',
   (event) => {
+    // Like the content script, ignore clicks that page scripts dispatch, so
+    // that they cannot replace the result of the capture click.
+    if (!event.isTrusted) {
+      return;
+    }
+
     const result = detectEnglishContext(
       {
         point: { clientX: event.clientX, clientY: event.clientY },

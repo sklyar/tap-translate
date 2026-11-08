@@ -14,6 +14,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -116,6 +117,9 @@ func main() {
 
 func run(args []string) error {
 	cfg, err := parseFlags(args)
+	if errors.Is(err, flag.ErrHelp) {
+		return nil
+	}
 	if err != nil {
 		return err
 	}
@@ -143,17 +147,24 @@ func run(args []string) error {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 
-	client := llm.NewClient(cfg.baseURL, apiKey, &http.Client{})
-
-	// The warm-up request opens the connection, so the first measured requests
-	// do not pay for the TLS handshake. It also stops the run early when the
-	// URL, the model, or the key is wrong.
-	warmUp, finished := runOne(ctx, client, cfg, samples[0], variants[0])
-	if !finished {
-		return errors.New("interrupted during the warm-up request")
+	// Create the run directory before any paid request, so that a bad -out
+	// path stops the run at once.
+	directoryName := time.Now().UTC().Format("20060102-150405") + "-" + safeName(cfg.model)
+	directory, err := createRunDirectory(cfg.outputDir, directoryName)
+	if err != nil {
+		return err
 	}
-	if warmUp.RequestFailed {
-		return fmt.Errorf("warm-up request failed: %s", warmUp.Error)
+	written := false
+	defer func() {
+		if !written {
+			// Remove removes only an empty directory.
+			_ = os.Remove(directory)
+		}
+	}()
+
+	client := llm.NewClient(cfg.baseURL, apiKey, &http.Client{})
+	if err := warmUp(ctx, client, cfg, variants[0].Thinking); err != nil {
+		return err
 	}
 
 	startedAt := time.Now().UTC()
@@ -162,10 +173,10 @@ func run(args []string) error {
 
 	report := newReport(cfg, startedAt, time.Since(startedAt), samples, variants, runs)
 	report.Interrupted = interrupted
-	directory := filepath.Join(cfg.outputDir, startedAt.Format("20060102-150405")+"-"+safeName(cfg.model))
 	if err := report.write(directory); err != nil {
 		return err
 	}
+	written = true
 
 	printSummary(os.Stdout, report)
 	fmt.Printf("\nReport: %s\n", filepath.Join(directory, reportFileName))
@@ -222,16 +233,23 @@ func parseFlags(args []string) (config, error) {
 		if err != nil {
 			return config{}, err
 		}
+		if slices.Contains(cfg.contextModes, mode) {
+			return config{}, fmt.Errorf("-context-modes has %q twice", value)
+		}
 		cfg.contextModes = append(cfg.contextModes, mode)
 	}
 
 	for _, value := range splitList(thinkingModes) {
-		switch mode := ThinkingMode(value); mode {
+		mode := ThinkingMode(value)
+		switch mode {
 		case ThinkingDefault, ThinkingOff, ThinkingOn:
-			cfg.thinkingModes = append(cfg.thinkingModes, mode)
 		default:
 			return config{}, fmt.Errorf("unknown thinking mode %q: use off, on, or default", value)
 		}
+		if slices.Contains(cfg.thinkingModes, mode) {
+			return config{}, fmt.Errorf("-thinking has %q twice", value)
+		}
+		cfg.thinkingModes = append(cfg.thinkingModes, mode)
 	}
 
 	if len(cfg.contextModes) == 0 || len(cfg.thinkingModes) == 0 {
@@ -277,14 +295,52 @@ func loadSamples(path string) ([]Sample, error) {
 		return nil, fmt.Errorf("%s has no samples", path)
 	}
 
-	// Decoding has already validated each DetectionContext.
 	for _, sample := range samples {
+		// Decoding validates each context, but a missing "context" field is
+		// not decoded and stays empty.
+		if err := sample.Context.Validate(); err != nil {
+			return nil, fmt.Errorf("sample %s: %w", sample.ID, err)
+		}
 		if word := sample.Context.Word(); word != sample.Word {
 			return nil, fmt.Errorf("sample %s: the context word is %q, not %q", sample.ID, word, sample.Word)
 		}
 	}
 
 	return samples, nil
+}
+
+// warmUp sends one short request. It opens the connection, so the first
+// measured requests do not pay for the TLS handshake, and it stops the run
+// early when the URL, the model, or the key is wrong. Its prompt is not a
+// sample prompt, so it cannot warm a provider prompt cache for a measured
+// request.
+func warmUp(ctx context.Context, client *llm.Client, cfg config, thinking ThinkingMode) error {
+	requestCtx, cancel := context.WithTimeout(ctx, cfg.timeout)
+	defer cancel()
+
+	_, err := client.Complete(requestCtx, llm.ChatRequest{
+		Model:          cfg.model,
+		Messages:       []llm.Message{{Role: "user", Content: "Reply with OK."}},
+		MaxTokens:      5,
+		EnableThinking: thinking.enableThinking(),
+	})
+	if err != nil {
+		return fmt.Errorf("warm-up request failed: %w", err)
+	}
+	return nil
+}
+
+// createRunDirectory creates a new directory for one run. It fails when the
+// directory exists, so a run never overwrites another.
+func createRunDirectory(outputDir, name string) (string, error) {
+	if err := os.MkdirAll(outputDir, 0o755); err != nil {
+		return "", fmt.Errorf("create output directory: %w", err)
+	}
+	directory := filepath.Join(outputDir, name)
+	if err := os.Mkdir(directory, 0o755); err != nil {
+		return "", fmt.Errorf("create run directory: %w", err)
+	}
+	return directory, nil
 }
 
 type job struct {

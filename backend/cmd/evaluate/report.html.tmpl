@@ -69,7 +69,7 @@
   {{end}}
 </table>
 </div>
-<p class="muted">Valid: answers that pass validation. Failed: requests without a model answer (HTTP or network errors, timeouts). Latency is the full request time measured by the client; it includes timeouts but not other failed requests. Token counts are means per answered request; output tokens include thinking tokens.{{if .HasPrices}} Prices: ${{.InputPrice}} per 1M input tokens, ${{.OutputPrice}} per 1M output tokens.{{end}}</p>
+<p class="muted">Valid: answers that pass validation. Failed: requests without a model answer (HTTP or network errors, timeouts). Latency is the full request time measured by the client; it includes timeouts but not other failed requests. Token counts are means per answered request; output tokens include thinking tokens. The cost estimate uses these means, so it leaves out failed and timed-out requests, although a provider can still bill a timed-out request.{{if .HasPrices}} Prices: ${{.InputPrice}} per 1M input tokens, ${{.OutputPrice}} per 1M output tokens.{{end}}</p>
 
 <details>
   <summary>System prompt</summary>

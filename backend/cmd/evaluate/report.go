@@ -131,14 +131,8 @@ func percentile(sorted []int64, p float64) int64 {
 	return sorted[min(max(rank, 1), len(sorted))-1]
 }
 
+// write writes the results and the report into an existing run directory.
 func (r Report) write(directory string) error {
-	if err := os.MkdirAll(filepath.Dir(directory), 0o755); err != nil {
-		return fmt.Errorf("create output directory: %w", err)
-	}
-	// Mkdir fails when the directory exists, so a run never overwrites another.
-	if err := os.Mkdir(directory, 0o755); err != nil {
-		return fmt.Errorf("create run directory: %w", err)
-	}
 
 	data, err := json.MarshalIndent(r, "", "  ")
 	if err != nil {

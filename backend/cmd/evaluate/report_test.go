@@ -1,6 +1,8 @@
 package main
 
 import (
+	"errors"
+	"flag"
 	"fmt"
 	"math"
 	"os"
@@ -95,11 +97,20 @@ func TestParseFlags(t *testing.T) {
 		append(required, "-input-price", "-1"),
 		// A space instead of a comma ends flag parsing at "block".
 		append(required, "-context-modes", "sentence", "block", "-input-price", "0.15"),
+		append(required, "-context-modes", "full,full"),
+		append(required, "-thinking", "off,on,off"),
 	}
 	for _, args := range invalid {
 		if _, err := parseFlags(args); err == nil {
 			t.Errorf("parseFlags(%q) returned no error", args)
 		}
+	}
+
+	if _, err := parseFlags([]string{"-h"}); !errors.Is(err, flag.ErrHelp) {
+		t.Errorf("parseFlags(-h) error = %v, want flag.ErrHelp", err)
+	}
+	if err := run([]string{"-h"}); err != nil {
+		t.Errorf("run(-h) error = %v, want nil", err)
 	}
 }
 
@@ -115,21 +126,29 @@ func TestThinkingModeEnableThinking(t *testing.T) {
 	}
 }
 
-func TestReportWriteDoesNotOverwriteARun(t *testing.T) {
-	directory := filepath.Join(t.TempDir(), "results", "run")
-	report := Report{Model: "m"}
+func TestReportWrite(t *testing.T) {
+	directory, err := createRunDirectory(filepath.Join(t.TempDir(), "results"), "run")
+	if err != nil {
+		t.Fatalf("createRunDirectory() error = %v", err)
+	}
 
-	if err := report.write(directory); err != nil {
-		t.Fatalf("first write() error = %v", err)
+	if err := (Report{Model: "m"}).write(directory); err != nil {
+		t.Fatalf("write() error = %v", err)
 	}
 	for _, name := range []string{resultsFileName, reportFileName} {
 		if _, err := os.Stat(filepath.Join(directory, name)); err != nil {
 			t.Errorf("write() did not create %s: %v", name, err)
 		}
 	}
+}
 
-	if err := report.write(directory); err == nil || !strings.Contains(err.Error(), "create run directory") {
-		t.Errorf("second write() error = %v, want a run directory error", err)
+func TestCreateRunDirectoryDoesNotReuseADirectory(t *testing.T) {
+	outputDir := t.TempDir()
+	if _, err := createRunDirectory(outputDir, "run"); err != nil {
+		t.Fatalf("first createRunDirectory() error = %v", err)
+	}
+	if _, err := createRunDirectory(outputDir, "run"); err == nil || !strings.Contains(err.Error(), "create run directory") {
+		t.Errorf("second createRunDirectory() error = %v, want a run directory error", err)
 	}
 }
 

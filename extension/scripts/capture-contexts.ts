@@ -38,6 +38,9 @@ interface WordTarget {
   readonly quote: string;
   readonly word: string;
   readonly occurrence: number;
+  // When true, the page scrolls so that the word is in the middle of the
+  // viewport. When false, the position is only measured.
+  readonly scroll: boolean;
 }
 
 type LocateResult =
@@ -146,10 +149,14 @@ async function captureSample(
   source: Source,
 ): Promise<Sample | string> {
   try {
-    const target = await page.evaluate(locateWord, {
+    const wordTarget = {
       quote: source.quote,
       word: source.word,
       occurrence: source.occurrence,
+    };
+    const target = await page.evaluate(locateWord, {
+      ...wordTarget,
+      scroll: true,
     });
 
     if (!target.ok) {
@@ -161,6 +168,20 @@ async function captureSample(
       window.getSelection()?.removeAllRanges();
     });
     await page.mouse.click(target.x, target.y);
+
+    // A late image, font, or banner can move the text between the measurement
+    // and the click. Then the click can hit the same word in another place.
+    const after = await page.evaluate(locateWord, {
+      ...wordTarget,
+      scroll: false,
+    });
+    if (
+      !after.ok ||
+      Math.abs(after.x - target.x) > 0.5 ||
+      Math.abs(after.y - target.y) > 0.5
+    ) {
+      return 'the word moved during the click; run the capture again';
+    }
 
     const state = await page.evaluate(() => window.tapTranslateCapture);
     if (state === undefined) {
@@ -201,10 +222,13 @@ async function captureSample(
 function locateWord(target: WordTarget): LocateResult {
   const ignoredParents = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'TEMPLATE']);
   const positions: { readonly node: Text; readonly offset: number }[] = [];
-  let text = '';
+  const characters: string[] = [];
+  let previousIsSpace = false;
 
   // Whitespace runs collapse to one space, so the quote does not depend on
-  // line breaks and indentation in the HTML source.
+  // line breaks and indentation in the HTML source. The characters go to an
+  // array: appending to a string and checking its end on each step is
+  // quadratic on pages with hundreds of thousands of characters.
   const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
   for (let node = walker.nextNode(); node !== null; node = walker.nextNode()) {
     if (
@@ -215,17 +239,18 @@ function locateWord(target: WordTarget): LocateResult {
     }
 
     for (let offset = 0; offset < node.data.length; offset += 1) {
-      let character = node.data.charAt(offset);
-      if (/\s/.test(character)) {
-        if (text.endsWith(' ')) {
-          continue;
-        }
-        character = ' ';
+      const character = node.data.charAt(offset);
+      const isSpace = /\s/.test(character);
+      if (isSpace && previousIsSpace) {
+        continue;
       }
-      text += character;
+      characters.push(isSpace ? ' ' : character);
       positions.push({ node, offset });
+      previousIsSpace = isSpace;
     }
   }
+
+  const text = characters.join('');
 
   const quote = target.quote.replace(/\s+/g, ' ').trim();
   const quoteStart = text.indexOf(quote);
@@ -259,20 +284,39 @@ function locateWord(target: WordTarget): LocateResult {
     return { ok: false, error: 'the word position is outside the page text' };
   }
 
-  // Some pages set scroll-behavior: smooth. An instant scroll makes the
-  // rectangle below match the position at the time of the click.
-  middle.node.parentElement?.scrollIntoView({
-    block: 'center',
-    behavior: 'instant',
-  });
-
   const range = document.createRange();
   range.setStart(middle.node, middle.offset);
   range.setEnd(middle.node, middle.offset + 1);
 
+  if (target.scroll) {
+    // The parent element scrolls first, so that nested scroll containers show
+    // it. If the parent is taller than the viewport, the window then scrolls by
+    // the character rectangle. Some pages set scroll-behavior: smooth, so the
+    // scrolls are instant: the rectangle below must match the click time.
+    middle.node.parentElement?.scrollIntoView({
+      block: 'center',
+      behavior: 'instant',
+    });
+    const characterRect = range.getClientRects()[0];
+    if (
+      characterRect !== undefined &&
+      (characterRect.top < 0 || characterRect.bottom > window.innerHeight)
+    ) {
+      window.scrollBy({
+        top:
+          characterRect.top + characterRect.height / 2 - window.innerHeight / 2,
+        behavior: 'instant',
+      });
+    }
+  }
+
   const rect = range.getClientRects()[0];
   if (rect === undefined || rect.width === 0 || rect.height === 0) {
     return { ok: false, error: 'the word is not visible' };
+  }
+
+  if (rect.top < 0 || rect.bottom > window.innerHeight) {
+    return { ok: false, error: 'the word is outside the viewport' };
   }
 
   const x = rect.left + rect.width / 2;
