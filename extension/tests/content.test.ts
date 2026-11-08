@@ -343,6 +343,48 @@ describe('startTapTranslateContent', () => {
     stop();
   });
 
+  it('ignores a click that finishes a text selection', () => {
+    const controller = createControllerBoundary();
+    const detect = vi.fn(() => detectionResult);
+    const stop = startTapTranslateContent({
+      documentRoot: document,
+      controller: controller.boundary,
+      sheet: { containsEventPath: () => false },
+      detect,
+    });
+    const target = createTarget();
+    document.getSelection()?.selectAllChildren(target);
+
+    target.click();
+
+    expect(detect).not.toHaveBeenCalled();
+    expect(controller.translate).not.toHaveBeenCalled();
+    expect(controller.dismiss).not.toHaveBeenCalled();
+    document.getSelection()?.removeAllRanges();
+    stop();
+  });
+
+  it('detects a click when the selection is only a collapsed caret', () => {
+    const controller = createControllerBoundary();
+    const detect = vi.fn(() => detectionResult);
+    const stop = startTapTranslateContent({
+      documentRoot: document,
+      controller: controller.boundary,
+      sheet: { containsEventPath: () => false },
+      detect,
+    });
+    const target = createTarget();
+    document.getSelection()?.collapse(target, 0);
+
+    target.click();
+
+    expect(controller.translate).toHaveBeenCalledWith(
+      createTranslationRequest(detectionResult),
+    );
+    document.getSelection()?.removeAllRanges();
+    stop();
+  });
+
   it('ignores a click whose composed path belongs to the sheet', () => {
     const controller = createControllerBoundary();
     const detect = vi.fn(() => detectionResult);

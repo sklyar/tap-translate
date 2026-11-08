@@ -61,6 +61,12 @@ export function startTapTranslateContent(
         return;
       }
 
+      // A click that finishes a drag or multi-click selection belongs to the
+      // selection gesture. It must not start a translation or dismiss the sheet.
+      if (hasTextSelection(options.documentRoot)) {
+        return;
+      }
+
       const result = detect(
         {
           point: {
@@ -103,6 +109,10 @@ export function startTapTranslateContent(
 
 function isTrustedEvent(event: Event): boolean {
   return event.isTrusted;
+}
+
+function hasTextSelection(documentRoot: Document): boolean {
+  return documentRoot.getSelection()?.isCollapsed === false;
 }
 
 const provider = new MockTranslationProvider({
