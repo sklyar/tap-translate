@@ -12,14 +12,14 @@ This directory holds the data for stage 2 of the [roadmap](../docs/roadmap.md): 
 
 All texts come from sources that allow redistribution. Each sample keeps its URL and license.
 
-| Source                                      | License                         |
-| ------------------------------------------- | ------------------------------- |
-| Project Gutenberg books                     | Public domain in the USA        |
-| NASA news                                   | Public domain (U.S. Government) |
-| go.dev, kubernetes.io                       | CC BY 4.0                       |
-| MDN Web Docs                                | CC BY-SA 2.5                    |
-| Wikipedia                                   | CC BY-SA 4.0                    |
-| Wikinews                                    | CC BY 2.5                       |
+| Source                  | License                         |
+| ----------------------- | ------------------------------- |
+| Project Gutenberg books | Public domain in the USA        |
+| NASA news               | Public domain (U.S. Government) |
+| go.dev, kubernetes.io   | CC BY 4.0                       |
+| MDN Web Docs            | CC BY-SA 2.5                    |
+| Wikipedia               | CC BY-SA 4.0                    |
+| Wikinews                | CC BY 2.5                       |
 
 Use only sources with such licenses, because the repository is public.
 

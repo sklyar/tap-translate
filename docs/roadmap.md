@@ -71,26 +71,27 @@ Result: a provider and model, a first prompt, and target values for latency and 
 
 The data and tools are in `eval/`; see [eval/README.md](../eval/README.md). The capture script runs the real detection code in WebKit, so the samples contain what the extension really sends.
 
-First run (2026-11-08): `qwen3.8-flash` on Alibaba Cloud Model Studio, Singapore region, requests from Belgrade. 54 samples from Project Gutenberg, Go, MDN, and Kubernetes documentation, NASA news, Wikinews, and Wikipedia. Prices: $0.15 per 1M input tokens and $0.47 per 1M output tokens.
+Run of 2026-11-08: `qwen3.8-flash` on Alibaba Cloud Model Studio, Singapore region, requests from Belgrade. 54 samples from Project Gutenberg, Go, MDN, and Kubernetes documentation, NASA news, Wikinews, and Wikipedia. Prices: $0.15 per 1M input tokens and $0.47 per 1M output tokens.
 
 | Variant                | Valid answers | p50    | p95    | Input tokens | Output tokens | USD per 1,000 taps | Correct / partly / wrong |
 | ---------------------- | ------------- | ------ | ------ | ------------ | ------------- | ------------------ | ------------------------ |
-| sentence, thinking off | 51/54         | 1.34 s | 2.99 s | 332          | 98            | 0.10               | 41 / 9 / 4               |
-| block, thinking off    | 52/54         | 1.36 s | 1.71 s | 436          | 95            | 0.11               | 42 / 8 / 4               |
-| full, thinking off     | 54/54         | 1.33 s | 2.00 s | 575          | 94            | 0.13               | 46 / 7 / 1               |
-| sentence, thinking on  | 42/54         | 4.36 s | 12.8 s | 368          | 525           | 0.30               | not rated                |
-| block, thinking on     | 41/54         | 4.86 s | 11.3 s | 472          | 525           | 0.32               | not rated                |
-| full, thinking on      | 42/54         | 4.93 s | 33.9 s | 611          | 755           | 0.45               | not rated                |
+| sentence, thinking off | 54/54         | 1.24 s | 1.69 s | 332          | 84            | 0.09               | 45 / 7 / 2               |
+| block, thinking off    | 54/54         | 1.25 s | 1.69 s | 436          | 86            | 0.11               | 47 / 5 / 2               |
+| full, thinking off     | 54/54         | 1.24 s | 1.73 s | 575          | 84            | 0.13               | 51 / 3 / 0               |
+| sentence, thinking on  | 54/54         | 4.44 s | 14.5 s | 368          | 513           | 0.30               | not rated                |
+| block, thinking on     | 54/54         | 4.87 s | 17.8 s | 472          | 688           | 0.39               | not rated                |
+| full, thinking on      | 54/54         | 5.83 s | 14.3 s | 611          | 607           | 0.38               | not rated                |
 
-"Wrong" includes invalid answers. The quality columns are a first manual assessment against the expected meanings in `eval/sources.json`. A native Russian speaker has not reviewed them yet.
+The quality columns are a first manual assessment against the expected meanings in `eval/sources.json`. A native Russian speaker has not reviewed them yet.
 
 Conclusions so far:
 
-- Thinking is not usable for a tap. It is 3–4 times slower, p95 reaches 34 s, and 23% of the answers are invalid, mostly with an empty explanation.
-- Without thinking, `qwen3.8-flash` is a candidate: p50 1.3 s, p95 2.0 s, and about $0.13 per 1,000 taps with the full context.
-- The full context (the focus block and its neighbors) gives the best quality at the same latency. A typical tap sends about 1,000 characters; the largest sample has 3,400.
-- A strict JSON Schema does not guarantee non-empty fields (`minLength` is ignored), and one answer had a 788-character translation. The backend must validate each answer and retry or return an error.
-- The prompt needs work. Explanations are long: the median is 213 characters, often 2–3 sentences that start with «В данном контексте». The model sometimes misses an idiom, for example `watch like a hawk` becomes «ястреб».
+- Without thinking, `qwen3.8-flash` is a candidate: p50 1.2 s, p95 1.7 s, and about $0.13 per 1,000 taps with the full context.
+- Thinking is not usable for a tap: it is about 4 times slower, p95 is 14–18 s, the slowest answer took 56 s, and the cost is 3 times higher.
+- The full context (the focus block and its neighbors) gives the best quality at the same latency. Only the full context translated `the old bean` as «голова» and `fall through` in Go as «проваливание». A typical tap sends about 1,000 characters; the largest sample has 3,400.
+- The order of the properties in the JSON Schema matters: the model writes the fields in that order. An earlier run sent the properties in alphabetical order, with `explanation` first, and the model often left the explanation empty: up to 6% of the answers without thinking and 23% with thinking. Keep `explanation` last.
+- A strict JSON Schema does not limit lengths (Qwen ignores `minLength`), and earlier runs had translations of 142 and 788 characters. The backend must validate each answer and retry or return an error.
+- The prompt needs work. Explanations are long for a phone: the median is 165 characters, and they often start with «В данном контексте». Sometimes an English word gets into the translation («брать на себя, undertaking»), and sometimes the translation is a calque («пустить ноги в бега»).
 
 Defects in the extension found while capturing:
 
