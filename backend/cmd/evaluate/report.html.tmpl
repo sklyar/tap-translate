@@ -44,7 +44,7 @@
 </head>
 <body>
 <h1>TapTranslate eval: {{.Model}}</h1>
-<p class="meta">{{.Started}} · {{len .Samples}} samples · {{len .Runs}} requests · {{.Duration}}</p>
+<p class="meta">{{.Started}} · {{len .Samples}} samples · {{len .Runs}} requests · {{.Duration}} · temperature {{with .Temperature}}{{.}}{{else}}default{{end}}</p>
 {{if .Interrupted}}<p class="error">The run was interrupted. The numbers cover only the finished requests.</p>{{end}}
 
 <h2>Summary</h2>

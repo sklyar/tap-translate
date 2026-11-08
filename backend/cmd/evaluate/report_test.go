@@ -113,6 +113,16 @@ func TestParseFlags(t *testing.T) {
 	assert.Equal(t, []ThinkingMode{ThinkingOff}, cfg.thinkingModes)
 	assert.Equal(t, _defaultConcurrency, cfg.concurrency)
 	assert.Equal(t, _defaultTimeout, cfg.timeout)
+	assert.Nil(t, cfg.temperature, "without the flag, the model default is used")
+}
+
+func TestParseFlags_Temperature(t *testing.T) {
+	t.Parallel()
+
+	cfg, err := parseFlags(withRequiredFlags("-temperature", "0.3"), io.Discard)
+
+	require.NoError(t, err)
+	assert.Equal(t, new(0.3), cfg.temperature)
 }
 
 func TestParseFlags_RejectsInvalidArguments(t *testing.T) {
@@ -131,6 +141,21 @@ func TestParseFlags_RejectsInvalidArguments(t *testing.T) {
 			name:    "unknown context mode",
 			give:    withRequiredFlags("-context-modes", "page"),
 			wantErr: `unknown context mode "page"`,
+		},
+		{
+			name:    "temperature is not a number",
+			give:    withRequiredFlags("-temperature", "low"),
+			wantErr: "parse temperature",
+		},
+		{
+			name:    "temperature is too high",
+			give:    withRequiredFlags("-temperature", "2.5"),
+			wantErr: "temperature 2.5 is not from 0 to 2",
+		},
+		{
+			name:    "temperature is negative",
+			give:    withRequiredFlags("-temperature", "-1"),
+			wantErr: "temperature -1 is not from 0 to 2",
 		},
 		{
 			name:    "unknown thinking mode",
@@ -224,7 +249,7 @@ func TestReport_Write(t *testing.T) {
 	directory, err := createRunDirectory(filepath.Join(t.TempDir(), "results"), "run")
 	require.NoError(t, err)
 
-	err = Report{Model: "m"}.write(directory)
+	err = Report{Model: "m", Temperature: new(0.3)}.write(directory)
 
 	require.NoError(t, err)
 	data, err := os.ReadFile(filepath.Join(directory, _resultsFileName))
@@ -232,6 +257,10 @@ func TestReport_Write(t *testing.T) {
 	var results Report
 	require.NoError(t, json.Unmarshal(data, &results))
 	assert.Equal(t, "m", results.Model)
+	assert.Equal(t, new(0.3), results.Temperature)
+	html, err := os.ReadFile(filepath.Join(directory, _reportFileName))
+	require.NoError(t, err)
+	assert.Contains(t, string(html), "temperature 0.3")
 	for _, name := range []string{_resultsFileName, _reportFileName} {
 		info, statErr := os.Stat(filepath.Join(directory, name))
 		require.NoError(t, statErr)

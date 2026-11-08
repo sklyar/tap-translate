@@ -92,6 +92,36 @@ func TestRunOne(t *testing.T) {
 	assert.Equal(t, "stop", run.FinishReason)
 }
 
+func TestRunOne_Temperature(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name            string
+		giveTemperature *float64
+	}{
+		{name: "model default", giveTemperature: nil},
+		{name: "zero", giveTemperature: new(0.0)},
+		{name: "set", giveTemperature: new(0.3)},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			var got llm.ChatRequest
+			client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+				assert.NoError(t, json.NewDecoder(r.Body).Decode(&got))
+				writeChatResponse(t, w, _validAnswer)
+			})
+			cfg := testConfig()
+			cfg.temperature = tt.giveTemperature
+
+			_, finished := runOne(t.Context(), client, cfg, testSample(), offVariant())
+
+			assert.True(t, finished)
+			assert.Equal(t, tt.giveTemperature, got.Temperature)
+		})
+	}
+}
+
 func TestRunOne_KeepsAnInvalidAnswer(t *testing.T) {
 	t.Parallel()
 	client := newTestClient(t, func(w http.ResponseWriter, _ *http.Request) {

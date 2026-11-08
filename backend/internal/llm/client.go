@@ -61,6 +61,8 @@ type ChatRequest struct {
 	Messages       []Message       `json:"messages"`
 	ResponseFormat *ResponseFormat `json:"response_format,omitempty"`
 	MaxTokens      int             `json:"max_tokens,omitempty"`
+	// Temperature is the sampling temperature. Nil leaves the model default.
+	Temperature *float64 `json:"temperature,omitempty"`
 	// EnableThinking is an extension of Alibaba Cloud Model Studio for hybrid
 	// thinking models such as Qwen3.x. Nil leaves the model default.
 	EnableThinking *bool `json:"enable_thinking,omitempty"`

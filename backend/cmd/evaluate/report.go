@@ -44,6 +44,7 @@ type Report struct {
 	DurationMs   int64            `json:"durationMs"`
 	InputPrice   float64          `json:"inputPricePerMillion"`
 	OutputPrice  float64          `json:"outputPricePerMillion"`
+	Temperature  *float64         `json:"temperature,omitempty"`
 	SystemPrompt string           `json:"systemPrompt"`
 	Summaries    []VariantSummary `json:"summaries"`
 	Samples      []Sample         `json:"samples"`
@@ -98,6 +99,7 @@ func newReport(
 		DurationMs:   duration.Milliseconds(),
 		InputPrice:   cfg.inputPrice,
 		OutputPrice:  cfg.outputPrice,
+		Temperature:  cfg.temperature,
 		SystemPrompt: translation.SystemPrompt(),
 		Samples:      samples,
 		Runs:         runs,
