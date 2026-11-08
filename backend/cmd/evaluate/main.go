@@ -16,6 +16,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"slices"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -34,6 +35,10 @@ const (
 
 	_defaultConcurrency = 4
 	_defaultTimeout     = time.Minute
+
+	// _maxTemperature is the largest temperature that OpenAI-compatible APIs
+	// accept.
+	_maxTemperature = 2
 )
 
 var _unsafeNameCharacters = regexp.MustCompile(`[^A-Za-z0-9._-]+`)
@@ -51,6 +56,9 @@ type config struct {
 	limit         int
 	inputPrice    float64
 	outputPrice   float64
+	// temperature is nil when the flag is not set: the request then leaves
+	// the model default.
+	temperature *float64
 }
 
 // Sample is one entry of eval/contexts.json.
@@ -263,6 +271,15 @@ func parseFlags(args []string, output io.Writer) (config, error) {
 		0,
 		"USD per 1M output tokens, including thinking tokens",
 	)
+	flags.Func(
+		"temperature",
+		"sampling temperature from 0 to 2 (default: the model default)",
+		func(value string) error {
+			var err error
+			cfg.temperature, err = parseTemperature(value)
+			return err
+		},
+	)
 
 	if err := flags.Parse(args); err != nil {
 		return config{}, fmt.Errorf("parse flags: %w", err)
@@ -342,6 +359,17 @@ func parseThinkingModes(value string) ([]ThinkingMode, error) {
 		return nil, errors.New("-thinking must not be empty")
 	}
 	return modes, nil
+}
+
+func parseTemperature(value string) (*float64, error) {
+	temperature, err := strconv.ParseFloat(value, 64)
+	if err != nil {
+		return nil, fmt.Errorf("parse temperature: %w", err)
+	}
+	if temperature < 0 || temperature > _maxTemperature {
+		return nil, fmt.Errorf("temperature %v is not from 0 to 2", temperature)
+	}
+	return &temperature, nil
 }
 
 func splitList(value string) []string {
@@ -526,6 +554,7 @@ func runOne(
 			},
 		},
 		MaxTokens:      _maxAnswerTokens,
+		Temperature:    cfg.temperature,
 		EnableThinking: variant.Thinking.enableThinking(),
 	}
 

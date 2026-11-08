@@ -94,13 +94,32 @@ Conclusions so far:
 - A strict JSON Schema does not limit lengths (Qwen ignores `minLength`), and earlier runs had translations of 142 and 788 characters. The backend must validate each answer and retry or return an error.
 - The prompt needs work. Explanations are long for a phone: the median is 165 characters, and they often start with «В данном контексте». Sometimes an English word gets into the translation («брать на себя, undertaking»), and sometimes the translation is a calque («пустить ноги в бега»).
 
+Prompt work of 2026-11-08: `qwen3.8-flash`, `full` context, thinking off, the samples captured again after the context fixes. The quality column is a manual assessment by the coding agent against `expected`, as for the first run. A native speaker has not reviewed it yet.
+
+| Prompt                     | Temperature | p50    | p95    | Input tokens | Output tokens | USD per 1,000 taps | Explanation, median / max chars | Correct / partly / wrong |
+| -------------------------- | ----------- | ------ | ------ | ------------ | ------------- | ------------------ | ------------------------------- | ------------------------ |
+| old prompt                 | default     | 1.18 s | 1.82 s | 572          | 88            | 0.13               | 176 / 275                       | 47 / 7 / 0               |
+| new prompt                 | 0           | 0.97 s | 1.76 s | 792          | 61            | 0.15               | 68 / 98                         | 49 / 5 / 0               |
+| new prompt, a second run   | 0           | 0.95 s | 1.55 s | 792          | 60            | 0.15               | 67 / 102                        | not rated                |
+
+What changed in the prompt and why:
+
+- The explanation is one sentence of at most 100 characters. It says only what the translation does not: the shade of meaning, the register, the domain, or a warning about the usual meaning. The prompt bans the openings «В данном контексте», «В этом тексте», and «Здесь», and it gives three short examples. Now 0–2 of 54 explanations have two sentences (it was 48), and 3 start with «В данном контексте» or a similar phrase (it was 43). Instead, about 38 of 54 start with a label, as in the examples: «Разговорное:», «Термин программирования:», «Устойчивое выражение:». The review should decide if these labels are useful or if they are a new filler.
+- The prompt says that most answers do not need a warning about the usual meaning. Without this line, 15–18 of 54 explanations had a contrast «а не …», often a made-up one, such as «а не бумага» for `cardboard`. With it, 8.
+- The translation is in dictionary form (the infinitive, the nominative singular), in lowercase, without English words, and not a calque. A second variant is allowed only if it also fits the text.
+- The expression must contain the tapped word and every word that the meaning depends on. The old prompt returned `soft landing` for a tap on `touchdowns`.
+- Temperature 0 makes the answers more stable. In two runs of the same prompt, the translation was the same for 20 of 54 samples with the default temperature, 31 with 0.2, and 37 with 0. An answer to the same tap should not change from one tap to the next.
+- The prompt is longer, so the input is 220 tokens larger and a tap costs about 15% more. The answer is 30% shorter, so the latency is about 0.2 s lower.
+
+Errors that the prompt did not fix. They repeat in every run, so they look like limits of `qwen3.8-flash`: `carry on (a business)` gets the second variant «продолжать», `fall through` in Go becomes «проваливаться», `asset` (the telescope) becomes «актив», `right around the world` becomes «прямо по всему», and `come round` sometimes gets «идти на поправку». A stricter rule for the second variant did not fix `carry on` in two runs, so the prompt keeps the simpler rule.
+
 Defects in the extension found while capturing:
 
 - Hit-testing drops a tap between two letters. WebKit returns character rectangles rounded to whole pixels, so neighbor letters overlap by 1 px. When the point hits two characters, `findTextHitAtPoint` returns `null`, and the tap does nothing or closes the sheet. About 22% of the points over letters fail. Fix: #12.
 - Inline `<code>` was removed from the context text: "run `gofmt`; if the answer" became "run ; if the answer". Fixed: the context text now keeps inline code.
 - Wikipedia citation marks moved sentence boundaries: a sentence could start with "103] As with". Fixed: the context text now drops footnote references such as `<sup>[103]</sup>`.
 
-Still required: a review of the report by a native speaker, a shorter and stricter prompt with a new run, and a comparison with 1–2 other models.
+Still required: a review of the new prompt's report by a native speaker, and a comparison with 1–2 other models.
 
 ### 3. Backend and transport
 

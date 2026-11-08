@@ -46,6 +46,7 @@ go run ./cmd/evaluate \
   -model qwen3.8-flash \
   -api-key-file ~/.config/alibabacloud/key \
   -context-modes sentence,block,full \
+  -temperature 0 \
   -input-price 0.15 -output-price 0.47
 ```
 
@@ -55,6 +56,8 @@ Variants:
 
 - `-context-modes`: `sentence` sends only the sentence with the word, `block` sends the focus block, `full` sends the focus block and its neighbor blocks.
 - `-thinking`: `off` and `on` send `enable_thinking`, an extension of Model Studio for Qwen3.x models. `default` does not send the field; use it for other providers.
+
+`-temperature` sets the sampling temperature from 0 to 2. Without the flag, the request does not send it, and the model uses its default. With the default temperature of `qwen3.8-flash`, two runs of the same prompt give the same translation for only about 20 of 54 samples. With `-temperature 0`, it is about 37. To compare prompts, use `-temperature 0` and run each prompt at least twice.
 
 Prices are in USD per 1M tokens. Thinking tokens count as output tokens. Check the provider's price list before a run.
 
