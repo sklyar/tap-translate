@@ -95,7 +95,7 @@ Conclusions so far:
 
 Defects in the extension found while capturing:
 
-- Hit-testing drops a tap between two letters. WebKit returns character rectangles rounded to whole pixels, so neighbor letters overlap by 1 px. When the point hits two characters, `findTextHitAtPoint` returns `null`, and the tap does nothing or closes the sheet.
+- Hit-testing drops a tap between two letters. WebKit returns character rectangles rounded to whole pixels, so neighbor letters overlap by 1 px. When the point hits two characters, `findTextHitAtPoint` returns `null`, and the tap does nothing or closes the sheet. About 22% of the points over letters fail. Fix: #12.
 - Inline `<code>` is removed from the context text: "run `gofmt`; if the answer" becomes "run ; if the answer".
 - Wikipedia citation marks move sentence boundaries: a sentence can start with "103] As with".
 
