@@ -1,1 +1,62 @@
-# tap-translate
+# TapTranslate
+
+TapTranslate is a Safari Web Extension. The user taps an English word on a web page and sees a Russian translation with an explanation based on the surrounding text.
+
+The frontend works end to end with a mock translation provider. There is no backend yet, and the extension has not run on iOS yet. See the [roadmap](docs/roadmap.md).
+
+## Repository
+
+- `extension/` — Safari Web Extension: TypeScript, Vite, Vitest.
+- `backend/` — Go service for translation requests. Not started.
+- `ios/` — iOS container app. Not started.
+
+## Development
+
+Requirements: Node.js 22.13 or later. CI uses Node.js 26.
+
+```sh
+cd extension
+npm ci
+npm run check    # format check, lint, typecheck, tests, production build
+npm run build    # writes the extension to extension/dist
+npm run fixture  # serves the local test pages at http://127.0.0.1:5173
+```
+
+### Run in desktop Safari
+
+1. Run `npm run build`.
+2. In Safari, open Settings → Advanced and turn on “Show features for web developers”.
+3. In Settings → Developer, click “Add Temporary Extension…” and select `extension/dist`.
+4. Allow the extension on the site that you test.
+5. After each change, run `npm run build` again and reload the temporary extension.
+
+Local test pages served by `npm run fixture`:
+
+- `index.html` — basic detection cases;
+- `hardening.html` — hostile page CSS, dynamic content, an iframe, and lifecycle controls;
+- `hardening-csp.html` — restrictive CSP (`style-src 'none'`).
+
+## How it works
+
+1. `content.ts` listens to `click` events in the top document in the capture phase. The listener is passive and never blocks the page's own click handling.
+2. `detection.ts` finds the clicked character with `caretPositionFromPoint` or `caretRangeFromPoint`. It rejects interactive, editable, hidden, and code text. The result is a `DetectionContext`: the focus block with the word and sentence spans, plus at most one neighboring block on each side.
+3. `TranslationController` sends a `TranslationRequest` to the `TranslationProvider`. A new request cancels the previous one, and a stale result is never shown.
+4. `TranslationSheet` shows the loading, success, and error states in an open Shadow DOM.
+
+## Design decisions
+
+- The sheet styles come from the packaged `translation-sheet.css`, which is loaded with a `<link>` inside the Shadow Root. Safari applies the page CSP to inline styles that an extension creates ([WebKit bug 291734](https://bugs.webkit.org/show_bug.cgi?id=291734)). Because of this, an inline `<style>` breaks on sites with a strict `style-src`. The sheet stays hidden until the stylesheet loads.
+- The focus block is the nearest logical block. A logical block is an element from the set `p`, `li`, `blockquote`, `figcaption`, `dt`, `dd`, `h1`–`h6`, `caption`, `td`, `th`, or an element with a computed display of `block`, `flow-root`, `list-item`, `table-cell`, `table-caption`, `flex`, or `grid`. The text snapshot excludes nested logical blocks by the same rule.
+- Context limits: 4,000 characters for the focus block and 2,000 for each neighboring block. If the sentence alone is longer than 4,000 characters, detection returns no result.
+- The extension ignores clicks inside the sheet, clicks dispatched by page scripts (`isTrusted === false`), and clicks that finish a text selection.
+- The content script runs only in the top document (`all_frames: false`).
+- Error logs never contain page text.
+
+## Known limitations
+
+- Text inside iframes is not translated.
+- Text inside the Shadow DOM of page web components is probably not detected, because the caret APIs return the shadow host instead of the text. This is not verified in Safari.
+- The extension cannot see click handlers added with `addEventListener`. For example, a tap on a card with a React `onClick` triggers both the page action and the translation.
+- Words with letters outside `A–Z`, such as `café`, are not accepted.
+- Client-side navigation in single-page apps does not close the sheet.
+- Only English to Russian is supported.
