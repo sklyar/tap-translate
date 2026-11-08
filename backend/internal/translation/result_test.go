@@ -1,12 +1,17 @@
-package translation
+package translation_test
 
 import (
 	"encoding/json"
 	"strings"
 	"testing"
+
+	"github.com/sklyar/tap-translate/backend/internal/translation"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestParseResult(t *testing.T) {
+	t.Parallel()
 	content := `{
 		"expression": " make out ",
 		"partOfSpeech": "phrasal verb",
@@ -14,90 +19,138 @@ func TestParseResult(t *testing.T) {
 		"explanation": "Здесь — понять по имеющимся фактам."
 	}`
 
-	result, err := ParseResult(content)
-	if err != nil {
-		t.Fatalf("ParseResult() error = %v", err)
-	}
+	result, err := translation.ParseResult(content)
 
-	want := Result{
+	require.NoError(t, err)
+	assert.Equal(t, translation.Result{
 		Expression:   "make out",
 		PartOfSpeech: "phrasal verb",
 		Translation:  "понять, разобрать",
 		Explanation:  "Здесь — понять по имеющимся фактам.",
-	}
-	if result != want {
-		t.Errorf("ParseResult() = %+v, want %+v", result, want)
-	}
+	}, result)
 }
 
-func TestParseResultRejectsInvalidAnswers(t *testing.T) {
+func TestParseResult_RejectsInvalidAnswers(t *testing.T) {
+	t.Parallel()
 	valid := `"expression": "bank", "partOfSpeech": "noun", "translation": "берег"`
 	tests := []struct {
-		name    string
-		content string
-		want    string
+		name        string
+		giveContent string
+		wantErr     string
 	}{
-		{"not JSON", `берег`, "decode answer"},
-		{"unknown field", `{` + valid + `, "explanation": "x", "note": "y"}`, "unknown field"},
-		{"trailing data", `{` + valid + `, "explanation": "x"} {}`, "unexpected data"},
-		{"empty explanation", `{` + valid + `, "explanation": "  "}`, "explanation is empty"},
-		{"missing explanation", `{` + valid + `}`, "explanation is missing"},
-		{"extra closing brace", `{` + valid + `, "explanation": "x"}}`, "unexpected data"},
-		{"extra closing bracket", `{` + valid + `, "explanation": "x"}]`, "unexpected data"},
-		{"field name in another case", `{` + valid + `, "Explanation": "x"}`, "unknown field"},
-		{"not a string", `{` + valid + `, "explanation": 42}`, "explanation is not a string"},
-		{"null", `null`, "expression is missing"},
+		{name: "not JSON", giveContent: `берег`, wantErr: "decode answer"},
 		{
-			"unknown part of speech",
-			`{"expression": "bank", "partOfSpeech": "существительное", "translation": "берег", "explanation": "x"}`,
-			"partOfSpeech",
+			name:        "unknown field",
+			giveContent: `{` + valid + `, "explanation": "x", "note": "y"}`,
+			wantErr:     `unknown field "note"`,
 		},
 		{
-			"long explanation",
-			`{` + valid + `, "explanation": "` + strings.Repeat("я", maxExplanationLength+1) + `"}`,
-			"the limit is",
+			name:        "trailing data",
+			giveContent: `{` + valid + `, "explanation": "x"} {}`,
+			wantErr:     "unexpected data",
+		},
+		{
+			name:        "empty explanation",
+			giveContent: `{` + valid + `, "explanation": "  "}`,
+			wantErr:     "explanation is empty",
+		},
+		{
+			name:        "missing explanation",
+			giveContent: `{` + valid + `}`,
+			wantErr:     "explanation is missing",
+		},
+		{
+			name:        "extra closing brace",
+			giveContent: `{` + valid + `, "explanation": "x"}}`,
+			wantErr:     "unexpected data",
+		},
+		{
+			name:        "extra closing bracket",
+			giveContent: `{` + valid + `, "explanation": "x"}]`,
+			wantErr:     "unexpected data",
+		},
+		{
+			name:        "field name in another case",
+			giveContent: `{` + valid + `, "Explanation": "x"}`,
+			wantErr:     `unknown field "Explanation"`,
+		},
+		{
+			name:        "not a string",
+			giveContent: `{` + valid + `, "explanation": 42}`,
+			wantErr:     "explanation is not a string",
+		},
+		{name: "null", giveContent: `null`, wantErr: "expression is missing"},
+		{
+			name: "unknown part of speech",
+			giveContent: `{"expression": "bank", "partOfSpeech": "существительное", ` +
+				`"translation": "берег", "explanation": "x"}`,
+			wantErr: `partOfSpeech "существительное" is not an allowed value`,
+		},
+		{
+			name:        "long explanation",
+			giveContent: `{` + valid + `, "explanation": "` + strings.Repeat("я", 501) + `"}`,
+			wantErr:     "explanation has 501 characters, the limit is 500",
 		},
 	}
 
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			_, err := ParseResult(test.content)
-			if err == nil || !strings.Contains(err.Error(), test.want) {
-				t.Errorf("ParseResult() error = %v, want an error with %q", err, test.want)
-			}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			_, err := translation.ParseResult(tt.giveContent)
+
+			assert.ErrorContains(t, err, tt.wantErr)
 		})
 	}
 }
 
+// The model writes the fields in the schema order, so the order of the
+// properties is part of the contract: the explanation must be the last one.
 func TestResultSchema(t *testing.T) {
-	data := ResultSchema()
+	t.Parallel()
+	want := `{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "expression",
+    "partOfSpeech",
+    "translation",
+    "explanation"
+  ],
+  "properties": {
+    "expression": {
+      "type": "string"
+    },
+    "partOfSpeech": {
+      "type": "string",
+      "enum": [
+        "noun",
+        "verb",
+        "adjective",
+        "adverb",
+        "pronoun",
+        "preposition",
+        "conjunction",
+        "interjection",
+        "numeral",
+        "phrasal verb",
+        "idiom",
+        "phrase",
+        "proper noun",
+        "abbreviation"
+      ]
+    },
+    "translation": {
+      "type": "string"
+    },
+    "explanation": {
+      "type": "string"
+    }
+  }
+}`
 
-	var schema struct {
-		Required   []string                   `json:"required"`
-		Properties map[string]json.RawMessage `json:"properties"`
-	}
-	if err := json.Unmarshal(data, &schema); err != nil {
-		t.Fatalf("ResultSchema() is not valid JSON: %v", err)
-	}
-	if strings.Join(schema.Required, ",") != "expression,partOfSpeech,translation,explanation" {
-		t.Errorf("ResultSchema() required = %v", schema.Required)
-	}
-	if len(schema.Properties) != 4 {
-		t.Errorf("ResultSchema() has %d properties, want 4", len(schema.Properties))
-	}
-	if !strings.Contains(string(schema.Properties["partOfSpeech"]), `"phrasal verb"`) {
-		t.Errorf("ResultSchema() partOfSpeech = %s, want the allowed values", schema.Properties["partOfSpeech"])
-	}
+	data, err := json.MarshalIndent(translation.ResultSchema(), "", "  ")
 
-	// The model writes the fields in schema order, so the explanation must be
-	// the last property.
-	properties := string(data[strings.Index(string(data), `"properties"`):])
-	previous := -1
-	for _, name := range resultFields {
-		index := strings.Index(properties, `"`+name+`"`)
-		if index <= previous {
-			t.Fatalf("ResultSchema() properties are not in the order %v: %s", resultFields, properties)
-		}
-		previous = index
-	}
+	require.NoError(t, err)
+	assert.Equal(t, want, string(data))
 }

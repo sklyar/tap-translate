@@ -8,16 +8,23 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
-	"strings"
 	"sync/atomic"
 	"testing"
 	"time"
 
 	"github.com/sklyar/tap-translate/backend/internal/llm"
 	"github.com/sklyar/tap-translate/backend/internal/translation"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"go.uber.org/goleak"
 )
 
-const validAnswer = `{"expression": "bank", "partOfSpeech": "noun", "translation": "берег", "explanation": "Берег реки."}`
+const _validAnswer = `{"expression": "bank", "partOfSpeech": "noun", ` +
+	`"translation": "берег", "explanation": "Берег реки."}`
+
+func TestMain(m *testing.M) {
+	goleak.VerifyTestMain(m)
+}
 
 func testSample() Sample {
 	return Sample{
@@ -37,12 +44,21 @@ func testConfig() config {
 	return config{model: "m", concurrency: 1, timeout: time.Second}
 }
 
-func chatResponse(w http.ResponseWriter, content string) {
+func offVariant() Variant {
+	return Variant{ContextMode: translation.ContextModeSentence, Thinking: ThinkingOff}
+}
+
+func writeChatResponse(t *testing.T, w http.ResponseWriter, content string) {
+	t.Helper()
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(map[string]any{
-		"choices": []any{map[string]any{"message": map[string]any{"content": content}, "finish_reason": "stop"}},
-		"usage":   map[string]any{"prompt_tokens": 100, "completion_tokens": 20},
-	})
+	body := map[string]any{
+		"choices": []any{map[string]any{
+			"message":       map[string]any{"content": content},
+			"finish_reason": "stop",
+		}},
+		"usage": map[string]any{"prompt_tokens": 100, "completion_tokens": 20},
+	}
+	assert.NoError(t, json.NewEncoder(w).Encode(body))
 }
 
 // waitForClose blocks until the client closes the request. An HTTP/1.1 server
@@ -59,79 +75,88 @@ func newTestClient(t *testing.T, handler http.HandlerFunc) *llm.Client {
 	return llm.NewClient(server.URL, "key", server.Client())
 }
 
-var offVariant = Variant{ContextMode: translation.ContextModeSentence, Thinking: ThinkingOff}
-
 func TestRunOne(t *testing.T) {
-	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
-		chatResponse(w, validAnswer)
+	t.Parallel()
+	client := newTestClient(t, func(w http.ResponseWriter, _ *http.Request) {
+		writeChatResponse(t, w, _validAnswer)
 	})
 
-	run, finished := runOne(context.Background(), client, testConfig(), testSample(), offVariant)
+	run, finished := runOne(t.Context(), client, testConfig(), testSample(), offVariant())
 
-	if !finished || run.RequestFailed || run.Result == nil || run.Result.Translation != "берег" {
-		t.Errorf("runOne() = %+v, %v", run, finished)
-	}
-	if run.InputTokens != 100 || run.OutputTokens != 20 || run.FinishReason != "stop" {
-		t.Errorf("runOne() usage = %+v", run)
-	}
+	assert.True(t, finished)
+	assert.False(t, run.RequestFailed)
+	require.NotNil(t, run.Result)
+	assert.Equal(t, "берег", run.Result.Translation)
+	assert.Equal(t, 100, run.InputTokens)
+	assert.Equal(t, 20, run.OutputTokens)
+	assert.Equal(t, "stop", run.FinishReason)
 }
 
-func TestRunOneKeepsAnInvalidAnswer(t *testing.T) {
-	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
-		chatResponse(w, `{"expression": "bank"}`)
+func TestRunOne_KeepsAnInvalidAnswer(t *testing.T) {
+	t.Parallel()
+	client := newTestClient(t, func(w http.ResponseWriter, _ *http.Request) {
+		writeChatResponse(t, w, `{"expression": "bank"}`)
 	})
 
-	run, finished := runOne(context.Background(), client, testConfig(), testSample(), offVariant)
+	run, finished := runOne(t.Context(), client, testConfig(), testSample(), offVariant())
 
-	if !finished || run.RequestFailed || run.Result != nil || run.Content == "" || run.Error == "" {
-		t.Errorf("runOne() = %+v, %v", run, finished)
-	}
+	assert.True(t, finished)
+	assert.False(t, run.RequestFailed)
+	assert.Nil(t, run.Result)
+	assert.JSONEq(t, `{"expression": "bank"}`, run.Content)
+	assert.Equal(t, "partOfSpeech is missing", run.Error)
 }
 
-func TestRunOneHTTPError(t *testing.T) {
-	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+func TestRunOne_HTTPError(t *testing.T) {
+	t.Parallel()
+	client := newTestClient(t, func(w http.ResponseWriter, _ *http.Request) {
 		http.Error(w, "rate limited", http.StatusTooManyRequests)
 	})
 
-	run, finished := runOne(context.Background(), client, testConfig(), testSample(), offVariant)
+	run, finished := runOne(t.Context(), client, testConfig(), testSample(), offVariant())
 
-	if !finished || !run.RequestFailed || run.TimedOut || !strings.Contains(run.Error, "429") {
-		t.Errorf("runOne() = %+v, %v", run, finished)
-	}
+	assert.True(t, finished)
+	assert.True(t, run.RequestFailed)
+	assert.False(t, run.TimedOut)
+	assert.Contains(t, run.Error, "HTTP 429")
 }
 
-func TestRunOneTimeout(t *testing.T) {
-	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+func TestRunOne_Timeout(t *testing.T) {
+	t.Parallel()
+	client := newTestClient(t, func(_ http.ResponseWriter, r *http.Request) {
 		waitForClose(r)
 	})
 	cfg := testConfig()
 	cfg.timeout = 50 * time.Millisecond
 
-	run, finished := runOne(context.Background(), client, cfg, testSample(), offVariant)
+	run, finished := runOne(t.Context(), client, cfg, testSample(), offVariant())
 
-	if !finished || !run.RequestFailed || !run.TimedOut || run.LatencyMs < 50 {
-		t.Errorf("runOne() = %+v, %v", run, finished)
-	}
+	assert.True(t, finished)
+	assert.True(t, run.RequestFailed)
+	assert.True(t, run.TimedOut)
+	assert.GreaterOrEqual(t, run.LatencyMs, int64(50))
 }
 
-func TestRunOneInterrupted(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+func TestRunOne_Interrupted(t *testing.T) {
+	t.Parallel()
+	ctx, cancel := context.WithCancel(t.Context())
+	client := newTestClient(t, func(_ http.ResponseWriter, r *http.Request) {
 		cancel()
 		waitForClose(r)
 	})
 
-	if run, finished := runOne(ctx, client, testConfig(), testSample(), offVariant); finished {
-		t.Errorf("runOne() after an interrupt = %+v, finished", run)
-	}
+	_, finished := runOne(ctx, client, testConfig(), testSample(), offVariant())
+
+	assert.False(t, finished)
 }
 
-func TestRunAllKeepsFinishedRunsOnInterrupt(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
+func TestRunAll_KeepsFinishedRunsOnInterrupt(t *testing.T) {
+	t.Parallel()
+	ctx, cancel := context.WithCancel(t.Context())
 	var requests atomic.Int64
 	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
 		if requests.Add(1) <= 2 {
-			chatResponse(w, validAnswer)
+			writeChatResponse(t, w, _validAnswer)
 			return
 		}
 		cancel()
@@ -139,50 +164,47 @@ func TestRunAllKeepsFinishedRunsOnInterrupt(t *testing.T) {
 	})
 	samples := []Sample{testSample(), testSample(), testSample(), testSample()}
 
-	runs := runAll(ctx, client, testConfig(), samples, []Variant{offVariant})
+	runs := runAll(ctx, client, testConfig(), samples, []Variant{offVariant()}, io.Discard)
 
-	if len(runs) != 2 {
-		t.Fatalf("runAll() returned %d runs, want the 2 finished ones", len(runs))
-	}
+	require.Len(t, runs, 2, "runAll must return only the finished runs")
 	for _, run := range runs {
-		if run.Result == nil {
-			t.Errorf("runAll() run = %+v, want a valid answer", run)
-		}
+		assert.NotNil(t, run.Result)
 	}
 }
 
 func TestWarmUp(t *testing.T) {
-	var body map[string]any
+	t.Parallel()
+	var got llm.ChatRequest
 	client := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
-		_ = json.NewDecoder(r.Body).Decode(&body)
-		chatResponse(w, "OK")
+		assert.NoError(t, json.NewDecoder(r.Body).Decode(&got))
+		writeChatResponse(t, w, "OK")
 	})
 
-	if err := warmUp(context.Background(), client, testConfig(), ThinkingOff); err != nil {
-		t.Fatalf("warmUp() error = %v", err)
-	}
-	if strings.Contains(body["messages"].([]any)[0].(map[string]any)["content"].(string), "bank") {
-		t.Errorf("warmUp() sent a sample prompt: %v", body)
-	}
-	if body["enable_thinking"] != false {
-		t.Errorf("warmUp() enable_thinking = %v, want false", body["enable_thinking"])
-	}
+	err := warmUp(t.Context(), client, testConfig(), ThinkingOff)
 
-	failing := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
-		http.Error(w, "bad key", http.StatusUnauthorized)
-	})
-	if err := warmUp(context.Background(), failing, testConfig(), ThinkingOff); err == nil || !strings.Contains(err.Error(), "401") {
-		t.Errorf("warmUp() with a bad key error = %v", err)
-	}
+	require.NoError(t, err)
+	// The warm-up prompt is not a sample prompt.
+	assert.Equal(t, []llm.Message{{Role: "user", Content: "Reply with OK."}}, got.Messages)
+	assert.Equal(t, new(false), got.EnableThinking)
 }
 
-func TestLoadSamplesRejectsAMissingContext(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "contexts.json")
-	if err := os.WriteFile(path, []byte(`[{"id": "empty", "word": ""}]`), 0o644); err != nil {
-		t.Fatal(err)
-	}
+func TestWarmUp_BadKey(t *testing.T) {
+	t.Parallel()
+	client := newTestClient(t, func(w http.ResponseWriter, _ *http.Request) {
+		http.Error(w, "bad key", http.StatusUnauthorized)
+	})
 
-	if _, err := loadSamples(path); err == nil || !strings.Contains(err.Error(), "sample empty") {
-		t.Errorf("loadSamples() error = %v, want an error for the sample", err)
-	}
+	err := warmUp(t.Context(), client, testConfig(), ThinkingOff)
+
+	assert.ErrorContains(t, err, "warm-up request: chat completions returned HTTP 401")
+}
+
+func TestLoadSamples_RejectsAMissingContext(t *testing.T) {
+	t.Parallel()
+	path := filepath.Join(t.TempDir(), "contexts.json")
+	require.NoError(t, os.WriteFile(path, []byte(`[{"id": "empty", "word": ""}]`), 0o600))
+
+	_, err := loadSamples(path)
+
+	assert.ErrorContains(t, err, "sample empty: word span")
 }

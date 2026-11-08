@@ -1,43 +1,62 @@
 package main
 
 import (
-	"errors"
+	"encoding/json"
 	"flag"
 	"fmt"
-	"math"
+	"io"
 	"os"
 	"path/filepath"
-	"strings"
 	"testing"
 
 	"github.com/sklyar/tap-translate/backend/internal/translation"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
+// withRequiredFlags returns the required flags followed by args.
+func withRequiredFlags(args ...string) []string {
+	return append(
+		[]string{"-base-url", "https://example.com/v1", "-model", "m", "-api-key-file", "key"},
+		args...,
+	)
+}
+
 func TestPercentile(t *testing.T) {
+	t.Parallel()
 	sorted := []int64{100, 200, 300, 400, 500, 600, 700, 800, 900, 1000}
 	tests := []struct {
-		p    float64
-		want int64
+		giveP float64
+		want  int64
 	}{
-		{0, 100},
-		{50, 500},
-		{90, 900},
-		{95, 1000},
-		{100, 1000},
+		{giveP: 0, want: 100},
+		{giveP: 50, want: 500},
+		{giveP: 90, want: 900},
+		{giveP: 95, want: 1000},
+		{giveP: 100, want: 1000},
 	}
 
-	for _, test := range tests {
-		if got := percentile(sorted, test.p); got != test.want {
-			t.Errorf("percentile(p%.0f) = %d, want %d", test.p, got, test.want)
-		}
-	}
+	for _, tt := range tests {
+		t.Run(fmt.Sprintf("p%.0f", tt.giveP), func(t *testing.T) {
+			t.Parallel()
 
-	if got := percentile([]int64{42}, 95); got != 42 {
-		t.Errorf("percentile of one value = %d, want 42", got)
+			got := percentile(sorted, tt.giveP)
+
+			assert.Equal(t, tt.want, got)
+		})
 	}
 }
 
+func TestPercentile_OneValue(t *testing.T) {
+	t.Parallel()
+
+	got := percentile([]int64{42}, 95)
+
+	assert.Equal(t, int64(42), got)
+}
+
 func TestSummarize(t *testing.T) {
+	t.Parallel()
 	variant := Variant{ContextMode: translation.ContextModeSentence, Thinking: ThinkingOff}
 	runs := []Run{
 		{LatencyMs: 300, InputTokens: 1000, OutputTokens: 100, Result: &translation.Result{}},
@@ -47,117 +66,203 @@ func TestSummarize(t *testing.T) {
 		// A fast HTTP error has no answer and no real latency.
 		{LatencyMs: 50, RequestFailed: true, Error: "HTTP 429"},
 		// A timeout has no answer, but its latency counts.
-		{LatencyMs: 60000, RequestFailed: true, TimedOut: true, Error: "context deadline exceeded"},
+		{
+			LatencyMs:     60000,
+			RequestFailed: true,
+			TimedOut:      true,
+			Error:         "context deadline exceeded",
+		},
 	}
 
 	got := summarize(variant, runs, 0.15, 0.47)
 
-	if got.Requests != 5 || got.Valid != 2 || got.Failed != 2 {
-		t.Errorf("summarize() requests = %d, valid = %d, failed = %d", got.Requests, got.Valid, got.Failed)
-	}
-	if got.LatencyP50Ms != 200 || got.LatencyP95Ms != 60000 || got.LatencyMaxMs != 60000 {
-		t.Errorf("summarize() latency = %d / %d / %d", got.LatencyP50Ms, got.LatencyP95Ms, got.LatencyMaxMs)
-	}
-	if got.MeanInputTokens != 2000 || got.MeanOutputTokens != 200 {
-		t.Errorf("summarize() tokens = %.0f / %.0f", got.MeanInputTokens, got.MeanOutputTokens)
-	}
-
+	assert.Equal(t, VariantSummary{
+		Variant:          variant,
+		Requests:         5,
+		Valid:            2,
+		Failed:           2,
+		LatencyP50Ms:     200,
+		LatencyP95Ms:     60000,
+		LatencyMaxMs:     60000,
+		MeanInputTokens:  2000,
+		MeanOutputTokens: 200,
+		CostPer1000:      got.CostPer1000, // checked below with a tolerance
+	}, got)
 	// 1,000 requests: 2M input tokens × $0.15 + 0.2M output tokens × $0.47.
-	if want := 0.394; math.Abs(got.CostPer1000-want) > 1e-9 {
-		t.Errorf("summarize() cost = %f, want %f", got.CostPer1000, want)
-	}
+	assert.InDelta(t, 0.394, got.CostPer1000, 1e-9)
 }
 
-func TestSummarizeWithoutAnswers(t *testing.T) {
+func TestSummarize_WithoutAnswers(t *testing.T) {
+	t.Parallel()
+
 	got := summarize(Variant{}, []Run{{RequestFailed: true}}, 1, 1)
-	if got.Requests != 1 || got.Valid != 0 || got.Failed != 1 || got.LatencyMaxMs != 0 || got.CostPer1000 != 0 {
-		t.Errorf("summarize() = %+v", got)
-	}
+
+	assert.Equal(t, VariantSummary{Requests: 1, Failed: 1}, got)
 }
 
 func TestParseFlags(t *testing.T) {
-	required := []string{"-base-url", "https://example.com/v1", "-model", "m", "-api-key-file", "key"}
+	t.Parallel()
 
-	cfg, err := parseFlags(append(required, "-context-modes", "sentence, full", "-thinking", "off"))
-	if err != nil {
-		t.Fatalf("parseFlags() error = %v", err)
-	}
-	if len(cfg.contextModes) != 2 || cfg.contextModes[1] != translation.ContextModeFull {
-		t.Errorf("contextModes = %v", cfg.contextModes)
-	}
-	if len(cfg.thinkingModes) != 1 || cfg.thinkingModes[0] != ThinkingOff {
-		t.Errorf("thinkingModes = %v", cfg.thinkingModes)
+	cfg, err := parseFlags(
+		withRequiredFlags("-context-modes", "sentence, full", "-thinking", "off"), io.Discard)
+
+	require.NoError(t, err)
+	assert.Equal(t,
+		[]translation.ContextMode{translation.ContextModeSentence, translation.ContextModeFull},
+		cfg.contextModes)
+	assert.Equal(t, []ThinkingMode{ThinkingOff}, cfg.thinkingModes)
+	assert.Equal(t, _defaultConcurrency, cfg.concurrency)
+	assert.Equal(t, _defaultTimeout, cfg.timeout)
+}
+
+func TestParseFlags_RejectsInvalidArguments(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name    string
+		give    []string
+		wantErr string
+	}{
+		{
+			name:    "no base URL",
+			give:    []string{"-model", "m", "-api-key-file", "key"},
+			wantErr: "-base-url is required",
+		},
+		{
+			name:    "unknown context mode",
+			give:    withRequiredFlags("-context-modes", "page"),
+			wantErr: `unknown context mode "page"`,
+		},
+		{
+			name:    "unknown thinking mode",
+			give:    withRequiredFlags("-thinking", "auto"),
+			wantErr: `unknown thinking mode "auto"`,
+		},
+		{
+			name:    "no workers",
+			give:    withRequiredFlags("-concurrency", "0"),
+			wantErr: "-concurrency must be at least 1",
+		},
+		{
+			name:    "negative price",
+			give:    withRequiredFlags("-input-price", "-1"),
+			wantErr: "prices must not be negative",
+		},
+		{
+			// A space instead of a comma ends flag parsing at "block".
+			name: "space in a list",
+			give: withRequiredFlags(
+				"-context-modes",
+				"sentence",
+				"block",
+				"-input-price",
+				"0.15",
+			),
+			wantErr: `unexpected argument "block"`,
+		},
+		{
+			name:    "repeated context mode",
+			give:    withRequiredFlags("-context-modes", "full,full"),
+			wantErr: `-context-modes has "full" twice`,
+		},
+		{
+			name:    "repeated thinking mode",
+			give:    withRequiredFlags("-thinking", "off,on,off"),
+			wantErr: `-thinking has "off" twice`,
+		},
+		{
+			name:    "empty thinking list",
+			give:    withRequiredFlags("-thinking", " , "),
+			wantErr: "-thinking must not be empty",
+		},
 	}
 
-	invalid := [][]string{
-		{"-model", "m", "-api-key-file", "key"},
-		append(required, "-context-modes", "page"),
-		append(required, "-thinking", "auto"),
-		append(required, "-concurrency", "0"),
-		append(required, "-input-price", "-1"),
-		// A space instead of a comma ends flag parsing at "block".
-		append(required, "-context-modes", "sentence", "block", "-input-price", "0.15"),
-		append(required, "-context-modes", "full,full"),
-		append(required, "-thinking", "off,on,off"),
-	}
-	for _, args := range invalid {
-		if _, err := parseFlags(args); err == nil {
-			t.Errorf("parseFlags(%q) returned no error", args)
-		}
-	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
-	if _, err := parseFlags([]string{"-h"}); !errors.Is(err, flag.ErrHelp) {
-		t.Errorf("parseFlags(-h) error = %v, want flag.ErrHelp", err)
-	}
-	if err := run([]string{"-h"}); err != nil {
-		t.Errorf("run(-h) error = %v, want nil", err)
+			_, err := parseFlags(tt.give, io.Discard)
+
+			assert.ErrorContains(t, err, tt.wantErr)
+		})
 	}
 }
 
-func TestThinkingModeEnableThinking(t *testing.T) {
-	if got := ThinkingOff.enableThinking(); got == nil || *got {
-		t.Errorf("ThinkingOff.enableThinking() = %v, want false", got)
+func TestParseFlags_Help(t *testing.T) {
+	t.Parallel()
+
+	_, parseErr := parseFlags([]string{"-h"}, io.Discard)
+	runErr := run([]string{"-h"}, io.Discard, io.Discard)
+
+	require.ErrorIs(t, parseErr, flag.ErrHelp)
+	assert.NoError(t, runErr, "-h is not an error for the command")
+}
+
+func TestThinkingMode_EnableThinking(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		give ThinkingMode
+		want *bool
+	}{
+		{give: ThinkingOff, want: new(false)},
+		{give: ThinkingOn, want: new(true)},
+		{give: ThinkingDefault, want: nil},
 	}
-	if got := ThinkingOn.enableThinking(); got == nil || !*got {
-		t.Errorf("ThinkingOn.enableThinking() = %v, want true", got)
-	}
-	if got := ThinkingDefault.enableThinking(); got != nil {
-		t.Errorf("ThinkingDefault.enableThinking() = %v, want nil", *got)
+
+	for _, tt := range tests {
+		t.Run(string(tt.give), func(t *testing.T) {
+			t.Parallel()
+
+			got := tt.give.enableThinking()
+
+			assert.Equal(t, tt.want, got)
+		})
 	}
 }
 
-func TestReportWrite(t *testing.T) {
+func TestReport_Write(t *testing.T) {
+	t.Parallel()
 	directory, err := createRunDirectory(filepath.Join(t.TempDir(), "results"), "run")
-	if err != nil {
-		t.Fatalf("createRunDirectory() error = %v", err)
-	}
+	require.NoError(t, err)
 
-	if err := (Report{Model: "m"}).write(directory); err != nil {
-		t.Fatalf("write() error = %v", err)
-	}
-	for _, name := range []string{resultsFileName, reportFileName} {
-		if _, err := os.Stat(filepath.Join(directory, name)); err != nil {
-			t.Errorf("write() did not create %s: %v", name, err)
-		}
+	err = Report{Model: "m"}.write(directory)
+
+	require.NoError(t, err)
+	data, err := os.ReadFile(filepath.Join(directory, _resultsFileName))
+	require.NoError(t, err)
+	var results Report
+	require.NoError(t, json.Unmarshal(data, &results))
+	assert.Equal(t, "m", results.Model)
+	for _, name := range []string{_resultsFileName, _reportFileName} {
+		info, statErr := os.Stat(filepath.Join(directory, name))
+		require.NoError(t, statErr)
+		// The results contain page text, so only the owner can read them.
+		assert.Equal(t, os.FileMode(0o600), info.Mode().Perm(), name)
 	}
 }
 
-func TestCreateRunDirectoryDoesNotReuseADirectory(t *testing.T) {
+func TestCreateRunDirectory_DoesNotReuseADirectory(t *testing.T) {
+	t.Parallel()
 	outputDir := t.TempDir()
-	if _, err := createRunDirectory(outputDir, "run"); err != nil {
-		t.Fatalf("first createRunDirectory() error = %v", err)
-	}
-	if _, err := createRunDirectory(outputDir, "run"); err == nil || !strings.Contains(err.Error(), "create run directory") {
-		t.Errorf("second createRunDirectory() error = %v, want a run directory error", err)
-	}
+	_, err := createRunDirectory(outputDir, "run")
+	require.NoError(t, err)
+
+	_, err = createRunDirectory(outputDir, "run")
+
+	assert.ErrorContains(t, err, "create run directory")
 }
 
-func TestVariantDoesNotHideRunFields(t *testing.T) {
-	run := Run{SampleID: "sample", Variant: Variant{ContextMode: translation.ContextModeFull, Thinking: ThinkingOff}, LatencyMs: 1234}
-	if got := fmt.Sprintf("%+v", run); !strings.Contains(got, "1234") {
-		t.Errorf("%%+v of a Run = %q, want all fields", got)
+func TestVariant_DoesNotHideRunFields(t *testing.T) {
+	t.Parallel()
+	run := Run{
+		SampleID:    "sample",
+		ContextMode: translation.ContextModeFull,
+		Thinking:    ThinkingOff,
+		LatencyMs:   1234,
 	}
-	if got := run.Name(); got != "full, thinking off" {
-		t.Errorf("Name() = %q", got)
-	}
+
+	formatted := fmt.Sprintf("%+v", run)
+	name := run.Name()
+
+	assert.Contains(t, formatted, "1234")
+	assert.Equal(t, "full, thinking off", name)
 }

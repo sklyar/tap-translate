@@ -13,12 +13,12 @@ import (
 )
 
 const (
-	// maxErrorBodyBytes limits how much of an error response goes into the
+	// _maxErrorBodyBytes limits how much of an error response goes into the
 	// returned error.
-	maxErrorBodyBytes = 2048
-	// maxDrainBytes limits how much of the remaining body is read before the
+	_maxErrorBodyBytes = 2048
+	// _maxDrainBytes limits how much of the remaining body is read before the
 	// body is closed.
-	maxDrainBytes = 64 << 10
+	_maxDrainBytes = 64 << 10
 )
 
 type Client struct {
@@ -45,8 +45,10 @@ type Message struct {
 type JSONSchemaFormat struct {
 	Name   string `json:"name"`
 	Strict bool   `json:"strict"`
-	// Schema is raw JSON, so the order of the properties is kept.
-	Schema json.RawMessage `json:"schema"`
+	// Schema is encoded with encoding/json. Use a struct, not a map: a struct
+	// keeps the order of the properties, and a map sorts them by name. The
+	// model writes the answer fields in the schema order.
+	Schema any `json:"schema"`
 }
 
 type ResponseFormat struct {
@@ -114,7 +116,12 @@ func (c *Client) Complete(ctx context.Context, request ChatRequest) (ChatRespons
 		return ChatResponse{}, fmt.Errorf("encode request: %w", err)
 	}
 
-	httpRequest, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+"/chat/completions", bytes.NewReader(body))
+	httpRequest, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		c.baseURL+"/chat/completions",
+		bytes.NewReader(body),
+	)
 	if err != nil {
 		return ChatResponse{}, fmt.Errorf("create request: %w", err)
 	}
@@ -127,12 +134,12 @@ func (c *Client) Complete(ctx context.Context, request ChatRequest) (ChatRespons
 	}
 	defer func() {
 		// Read the rest of the body, so the connection can be reused.
-		_, _ = io.Copy(io.Discard, io.LimitReader(response.Body, maxDrainBytes))
+		_, _ = io.Copy(io.Discard, io.LimitReader(response.Body, _maxDrainBytes))
 		_ = response.Body.Close()
 	}()
 
 	if response.StatusCode < 200 || response.StatusCode > 299 {
-		errorBody, _ := io.ReadAll(io.LimitReader(response.Body, maxErrorBodyBytes))
+		errorBody, _ := io.ReadAll(io.LimitReader(response.Body, _maxErrorBodyBytes))
 		return ChatResponse{}, &StatusError{
 			StatusCode: response.StatusCode,
 			Body:       strings.TrimSpace(string(errorBody)),
@@ -140,7 +147,8 @@ func (c *Client) Complete(ctx context.Context, request ChatRequest) (ChatRespons
 	}
 
 	var decoded chatResponseBody
-	if err := json.NewDecoder(response.Body).Decode(&decoded); err != nil {
+	err = json.NewDecoder(response.Body).Decode(&decoded)
+	if err != nil {
 		return ChatResponse{}, fmt.Errorf("decode response: %w", err)
 	}
 	if len(decoded.Choices) == 0 {
