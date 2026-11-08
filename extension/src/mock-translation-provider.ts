@@ -33,11 +33,9 @@ export class MockTranslationProvider implements TranslationProvider {
   }
 
   public translate(
-    request: TranslationRequest,
+    _request: TranslationRequest,
     options: TranslationOptions = {},
   ): Promise<TranslationResult> {
-    void request;
-
     const signal = options.signal;
 
     if (signal?.aborted === true) {
