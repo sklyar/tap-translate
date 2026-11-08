@@ -61,6 +61,8 @@ Apply every applicable check to each required row. Summarize the observations in
 - [ ] Clicking `turn` in “Turn the light off” on L1 returns the fixed mock expression `turn off`.
 - [ ] Words across nested `span`, `strong`, `em`, and `mark` formatting remain eligible where applicable.
 - [ ] Punctuation and whitespace do not start a translation.
+- [ ] Words inside a `div` nested in a list item or table cell open the sheet.
+- [ ] Selecting text by dragging, double-clicking, or triple-clicking does not open, replace, or dismiss the sheet.
 - [ ] Links, buttons, inputs, editable content, code-like controls, and other excluded interactive targets keep their page behavior and do not start a translation.
 - [ ] Text clicked inside the L1 iframe does not open or replace a sheet in the top document.
 - [ ] Content inserted with **Replace reading block** on L1 works without reloading or restarting the extension.
@@ -113,7 +115,10 @@ These are expected limitations, not reasons to expand Stage 5 while executing th
 - SPA route observation and automatic dismissal on client-side navigation are unsupported;
 - an open sheet is not bound to the continued presence of its original source node;
 - touch gesture policy, iOS simulator/device behavior, native packaging, and Xcode integration belong to the next stage;
-- public pages are manual discovery inputs and are never automated test dependencies.
+- public pages are manual discovery inputs and are never automated test dependencies;
+- text inside the Shadow DOM of page web components is expected to be undetected, because the caret-from-point APIs retarget positions to the shadow host (derived from the CSSOM View specification; not yet verified in Safari);
+- words that contain letters outside `A–Z`, such as `café` or `naïve`, are not accepted;
+- clicks dispatched by page scripts (`isTrusted === false`) are ignored and do not dismiss the sheet.
 
 ## Findings and regression references
 
