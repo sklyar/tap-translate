@@ -12,9 +12,14 @@ import (
 	"strings"
 )
 
-// maxErrorBodyBytes limits how much of an error response goes into the
-// returned error.
-const maxErrorBodyBytes = 2048
+const (
+	// maxErrorBodyBytes limits how much of an error response goes into the
+	// returned error.
+	maxErrorBodyBytes = 2048
+	// maxDrainBytes limits how much of the remaining body is read before the
+	// body is closed.
+	maxDrainBytes = 64 << 10
+)
 
 type Client struct {
 	baseURL    string
@@ -38,9 +43,10 @@ type Message struct {
 }
 
 type JSONSchemaFormat struct {
-	Name   string         `json:"name"`
-	Strict bool           `json:"strict"`
-	Schema map[string]any `json:"schema"`
+	Name   string `json:"name"`
+	Strict bool   `json:"strict"`
+	// Schema is raw JSON, so the order of the properties is kept.
+	Schema json.RawMessage `json:"schema"`
 }
 
 type ResponseFormat struct {
@@ -119,7 +125,11 @@ func (c *Client) Complete(ctx context.Context, request ChatRequest) (ChatRespons
 	if err != nil {
 		return ChatResponse{}, fmt.Errorf("send request: %w", err)
 	}
-	defer response.Body.Close()
+	defer func() {
+		// Read the rest of the body, so the connection can be reused.
+		_, _ = io.Copy(io.Discard, io.LimitReader(response.Body, maxDrainBytes))
+		_ = response.Body.Close()
+	}()
 
 	if response.StatusCode < 200 || response.StatusCode > 299 {
 		errorBody, _ := io.ReadAll(io.LimitReader(response.Body, maxErrorBodyBytes))

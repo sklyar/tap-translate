@@ -1,7 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"math"
+	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/sklyar/tap-translate/backend/internal/translation"
@@ -38,16 +42,18 @@ func TestSummarize(t *testing.T) {
 		{LatencyMs: 100, InputTokens: 3000, OutputTokens: 300, Result: &translation.Result{}},
 		// An invalid answer still has a latency and tokens.
 		{LatencyMs: 200, InputTokens: 2000, OutputTokens: 200, Error: "explanation is empty"},
-		// A failed request has no answer, so it does not count for latency.
-		{LatencyMs: 60000, RequestFailed: true, Error: "timeout"},
+		// A fast HTTP error has no answer and no real latency.
+		{LatencyMs: 50, RequestFailed: true, Error: "HTTP 429"},
+		// A timeout has no answer, but its latency counts.
+		{LatencyMs: 60000, RequestFailed: true, TimedOut: true, Error: "context deadline exceeded"},
 	}
 
 	got := summarize(variant, runs, 0.15, 0.47)
 
-	if got.Requests != 4 || got.Valid != 2 {
-		t.Errorf("summarize() requests = %d, valid = %d", got.Requests, got.Valid)
+	if got.Requests != 5 || got.Valid != 2 || got.Failed != 2 {
+		t.Errorf("summarize() requests = %d, valid = %d, failed = %d", got.Requests, got.Valid, got.Failed)
 	}
-	if got.LatencyP50Ms != 200 || got.LatencyP95Ms != 300 || got.LatencyMaxMs != 300 {
+	if got.LatencyP50Ms != 200 || got.LatencyP95Ms != 60000 || got.LatencyMaxMs != 60000 {
 		t.Errorf("summarize() latency = %d / %d / %d", got.LatencyP50Ms, got.LatencyP95Ms, got.LatencyMaxMs)
 	}
 	if got.MeanInputTokens != 2000 || got.MeanOutputTokens != 200 {
@@ -62,7 +68,7 @@ func TestSummarize(t *testing.T) {
 
 func TestSummarizeWithoutAnswers(t *testing.T) {
 	got := summarize(Variant{}, []Run{{RequestFailed: true}}, 1, 1)
-	if got.Requests != 1 || got.Valid != 0 || got.LatencyMaxMs != 0 || got.CostPer1000 != 0 {
+	if got.Requests != 1 || got.Valid != 0 || got.Failed != 1 || got.LatencyMaxMs != 0 || got.CostPer1000 != 0 {
 		t.Errorf("summarize() = %+v", got)
 	}
 }
@@ -87,6 +93,8 @@ func TestParseFlags(t *testing.T) {
 		append(required, "-thinking", "auto"),
 		append(required, "-concurrency", "0"),
 		append(required, "-input-price", "-1"),
+		// A space instead of a comma ends flag parsing at "block".
+		append(required, "-context-modes", "sentence", "block", "-input-price", "0.15"),
 	}
 	for _, args := range invalid {
 		if _, err := parseFlags(args); err == nil {
@@ -104,5 +112,33 @@ func TestThinkingModeEnableThinking(t *testing.T) {
 	}
 	if got := ThinkingDefault.enableThinking(); got != nil {
 		t.Errorf("ThinkingDefault.enableThinking() = %v, want nil", *got)
+	}
+}
+
+func TestReportWriteDoesNotOverwriteARun(t *testing.T) {
+	directory := filepath.Join(t.TempDir(), "results", "run")
+	report := Report{Model: "m"}
+
+	if err := report.write(directory); err != nil {
+		t.Fatalf("first write() error = %v", err)
+	}
+	for _, name := range []string{resultsFileName, reportFileName} {
+		if _, err := os.Stat(filepath.Join(directory, name)); err != nil {
+			t.Errorf("write() did not create %s: %v", name, err)
+		}
+	}
+
+	if err := report.write(directory); err == nil || !strings.Contains(err.Error(), "create run directory") {
+		t.Errorf("second write() error = %v, want a run directory error", err)
+	}
+}
+
+func TestVariantDoesNotHideRunFields(t *testing.T) {
+	run := Run{SampleID: "sample", Variant: Variant{ContextMode: translation.ContextModeFull, Thinking: ThinkingOff}, LatencyMs: 1234}
+	if got := fmt.Sprintf("%+v", run); !strings.Contains(got, "1234") {
+		t.Errorf("%%+v of a Run = %q, want all fields", got)
+	}
+	if got := run.Name(); got != "full, thinking off" {
+		t.Errorf("Name() = %q", got)
 	}
 }

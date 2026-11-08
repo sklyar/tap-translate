@@ -1,10 +1,10 @@
 package translation
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"slices"
 	"strings"
 	"unicode/utf8"
@@ -43,23 +43,49 @@ const (
 	maxExplanationLength = 500
 )
 
-// ParseResult decodes and validates the model answer.
-func ParseResult(content string) (Result, error) {
-	decoder := json.NewDecoder(bytes.NewReader([]byte(content)))
-	decoder.DisallowUnknownFields()
+// resultFields are the JSON names of the Result fields.
+var resultFields = []string{"expression", "partOfSpeech", "translation", "explanation"}
 
-	var result Result
-	if err := decoder.Decode(&result); err != nil {
+// ParseResult decodes and validates the model answer. The answer must be one
+// JSON object with exactly the Result fields. encoding/json matches field
+// names without case and accepts some trailing data, so the object is
+// decoded into a map first.
+func ParseResult(content string) (Result, error) {
+	decoder := json.NewDecoder(strings.NewReader(content))
+
+	var fields map[string]json.RawMessage
+	if err := decoder.Decode(&fields); err != nil {
 		return Result{}, fmt.Errorf("decode answer: %w", err)
 	}
-	if decoder.More() {
+	if _, err := decoder.Token(); !errors.Is(err, io.EOF) {
 		return Result{}, errors.New("decode answer: unexpected data after the JSON object")
 	}
 
-	result.Expression = strings.TrimSpace(result.Expression)
-	result.Translation = strings.TrimSpace(result.Translation)
-	result.PartOfSpeech = strings.TrimSpace(result.PartOfSpeech)
-	result.Explanation = strings.TrimSpace(result.Explanation)
+	for name := range fields {
+		if !slices.Contains(resultFields, name) {
+			return Result{}, fmt.Errorf("decode answer: unknown field %q", name)
+		}
+	}
+
+	values := make(map[string]string, len(resultFields))
+	for _, name := range resultFields {
+		raw, ok := fields[name]
+		if !ok {
+			return Result{}, fmt.Errorf("%s is missing", name)
+		}
+		var value string
+		if err := json.Unmarshal(raw, &value); err != nil {
+			return Result{}, fmt.Errorf("%s is not a string", name)
+		}
+		values[name] = strings.TrimSpace(value)
+	}
+
+	result := Result{
+		Expression:   values["expression"],
+		Translation:  values["translation"],
+		PartOfSpeech: values["partOfSpeech"],
+		Explanation:  values["explanation"],
+	}
 
 	if err := checkField("expression", result.Expression, maxExpressionLength); err != nil {
 		return Result{}, err
@@ -87,17 +113,40 @@ func checkField(name, value string, maxLength int) error {
 	return nil
 }
 
-// ResultSchema returns the JSON Schema for a structured output request.
-func ResultSchema() map[string]any {
-	return map[string]any{
-		"type":                 "object",
-		"additionalProperties": false,
-		"required":             []string{"expression", "partOfSpeech", "translation", "explanation"},
-		"properties": map[string]any{
-			"expression":   map[string]any{"type": "string", "minLength": 1},
-			"partOfSpeech": map[string]any{"type": "string", "enum": PartsOfSpeech},
-			"translation":  map[string]any{"type": "string", "minLength": 1},
-			"explanation":  map[string]any{"type": "string", "minLength": 1},
-		},
+type schemaProperty struct {
+	Type string   `json:"type"`
+	Enum []string `json:"enum,omitempty"`
+}
+
+// resultSchema is a struct, not a map, because the order of the properties
+// matters: the model writes the fields in this order. A map would sort them
+// by name and put the explanation first, before the model has chosen the
+// expression. With that order the model often left the explanation empty.
+type resultSchema struct {
+	Type                 string   `json:"type"`
+	AdditionalProperties bool     `json:"additionalProperties"`
+	Required             []string `json:"required"`
+	Properties           struct {
+		Expression   schemaProperty `json:"expression"`
+		PartOfSpeech schemaProperty `json:"partOfSpeech"`
+		Translation  schemaProperty `json:"translation"`
+		Explanation  schemaProperty `json:"explanation"`
+	} `json:"properties"`
+}
+
+// ResultSchema returns the JSON Schema for a structured output request. It
+// has no length limits: Qwen ignores minLength, and strict mode of other
+// providers can reject it. ParseResult checks the lengths.
+func ResultSchema() json.RawMessage {
+	schema := resultSchema{Type: "object", Required: resultFields}
+	schema.Properties.Expression = schemaProperty{Type: "string"}
+	schema.Properties.PartOfSpeech = schemaProperty{Type: "string", Enum: PartsOfSpeech}
+	schema.Properties.Translation = schemaProperty{Type: "string"}
+	schema.Properties.Explanation = schemaProperty{Type: "string"}
+
+	data, err := json.Marshal(schema)
+	if err != nil {
+		panic(fmt.Sprintf("encode result schema: %v", err))
 	}
+	return data
 }

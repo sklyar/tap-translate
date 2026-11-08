@@ -81,7 +81,9 @@ type Variant struct {
 	Thinking    ThinkingMode            `json:"thinking"`
 }
 
-func (v Variant) String() string {
+// Name is not String on purpose: Run and VariantSummary embed Variant, and a
+// promoted String method would hide their other fields in %v output.
+func (v Variant) Name() string {
 	return fmt.Sprintf("%s, thinking %s", v.ContextMode, v.Thinking)
 }
 
@@ -96,8 +98,11 @@ type Run struct {
 	FinishReason    string              `json:"finishReason,omitempty"`
 	Result          *translation.Result `json:"result,omitempty"`
 	// RequestFailed is true when there is no model answer at all.
-	RequestFailed bool   `json:"requestFailed,omitempty"`
-	Error         string `json:"error,omitempty"`
+	RequestFailed bool `json:"requestFailed,omitempty"`
+	// TimedOut is true when the request hit -timeout. Its latency is the
+	// timeout, so it still counts in the latency statistics.
+	TimedOut bool   `json:"timedOut,omitempty"`
+	Error    string `json:"error,omitempty"`
 	// Content keeps the raw answer when it is not a valid result.
 	Content string `json:"content,omitempty"`
 }
@@ -139,13 +144,24 @@ func run(args []string) error {
 	defer stop()
 
 	client := llm.NewClient(cfg.baseURL, apiKey, &http.Client{})
-	startedAt := time.Now().UTC()
-	runs := runAll(ctx, client, cfg, samples, variants)
-	if err := ctx.Err(); err != nil {
-		return fmt.Errorf("interrupted: %w", err)
+
+	// The warm-up request opens the connection, so the first measured requests
+	// do not pay for the TLS handshake. It also stops the run early when the
+	// URL, the model, or the key is wrong.
+	warmUp, finished := runOne(ctx, client, cfg, samples[0], variants[0])
+	if !finished {
+		return errors.New("interrupted during the warm-up request")
+	}
+	if warmUp.RequestFailed {
+		return fmt.Errorf("warm-up request failed: %s", warmUp.Error)
 	}
 
+	startedAt := time.Now().UTC()
+	runs := runAll(ctx, client, cfg, samples, variants)
+	interrupted := ctx.Err() != nil
+
 	report := newReport(cfg, startedAt, time.Since(startedAt), samples, variants, runs)
+	report.Interrupted = interrupted
 	directory := filepath.Join(cfg.outputDir, startedAt.Format("20060102-150405")+"-"+safeName(cfg.model))
 	if err := report.write(directory); err != nil {
 		return err
@@ -153,6 +169,9 @@ func run(args []string) error {
 
 	printSummary(os.Stdout, report)
 	fmt.Printf("\nReport: %s\n", filepath.Join(directory, reportFileName))
+	if interrupted {
+		return fmt.Errorf("interrupted after %d requests; the report has only them", len(runs))
+	}
 	return nil
 }
 
@@ -176,6 +195,11 @@ func parseFlags(args []string) (config, error) {
 
 	if err := flags.Parse(args); err != nil {
 		return config{}, err
+	}
+	// The flag package stops at the first argument that is not a flag, so a
+	// stray argument would silently drop all flags after it.
+	if flags.NArg() > 0 {
+		return config{}, fmt.Errorf("unexpected argument %q: separate list values with commas, without spaces", flags.Arg(0))
 	}
 
 	switch {
@@ -253,10 +277,8 @@ func loadSamples(path string) ([]Sample, error) {
 		return nil, fmt.Errorf("%s has no samples", path)
 	}
 
+	// Decoding has already validated each DetectionContext.
 	for _, sample := range samples {
-		if err := sample.Context.Validate(); err != nil {
-			return nil, fmt.Errorf("sample %s: %w", sample.ID, err)
-		}
 		if word := sample.Context.Word(); word != sample.Word {
 			return nil, fmt.Errorf("sample %s: the context word is %q, not %q", sample.ID, word, sample.Word)
 		}
@@ -274,13 +296,14 @@ type job struct {
 func runAll(ctx context.Context, client *llm.Client, cfg config, samples []Sample, variants []Variant) []Run {
 	jobs := make(chan job)
 	runs := make([]Run, len(samples)*len(variants))
+	finished := make([]bool, len(runs))
 	var done atomic.Int64
 	var wg sync.WaitGroup
 
 	for range cfg.concurrency {
 		wg.Go(func() {
 			for next := range jobs {
-				runs[next.index] = runOne(ctx, client, cfg, next.sample, next.variant)
+				runs[next.index], finished[next.index] = runOne(ctx, client, cfg, next.sample, next.variant)
 				fmt.Fprintf(os.Stderr, "\r%d/%d requests", done.Add(1), len(runs))
 			}
 		})
@@ -302,17 +325,25 @@ send:
 	wg.Wait()
 	fmt.Fprintln(os.Stderr)
 
-	return runs[:index]
+	completed := make([]Run, 0, index)
+	for i := range index {
+		if finished[i] {
+			completed = append(completed, runs[i])
+		}
+	}
+	return completed
 }
 
-func runOne(ctx context.Context, client *llm.Client, cfg config, sample Sample, variant Variant) Run {
+// runOne sends one request. It returns false when the run was interrupted, so
+// the result says nothing about the model.
+func runOne(ctx context.Context, client *llm.Client, cfg config, sample Sample, variant Variant) (Run, bool) {
 	result := Run{SampleID: sample.ID, Variant: variant}
 
 	prompt, err := translation.BuildPrompt(sample.Context, variant.ContextMode)
 	if err != nil {
 		result.RequestFailed = true
 		result.Error = err.Error()
-		return result
+		return result, true
 	}
 
 	request := llm.ChatRequest{
@@ -340,9 +371,13 @@ func runOne(ctx context.Context, client *llm.Client, cfg config, sample Sample, 
 	response, err := client.Complete(requestCtx, request)
 	result.LatencyMs = time.Since(start).Milliseconds()
 	if err != nil {
+		if ctx.Err() != nil {
+			return result, false
+		}
 		result.RequestFailed = true
+		result.TimedOut = errors.Is(err, context.DeadlineExceeded)
 		result.Error = err.Error()
-		return result
+		return result, true
 	}
 
 	result.InputTokens = response.Usage.PromptTokens
@@ -354,10 +389,10 @@ func runOne(ctx context.Context, client *llm.Client, cfg config, sample Sample, 
 	if err != nil {
 		result.Error = err.Error()
 		result.Content = response.Content
-		return result
+		return result, true
 	}
 	result.Result = &parsed
-	return result
+	return result, true
 }
 
 var unsafeNameCharacters = regexp.MustCompile(`[^A-Za-z0-9._-]+`)

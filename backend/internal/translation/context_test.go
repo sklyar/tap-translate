@@ -1,6 +1,7 @@
 package translation
 
 import (
+	"encoding/json"
 	"strings"
 	"testing"
 )
@@ -65,5 +66,28 @@ func TestDetectionContextValidateRejectsBadSpans(t *testing.T) {
 				t.Errorf("Validate() error = %v, want an error with %q", err, test.want)
 			}
 		})
+	}
+}
+
+func TestDetectionContextUnmarshalJSONValidates(t *testing.T) {
+	data, err := json.Marshal(newContext())
+	if err != nil {
+		t.Fatalf("Marshal() error = %v", err)
+	}
+
+	var decoded DetectionContext
+	if err := json.Unmarshal(data, &decoded); err != nil {
+		t.Fatalf("Unmarshal() error = %v", err)
+	}
+	if decoded.Word() != "bank" || len(decoded.BeforeBlocks) != 1 || !decoded.FocusBlock.TruncatedAfter {
+		t.Errorf("Unmarshal() = %+v", decoded)
+	}
+
+	invalid := strings.Replace(string(data), `"word":{"start":23,"end":27}`, `"word":{"start":50,"end":60}`, 1)
+	if invalid == string(data) {
+		t.Fatal("the test did not change the word span")
+	}
+	if err := json.Unmarshal([]byte(invalid), &decoded); err == nil || !strings.Contains(err.Error(), "invalid detection context") {
+		t.Errorf("Unmarshal() with a bad word span error = %v", err)
 	}
 }

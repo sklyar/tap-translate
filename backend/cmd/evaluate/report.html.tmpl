@@ -45,18 +45,20 @@
 <body>
 <h1>TapTranslate eval: {{.Model}}</h1>
 <p class="meta">{{.Started}} · {{len .Samples}} samples · {{len .Runs}} requests · {{.Duration}}</p>
+{{if .Interrupted}}<p class="error">The run was interrupted. The numbers cover only the finished requests.</p>{{end}}
 
 <h2>Summary</h2>
 <div class="scroll">
 <table>
   <tr>
-    <th>Variant</th><th class="num">Valid</th><th class="num">p50, ms</th><th class="num">p95, ms</th><th class="num">max, ms</th>
+    <th>Variant</th><th class="num">Valid</th><th class="num">Failed</th><th class="num">p50, ms</th><th class="num">p95, ms</th><th class="num">max, ms</th>
     <th class="num">Input tokens</th><th class="num">Output tokens</th>{{if .HasPrices}}<th class="num">$ per 1,000</th>{{end}}
   </tr>
   {{range .Summaries}}
   <tr>
     <td class="variant">{{.Name}}</td>
     <td class="num">{{.Valid}}/{{.Requests}}</td>
+    <td class="num">{{.Failed}}</td>
     <td class="num">{{.LatencyP50Ms}}</td>
     <td class="num">{{.LatencyP95Ms}}</td>
     <td class="num">{{.LatencyMaxMs}}</td>
@@ -67,7 +69,7 @@
   {{end}}
 </table>
 </div>
-<p class="muted">Latency is the full request time measured by the client. Token counts are means per request; output tokens include thinking tokens.{{if .HasPrices}} Prices: ${{.InputPrice}} per 1M input tokens, ${{.OutputPrice}} per 1M output tokens.{{end}}</p>
+<p class="muted">Valid: answers that pass validation. Failed: requests without a model answer (HTTP or network errors, timeouts). Latency is the full request time measured by the client; it includes timeouts but not other failed requests. Token counts are means per answered request; output tokens include thinking tokens.{{if .HasPrices}} Prices: ${{.InputPrice}} per 1M input tokens, ${{.OutputPrice}} per 1M output tokens.{{end}}</p>
 
 <details>
   <summary>System prompt</summary>
@@ -86,7 +88,7 @@
     <tr><th>Variant</th><th>Expression</th><th>Translation</th><th>Explanation</th><th class="num">ms</th><th class="num">Tokens</th></tr>
     {{range .Runs}}
     <tr>
-      <td class="variant">{{.Variant}}</td>
+      <td class="variant">{{.Name}}</td>
       {{if .Result}}
       <td><span class="expression">{{.Result.Expression}}</span><br><span class="muted">{{.Result.PartOfSpeech}}</span></td>
       <td>{{.Result.Translation}}</td>

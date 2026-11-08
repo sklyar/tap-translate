@@ -4,6 +4,7 @@
 package translation
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"unicode/utf16"
@@ -28,10 +29,32 @@ type FocusBlock struct {
 	Sentence TextSpan `json:"sentence"`
 }
 
+// DetectionContext is the context of one tap. Word, SentenceParts, and
+// BlockParts need valid spans. A DetectionContext decoded from JSON is always
+// valid; a value built in code must pass Validate first.
 type DetectionContext struct {
 	BeforeBlocks []ContextBlock `json:"beforeBlocks"`
 	FocusBlock   FocusBlock     `json:"focusBlock"`
 	AfterBlocks  []ContextBlock `json:"afterBlocks"`
+}
+
+// UnmarshalJSON decodes the context and rejects invalid spans.
+func (c *DetectionContext) UnmarshalJSON(data []byte) error {
+	// plain has the same fields without methods, so Unmarshal does not call
+	// this method again.
+	type plain DetectionContext
+	var decoded plain
+	if err := json.Unmarshal(data, &decoded); err != nil {
+		return err
+	}
+
+	context := DetectionContext(decoded)
+	if err := context.Validate(); err != nil {
+		return fmt.Errorf("invalid detection context: %w", err)
+	}
+
+	*c = context
+	return nil
 }
 
 // FocusParts splits the focus block text around the tapped word.

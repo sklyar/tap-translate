@@ -1,6 +1,7 @@
 package translation
 
 import (
+	"encoding/json"
 	"strings"
 	"testing"
 )
@@ -40,7 +41,12 @@ func TestParseResultRejectsInvalidAnswers(t *testing.T) {
 		{"unknown field", `{` + valid + `, "explanation": "x", "note": "y"}`, "unknown field"},
 		{"trailing data", `{` + valid + `, "explanation": "x"} {}`, "unexpected data"},
 		{"empty explanation", `{` + valid + `, "explanation": "  "}`, "explanation is empty"},
-		{"missing explanation", `{` + valid + `}`, "explanation is empty"},
+		{"missing explanation", `{` + valid + `}`, "explanation is missing"},
+		{"extra closing brace", `{` + valid + `, "explanation": "x"}}`, "unexpected data"},
+		{"extra closing bracket", `{` + valid + `, "explanation": "x"}]`, "unexpected data"},
+		{"field name in another case", `{` + valid + `, "Explanation": "x"}`, "unknown field"},
+		{"not a string", `{` + valid + `, "explanation": 42}`, "explanation is not a string"},
+		{"null", `null`, "expression is missing"},
 		{
 			"unknown part of speech",
 			`{"expression": "bank", "partOfSpeech": "существительное", "translation": "берег", "explanation": "x"}`,
@@ -63,20 +69,35 @@ func TestParseResultRejectsInvalidAnswers(t *testing.T) {
 	}
 }
 
-func TestResultSchemaRequiresAllFields(t *testing.T) {
-	schema := ResultSchema()
-	required, ok := schema["required"].([]string)
-	if !ok || len(required) != 4 {
-		t.Fatalf("ResultSchema() required = %v", schema["required"])
+func TestResultSchema(t *testing.T) {
+	data := ResultSchema()
+
+	var schema struct {
+		Required   []string                   `json:"required"`
+		Properties map[string]json.RawMessage `json:"properties"`
+	}
+	if err := json.Unmarshal(data, &schema); err != nil {
+		t.Fatalf("ResultSchema() is not valid JSON: %v", err)
+	}
+	if strings.Join(schema.Required, ",") != "expression,partOfSpeech,translation,explanation" {
+		t.Errorf("ResultSchema() required = %v", schema.Required)
+	}
+	if len(schema.Properties) != 4 {
+		t.Errorf("ResultSchema() has %d properties, want 4", len(schema.Properties))
+	}
+	if !strings.Contains(string(schema.Properties["partOfSpeech"]), `"phrasal verb"`) {
+		t.Errorf("ResultSchema() partOfSpeech = %s, want the allowed values", schema.Properties["partOfSpeech"])
 	}
 
-	properties, ok := schema["properties"].(map[string]any)
-	if !ok {
-		t.Fatalf("ResultSchema() properties = %v", schema["properties"])
-	}
-	for _, name := range required {
-		if _, ok := properties[name]; !ok {
-			t.Errorf("ResultSchema() has no property %q", name)
+	// The model writes the fields in schema order, so the explanation must be
+	// the last property.
+	properties := string(data[strings.Index(string(data), `"properties"`):])
+	previous := -1
+	for _, name := range resultFields {
+		index := strings.Index(properties, `"`+name+`"`)
+		if index <= previous {
+			t.Fatalf("ResultSchema() properties are not in the order %v: %s", resultFields, properties)
 		}
+		previous = index
 	}
 }
