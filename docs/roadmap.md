@@ -27,7 +27,7 @@ Done:
 Not done:
 
 - there is no real translation; the extension uses the mock provider;
-- the extension has never run on iOS;
+- the extension has run on iOS only in the Simulator, not on a physical iPhone;
 - manual checks in desktop Safari covered only the restrictive-CSP fixture, and the CSP fix still needs a retest.
 
 ## Next stages
@@ -44,6 +44,16 @@ Question: does the current interaction model work on iPhone?
   - text selection, zoom, and rotation do not break detection or the sheet.
 
 Result: the model is confirmed, or there is a list of required changes. If a tap does not deliver a `click`, move the input handling to pointer or touch events before any other frontend work.
+
+Simulator results (2026-11-08, iPhone 18 Pro, iOS 27.2):
+
+- Confirmed: a tap on plain text opens the sheet, so the `click` reaches the content script and is trusted. Links work. A tap after a long-press selection clears the selection and opens the sheet. Rotation and dismissal work.
+- Defect: when the Safari toolbar is expanded, the expanded sheet goes above the top of the screen, and the handle and the close button are hidden. The cause is `100vh`.
+- Defect: with pinch zoom, the sheet scales with the page and can move off the screen.
+- Defect: the sheet cannot be expanded by dragging the handle; a drag scrolls the page.
+- To check: the floating Safari toolbar covers the bottom of the sheet.
+
+Still required: the same checks on a physical iPhone.
 
 ### 2. Contextual translation prototype
 
