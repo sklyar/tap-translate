@@ -23,3 +23,6 @@ deploy/backend/config.yaml
 # Safari Web Extension
 /extension/node_modules/
 /extension/dist/
+
+# Translation evaluation runs
+/eval/results/
