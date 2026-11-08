@@ -23,12 +23,16 @@ export interface TapTranslateContentOptions {
     input: DetectionInput,
     documentRoot?: Document,
   ) => DetectionResult | null;
+  // DOM test environments cannot dispatch trusted events, so tests replace
+  // this check. Production code must keep the default.
+  readonly isTrustedClick?: (event: MouseEvent) => boolean;
 }
 
 export function startTapTranslateContent(
   options: TapTranslateContentOptions,
 ): () => void {
   const detect = options.detect ?? detectEnglishContext;
+  const isTrustedClick = options.isTrustedClick ?? isTrustedEvent;
   const windowRoot = options.documentRoot.defaultView;
   let listening = true;
 
@@ -45,6 +49,12 @@ export function startTapTranslateContent(
   };
 
   const handleClick = (event: MouseEvent): void => {
+    // Page scripts can dispatch synthetic clicks. They must not start
+    // translations or dismiss the sheet.
+    if (!isTrustedClick(event)) {
+      return;
+    }
+
     try {
       const eventPath = event.composedPath();
       if (options.sheet.containsEventPath(eventPath)) {
@@ -89,6 +99,10 @@ export function startTapTranslateContent(
     windowRoot?.removeEventListener('pagehide', handlePageHide);
     dismissForLifecycle();
   };
+}
+
+function isTrustedEvent(event: Event): boolean {
+  return event.isTrusted;
 }
 
 const provider = new MockTranslationProvider({
