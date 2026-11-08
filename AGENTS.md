@@ -12,3 +12,4 @@ The user taps a word, and the extension shows its translation and explanation ba
 - `eval` — samples and results for the evaluation of contextual translation.
 
 The rules for Go code, its commands, and its tests are in `backend/AGENTS.md`.
+The rules for the extension code, its commands, and its tests are in `extension/AGENTS.md`.
