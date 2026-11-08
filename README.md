@@ -73,6 +73,7 @@ The Go code follows the Uber Go Style Guide. The rules and the package boundarie
 
 - The sheet styles come from the packaged `translation-sheet.css`, which is loaded with a `<link>` inside the Shadow Root. Safari applies the page CSP to inline styles that an extension creates ([WebKit bug 291734](https://bugs.webkit.org/show_bug.cgi?id=291734)). Because of this, an inline `<style>` breaks on sites with a strict `style-src`. The sheet stays hidden until the stylesheet loads.
 - The focus block is the nearest logical block. A logical block is an element from the set `p`, `li`, `blockquote`, `figcaption`, `dt`, `dd`, `h1`–`h6`, `caption`, `td`, `th`, or an element with a computed display of `block`, `flow-root`, `list-item`, `table-cell`, `table-caption`, `flex`, or `grid`. The text snapshot excludes nested logical blocks by the same rule.
+- The context text keeps inline `code`, because without it a sentence about code loses its words. It drops `pre` blocks and footnote references: a `sup` whose text is in square brackets, such as `[54]` or `[citation needed]`. A tap on code or `pre` text is still ignored.
 - Context limits: 4,000 characters for the focus block and 2,000 for each neighboring block. If the sentence alone is longer than 4,000 characters, detection returns no result.
 - The extension ignores clicks inside the sheet, clicks dispatched by page scripts (`isTrusted === false`), and clicks that finish a text selection.
 - The content script runs only in the top document (`all_frames: false`).

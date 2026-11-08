@@ -586,21 +586,21 @@
         }
       ],
       "focusBlock": {
-        "text": "With Go we take an unusual approach and let the machine take care of most formatting issues. The program (also available as , which operates at the package level rather than source file level) reads a Go program and emits the source in a standard style of indentation and vertical alignment, retaining and if necessary reformatting comments. If you want to know how to handle some new layout situation, run ; if the answer doesn't seem right, rearrange your program (or file a bug about ), don't work around it.",
+        "text": "With Go we take an unusual approach and let the machine take care of most formatting issues. The gofmt program (also available as go fmt, which operates at the package level rather than source file level) reads a Go program and emits the source in a standard style of indentation and vertical alignment, retaining and if necessary reformatting comments. If you want to know how to handle some new layout situation, run gofmt; if the answer doesn't seem right, rearrange your program (or file a bug about gofmt), don't work around it.",
         "word": {
-          "start": 501,
-          "end": 507
+          "start": 523,
+          "end": 529
         },
         "sentence": {
-          "start": 342,
-          "end": 511
+          "start": 354,
+          "end": 533
         },
         "truncatedBefore": false,
         "truncatedAfter": false
       },
       "afterBlocks": [
         {
-          "text": "As an example, there's no need to spend time lining up the comments on the fields of a structure. will do that for you. Given the declaration",
+          "text": "As an example, there's no need to spend time lining up the comments on the fields of a structure. Gofmt will do that for you. Given the declaration",
           "truncatedBefore": false,
           "truncatedAfter": false
         }
@@ -624,21 +624,21 @@
         }
       ],
       "focusBlock": {
-        "text": "With Go we take an unusual approach and let the machine take care of most formatting issues. The program (also available as , which operates at the package level rather than source file level) reads a Go program and emits the source in a standard style of indentation and vertical alignment, retaining and if necessary reformatting comments. If you want to know how to handle some new layout situation, run ; if the answer doesn't seem right, rearrange your program (or file a bug about ), don't work around it.",
+        "text": "With Go we take an unusual approach and let the machine take care of most formatting issues. The gofmt program (also available as go fmt, which operates at the package level rather than source file level) reads a Go program and emits the source in a standard style of indentation and vertical alignment, retaining and if necessary reformatting comments. If you want to know how to handle some new layout situation, run gofmt; if the answer doesn't seem right, rearrange your program (or file a bug about gofmt), don't work around it.",
         "word": {
-          "start": 470,
-          "end": 474
+          "start": 487,
+          "end": 491
         },
         "sentence": {
-          "start": 342,
-          "end": 511
+          "start": 354,
+          "end": 533
         },
         "truncatedBefore": false,
         "truncatedAfter": false
       },
       "afterBlocks": [
         {
-          "text": "As an example, there's no need to spend time lining up the comments on the fields of a structure. will do that for you. Given the declaration",
+          "text": "As an example, there's no need to spend time lining up the comments on the fields of a structure. Gofmt will do that for you. Given the declaration",
           "truncatedBefore": false,
           "truncatedAfter": false
         }
@@ -656,27 +656,27 @@
     "context": {
       "beforeBlocks": [
         {
-          "text": "As an example, there's no need to spend time lining up the comments on the fields of a structure. will do that for you. Given the declaration",
+          "text": "As an example, there's no need to spend time lining up the comments on the fields of a structure. Gofmt will do that for you. Given the declaration",
           "truncatedBefore": false,
           "truncatedAfter": false
         }
       ],
       "focusBlock": {
-        "text": "will line up the columns:",
+        "text": "gofmt will line up the columns:",
         "word": {
-          "start": 5,
-          "end": 9
+          "start": 11,
+          "end": 15
         },
         "sentence": {
           "start": 0,
-          "end": 25
+          "end": 31
         },
         "truncatedBefore": false,
         "truncatedAfter": false
       },
       "afterBlocks": [
         {
-          "text": "All Go code in the standard packages has been formatted with .",
+          "text": "All Go code in the standard packages has been formatted with gofmt.",
           "truncatedBefore": false,
           "truncatedAfter": false
         }
@@ -700,21 +700,21 @@
         }
       ],
       "focusBlock": {
-        "text": "Although they are not nearly as common in Go as some other C-like languages, statements can be used to terminate a early. Sometimes, though, it's necessary to break out of a surrounding loop, not the switch, and in Go that can be accomplished by putting a label on the loop and \"breaking\" to that label. This example shows both uses.",
+        "text": "Although they are not nearly as common in Go as some other C-like languages, break statements can be used to terminate a switch early. Sometimes, though, it's necessary to break out of a surrounding loop, not the switch, and in Go that can be accomplished by putting a label on the loop and \"breaking\" to that label. This example shows both uses.",
         "word": {
-          "start": 159,
-          "end": 164
+          "start": 172,
+          "end": 177
         },
         "sentence": {
-          "start": 122,
-          "end": 303
+          "start": 135,
+          "end": 316
         },
         "truncatedBefore": false,
         "truncatedAfter": false
       },
       "afterBlocks": [
         {
-          "text": "Of course, the statement also accepts an optional label but it applies only to loops.",
+          "text": "Of course, the continue statement also accepts an optional label but it applies only to loops.",
           "truncatedBefore": false,
           "truncatedAfter": false
         }
@@ -732,7 +732,7 @@
     "context": {
       "beforeBlocks": [
         {
-          "text": "Go's is more general than C's. The expressions need not be constants or even integers, the cases are evaluated top to bottom until a match is found, and if the has no expression it switches on . It's therefore possible—and idiomatic—to write an --- chain as a .",
+          "text": "Go's switch is more general than C's. The expressions need not be constants or even integers, the cases are evaluated top to bottom until a match is found, and if the switch has no expression it switches on true. It's therefore possible—and idiomatic—to write an if-else-if-else chain as a switch.",
           "truncatedBefore": false,
           "truncatedAfter": false
         }
@@ -752,7 +752,7 @@
       },
       "afterBlocks": [
         {
-          "text": "Although they are not nearly as common in Go as some other C-like languages, statements can be used to terminate a early. Sometimes, though, it's necessary to break out of a surrounding loop, not the switch, and in Go that can be accomplished by putting a label on the loop and \"breaking\" to that label. This example shows both uses.",
+          "text": "Although they are not nearly as common in Go as some other C-like languages, break statements can be used to terminate a switch early. Sometimes, though, it's necessary to break out of a surrounding loop, not the switch, and in Go that can be accomplished by putting a label on the loop and \"breaking\" to that label. This example shows both uses.",
           "truncatedBefore": false,
           "truncatedAfter": false
         }
@@ -776,14 +776,14 @@
         }
       ],
       "focusBlock": {
-        "text": "Go doesn't provide automatic support for getters and setters. There's nothing wrong with providing getters and setters yourself, and it's often appropriate to do so, but it's neither idiomatic nor necessary to put into the getter's name. If you have a field called (lower case, unexported), the getter method should be called (upper case, exported), not . The use of upper-case names for export provides the hook to discriminate the field from the method. A setter function, if needed, will likely be called . Both names read well in practice:",
+        "text": "Go doesn't provide automatic support for getters and setters. There's nothing wrong with providing getters and setters yourself, and it's often appropriate to do so, but it's neither idiomatic nor necessary to put Get into the getter's name. If you have a field called owner (lower case, unexported), the getter method should be called Owner (upper case, exported), not GetOwner. The use of upper-case names for export provides the hook to discriminate the field from the method. A setter function, if needed, will likely be called SetOwner. Both names read well in practice:",
         "word": {
           "start": 183,
           "end": 192
         },
         "sentence": {
           "start": 62,
-          "end": 237
+          "end": 241
         },
         "truncatedBefore": false,
         "truncatedAfter": false
@@ -814,14 +814,14 @@
         }
       ],
       "focusBlock": {
-        "text": "Kitchen-sink headers like the following are used to try to work around \"old and not updated proxy cache\" implementations that do not understand current HTTP Caching spec directives like .",
+        "text": "Kitchen-sink headers like the following are used to try to work around \"old and not updated proxy cache\" implementations that do not understand current HTTP Caching spec directives like no-store.",
         "word": {
           "start": 0,
           "end": 7
         },
         "sentence": {
           "start": 0,
-          "end": 187
+          "end": 195
         },
         "truncatedBefore": false,
         "truncatedAfter": false
@@ -928,14 +928,14 @@
         }
       ],
       "focusBlock": {
-        "text": "Enabled by default, the feature gate allows you to specify for init containers. Setting the restart policy ensures that the containers where you set it are treated as sidecars that are kept running during the entire lifetime of the Pod. Containers that you explicitly define as sidecar containers start up before the main application Pod and remain running until the Pod is shut down.",
+        "text": "Enabled by default, the SidecarContainers feature gate allows you to specify restartPolicy: Always for init containers. Setting the Always restart policy ensures that the containers where you set it are treated as sidecars that are kept running during the entire lifetime of the Pod. Containers that you explicitly define as sidecar containers start up before the main application Pod and remain running until the Pod is shut down.",
         "word": {
-          "start": 167,
-          "end": 175
+          "start": 214,
+          "end": 222
         },
         "sentence": {
-          "start": 80,
-          "end": 236
+          "start": 120,
+          "end": 283
         },
         "truncatedBefore": false,
         "truncatedAfter": false
@@ -966,14 +966,14 @@
         }
       ],
       "focusBlock": {
-        "text": "Enabled by default, the feature gate allows you to specify for init containers. Setting the restart policy ensures that the containers where you set it are treated as sidecars that are kept running during the entire lifetime of the Pod. Containers that you explicitly define as sidecar containers start up before the main application Pod and remain running until the Pod is shut down.",
+        "text": "Enabled by default, the SidecarContainers feature gate allows you to specify restartPolicy: Always for init containers. Setting the Always restart policy ensures that the containers where you set it are treated as sidecars that are kept running during the entire lifetime of the Pod. Containers that you explicitly define as sidecar containers start up before the main application Pod and remain running until the Pod is shut down.",
         "word": {
-          "start": 374,
-          "end": 378
+          "start": 421,
+          "end": 425
         },
         "sentence": {
-          "start": 237,
-          "end": 384
+          "start": 284,
+          "end": 431
         },
         "truncatedBefore": false,
         "truncatedAfter": false
@@ -1758,13 +1758,13 @@
     "context": {
       "beforeBlocks": [
         {
-          "text": "Coffee was introduced to Brazil in 1727, but its cultivation did not gather momentum until independence in 1822.[54] After this time, massive tracts of rainforest were cleared for coffee plantations, first around Rio de Janeiro and later São Paulo.[55] Brazil went from having essentially no coffee exports in 1800 to being a significant regional producer in 1830, to being the largest producer in the world by 1852. Between 1910 and 1920, Brazil exported around 70% of the world's coffee; Colombia, Guatemala, and Venezuela exported 15%; and Old World production accounted for less than 5% of world exports.[56]",
+          "text": "Coffee was introduced to Brazil in 1727, but its cultivation did not gather momentum until independence in 1822. After this time, massive tracts of rainforest were cleared for coffee plantations, first around Rio de Janeiro and later São Paulo. Brazil went from having essentially no coffee exports in 1800 to being a significant regional producer in 1830, to being the largest producer in the world by 1852. Between 1910 and 1920, Brazil exported around 70% of the world's coffee; Colombia, Guatemala, and Venezuela exported 15%; and Old World production accounted for less than 5% of world exports.",
           "truncatedBefore": false,
           "truncatedAfter": false
         }
       ],
       "focusBlock": {
-        "text": "Many countries in Central America took up cultivation in the latter half of the 19th century, and almost all were involved in the large-scale displacement and exploitation of indigenous people. Harsh conditions led to many uprisings, coups, and bloody suppression of peasants.[57] The notable exception was Costa Rica, where a lack of ready labor prevented the formation of large farms. Smaller farms and more egalitarian conditions ameliorated unrest over the 19th and 20th centuries.[58]",
+        "text": "Many countries in Central America took up cultivation in the latter half of the 19th century, and almost all were involved in the large-scale displacement and exploitation of indigenous people. Harsh conditions led to many uprisings, coups, and bloody suppression of peasants. The notable exception was Costa Rica, where a lack of ready labor prevented the formation of large farms. Smaller farms and more egalitarian conditions ameliorated unrest over the 19th and 20th centuries.",
         "word": {
           "start": 34,
           "end": 38
@@ -1778,7 +1778,7 @@
       },
       "afterBlocks": [
         {
-          "text": "Rapid growth in coffee production in South America during the second half of the 19th century was matched by an increase in consumption in developed countries. Nowhere was this growth been as pronounced as in the United States, where a high rate of population growth was compounded by doubling of per capita consumption between 1860 and 1920. Though the United States was not the heaviest coffee-drinking nation at the time (Belgium, the Netherlands and Nordic countries all had comparable or higher levels of per capita consumption), due to its sheer size, the US was already the largest consumer of coffee in the world by 1860. By 1920, around half of all coffee produced worldwide was consumed in the US.[56]",
+          "text": "Rapid growth in coffee production in South America during the second half of the 19th century was matched by an increase in consumption in developed countries. Nowhere was this growth been as pronounced as in the United States, where a high rate of population growth was compounded by doubling of per capita consumption between 1860 and 1920. Though the United States was not the heaviest coffee-drinking nation at the time (Belgium, the Netherlands and Nordic countries all had comparable or higher levels of per capita consumption), due to its sheer size, the US was already the largest consumer of coffee in the world by 1860. By 1920, around half of all coffee produced worldwide was consumed in the US.",
           "truncatedBefore": false,
           "truncatedAfter": false
         }
@@ -1796,27 +1796,27 @@
     "context": {
       "beforeBlocks": [
         {
-          "text": "include leguminous trees of the genera Acacia, Albizia, Cassia, Erythrina, Gliricidia, Inga, and Leucaena, as well as the nitrogen-fixing non-legume sheoaks of the genus Casuarina, and the silky oak Grevillea robusta.[92] This method is commonly called \"shade-grown coffee\". Starting in the 1970s, many farmers switched their production methods to sun cultivation, in which coffee is grown in rows under full sun with little or no forest canopy. This causes berries to ripen more rapidly and bushes to produce higher yields, but the method requires the clearing of trees and increased use of fertilizer and pesticides, which damage the environment and cause health problems.[93] Unshaded coffee plants grown with fertilizer yield the most coffee, although unfertilized shaded crops generally yield more than unfertilized unshaded crops: the response to fertilizer is much greater in full sun.[94] While traditional coffee production causes berries to ripen more slowly and produce lower yields, the quality of the coffee is allegedly superior.[95] According to The International Coffee Organization factors such as drought, unfavourable temperature and climate change greatly affect coffee quality.[96] In addition, the traditional shaded method provides living space for many wildlife species. Proponents of shade cultivation say environmental problems such as deforestation, pesticide pollution, habitat destruction, and soil and water degradation are the side effects of the practices employed in sun cultivation.[91][97] The American Birding Association, Smithsonian Migratory Bird Center,[98] National Arbor Day Foundation,[99] and the Rainforest Alliance have led a campaign for 'shade-grown' and organic coffees, which can be sustainably harvested.[100] Shaded coffee cultivation systems show greater biodiversity than full-sun systems, and those more distant from continuous forest compare rather poorly to undisturbed native forest in terms of habitat value for some bird species.[101][102]",
+          "text": ", but many species have been planted as well. These include leguminous trees of the genera Acacia, Albizia, Cassia, Erythrina, Gliricidia, Inga, and Leucaena, as well as the nitrogen-fixing non-legume sheoaks of the genus Casuarina, and the silky oak Grevillea robusta. This method is commonly called \"shade-grown coffee\". Starting in the 1970s, many farmers switched their production methods to sun cultivation, in which coffee is grown in rows under full sun with little or no forest canopy. This causes berries to ripen more rapidly and bushes to produce higher yields, but the method requires the clearing of trees and increased use of fertilizer and pesticides, which damage the environment and cause health problems. Unshaded coffee plants grown with fertilizer yield the most coffee, although unfertilized shaded crops generally yield more than unfertilized unshaded crops: the response to fertilizer is much greater in full sun. While traditional coffee production causes berries to ripen more slowly and produce lower yields, the quality of the coffee is allegedly superior. According to The International Coffee Organization factors such as drought, unfavourable temperature and climate change greatly affect coffee quality. In addition, the traditional shaded method provides living space for many wildlife species. Proponents of shade cultivation say environmental problems such as deforestation, pesticide pollution, habitat destruction, and soil and water degradation are the side effects of the practices employed in sun cultivation. The American Birding Association, Smithsonian Migratory Bird Center, National Arbor Day Foundation, and the Rainforest Alliance have led a campaign for 'shade-grown' and organic coffees, which can be sustainably harvested. Shaded coffee cultivation systems show greater biodiversity than full-sun systems, and those more distant from continuous forest compare rather poorly to undisturbed native forest in terms of habitat value for some bird species.",
           "truncatedBefore": true,
           "truncatedAfter": false
         }
       ],
       "focusBlock": {
-        "text": "Coffee production uses a large volume of water. On average it takes about 140 liters (37 U.S. gal) of water to grow the coffee beans needed to produce one cup of coffee. Growing the plants needed to produce 1 kg (2.2 lb) of roasted coffee in Africa, South America or Asia requires 26,400 liters (7,000 U.S. gal) of water.[103] As with many other forms of agriculture, often much of this is rainwater, much of which would otherwise run off into rivers or coastlines, while much water actually absorbed by the plants is transpired back into the local environment through the plants' leaves (especially for cooling effects); broad estimates aside, consequential margins vary considerably based on details of local geography and horticultural practice. Coffee is often grown in countries where there is a water shortage, such as Ethiopia.[104]",
+        "text": "Coffee production uses a large volume of water. On average it takes about 140 liters (37 U.S. gal) of water to grow the coffee beans needed to produce one cup of coffee. Growing the plants needed to produce 1 kg (2.2 lb) of roasted coffee in Africa, South America or Asia requires 26,400 liters (7,000 U.S. gal) of water. As with many other forms of agriculture, often much of this is rainwater, much of which would otherwise run off into rivers or coastlines, while much water actually absorbed by the plants is transpired back into the local environment through the plants' leaves (especially for cooling effects); broad estimates aside, consequential margins vary considerably based on details of local geography and horticultural practice. Coffee is often grown in countries where there is a water shortage, such as Ethiopia.",
         "word": {
-          "start": 431,
-          "end": 434
+          "start": 426,
+          "end": 429
         },
         "sentence": {
           "start": 322,
-          "end": 748
+          "end": 743
         },
         "truncatedBefore": false,
         "truncatedAfter": false
       },
       "afterBlocks": [
         {
-          "text": "Used coffee grounds may be used for composting or as a mulch. They are especially appreciated by worms and acid-loving plants such as blueberries.[105] Climate change may significantly impact coffee yields during the 21st century, such as in Nicaragua and Ethiopia which could lose more than half of the farming land suitable for growing (Arabica) coffee.[106][107][108] As of 2016, at least 34% of global coffee production was compliant with voluntary sustainability standards such as Fairtrade, UTZ, and 4C (The Common Code for the Coffee Community).[109]",
+          "text": "Used coffee grounds may be used for composting or as a mulch. They are especially appreciated by worms and acid-loving plants such as blueberries. Climate change may significantly impact coffee yields during the 21st century, such as in Nicaragua and Ethiopia which could lose more than half of the farming land suitable for growing (Arabica) coffee. As of 2016, at least 34% of global coffee production was compliant with voluntary sustainability standards such as Fairtrade, UTZ, and 4C (The Common Code for the Coffee Community).",
           "truncatedBefore": false,
           "truncatedAfter": false
         }
@@ -1834,27 +1834,27 @@
     "context": {
       "beforeBlocks": [
         {
-          "text": "Over 900 species of insect have been recorded as pests of coffee crops worldwide. Of these, over a third are beetles, and over a quarter are bugs. Some 20 species of nematodes, 9 species of mites, and several snails and slugs also attack the crop. Birds and rodents sometimes eat coffee berries, but their impact is minor compared to invertebrates.[86] In general, C. arabica is the more sensitive species to invertebrate predation overall. Each part of the coffee plant is assailed by different animals. Nematodes attack the roots, coffee borer beetles burrow into stems and woody material,[87] and the foliage is attacked by over 100 species of larvae of butterflies and moths.[88]",
+          "text": "Over 900 species of insect have been recorded as pests of coffee crops worldwide. Of these, over a third are beetles, and over a quarter are bugs. Some 20 species of nematodes, 9 species of mites, and several snails and slugs also attack the crop. Birds and rodents sometimes eat coffee berries, but their impact is minor compared to invertebrates. In general, C. arabica is the more sensitive species to invertebrate predation overall. Each part of the coffee plant is assailed by different animals. Nematodes attack the roots, coffee borer beetles burrow into stems and woody material, and the foliage is attacked by over 100 species of larvae of butterflies and moths.",
           "truncatedBefore": false,
           "truncatedAfter": false
         }
       ],
       "focusBlock": {
-        "text": "Mass spraying of insecticides has often proven disastrous, as predators of the pests are more sensitive than the pests themselves.[89] Instead, integrated pest management has been developed, using techniques such as targeted treatment of pest outbreaks and managing crop environment away from conditions favoring pests. Branches infested with scale are often cut and left on the ground, which causes scale parasites to attack the scale on the fallen branches as well as in the plant.[90]",
+        "text": "Mass spraying of insecticides has often proven disastrous, as predators of the pests are more sensitive than the pests themselves. Instead, integrated pest management has been developed, using techniques such as targeted treatment of pest outbreaks and managing crop environment away from conditions favoring pests. Branches infested with scale are often cut and left on the ground, which causes scale parasites to attack the scale on the fallen branches as well as in the plant.",
         "word": {
-          "start": 343,
-          "end": 348
+          "start": 339,
+          "end": 344
         },
         "sentence": {
-          "start": 320,
-          "end": 484
+          "start": 316,
+          "end": 479
         },
         "truncatedBefore": false,
         "truncatedAfter": false
       },
       "afterBlocks": [
         {
-          "text": "The 2-mm-long coffee borer beetle (Hypothenemus hampei) is the most damaging insect pest of the world's coffee industry, destroying up to 50 percent or more of the coffee berries on plantations in most coffee-producing countries. The adult female beetle nibbles a single tiny hole in a coffee berry and lays 35 to 50 eggs. Inside, the offspring grow, mate, and then emerge from the commercially ruined berry to disperse, repeating the cycle. Pesticides are mostly ineffective because the beetle juveniles are protected inside the berry nurseries, but they are vulnerable to predation by birds when they emerge. When groves of trees are nearby, the American yellow warbler, rufous-capped warbler, and other insectivorous birds have been shown to reduce by 50 percent the number of coffee berry borers in Costa Rica coffee plantations.[85]",
+          "text": "The 2-mm-long coffee borer beetle (Hypothenemus hampei) is the most damaging insect pest of the world's coffee industry, destroying up to 50 percent or more of the coffee berries on plantations in most coffee-producing countries. The adult female beetle nibbles a single tiny hole in a coffee berry and lays 35 to 50 eggs. Inside, the offspring grow, mate, and then emerge from the commercially ruined berry to disperse, repeating the cycle. Pesticides are mostly ineffective because the beetle juveniles are protected inside the berry nurseries, but they are vulnerable to predation by birds when they emerge. When groves of trees are nearby, the American yellow warbler, rufous-capped warbler, and other insectivorous birds have been shown to reduce by 50 percent the number of coffee berry borers in Costa Rica coffee plantations.",
           "truncatedBefore": false,
           "truncatedAfter": false
         }
@@ -1872,27 +1872,27 @@
     "context": {
       "beforeBlocks": [
         {
-          "text": "The next step in the process is the roasting of the green coffee. Coffee is usually sold in a roasted state, and with rare exceptions, such as infusions from green coffee beans,[115] coffee is roasted before it is consumed. It can be sold roasted by the supplier, or it can be home roasted.[116] The roasting process influences the taste by changing the coffee bean physically and chemically. The bean decreases in weight as moisture is lost and increases in volume, causing it to become less dense. The density of the bean also influences the strength of the coffee and the requirements for packaging.",
+          "text": "The next step in the process is the roasting of the green coffee. Coffee is usually sold in a roasted state, and with rare exceptions, such as infusions from green coffee beans, coffee is roasted before it is consumed. It can be sold roasted by the supplier, or it can be home roasted. The roasting process influences the taste by changing the coffee bean physically and chemically. The bean decreases in weight as moisture is lost and increases in volume, causing it to become less dense. The density of the bean also influences the strength of the coffee and the requirements for packaging.",
           "truncatedBefore": false,
           "truncatedAfter": false
         }
       ],
       "focusBlock": {
-        "text": "The actual roasting begins when the temperature inside the bean reaches approximately 200 °C (392 °F), though different varieties of seeds differ in moisture and density and therefore roast at different rates.[117] During roasting, caramelization occurs as intense heat breaks down starches, changing them to simple sugars that begin to brown, which darkens the color of the bean.[118]",
+        "text": "The actual roasting begins when the temperature inside the bean reaches approximately 200 °C (392 °F), though different varieties of seeds differ in moisture and density and therefore roast at different rates. During roasting, caramelization occurs as intense heat breaks down starches, changing them to simple sugars that begin to brown, which darkens the color of the bean.",
         "word": {
-          "start": 270,
-          "end": 276
+          "start": 265,
+          "end": 271
         },
         "sentence": {
           "start": 210,
-          "end": 381
+          "end": 375
         },
         "truncatedBefore": false,
         "truncatedAfter": false
       },
       "afterBlocks": [
         {
-          "text": "Sucrose is rapidly lost during the roasting process and may disappear entirely in darker roasts. During roasting, aromatic oils and acids weaken, changing the flavor; at 205 °C (401 °F), other oils start to develop.[117] One of these oils, caffeol, is created at about 200 °C (392 °F), and is largely responsible for coffee's aroma and flavor.[38] The difference in caffeine content between a light roast and a dark roast is only about 0.1%.[119]",
+          "text": "Sucrose is rapidly lost during the roasting process and may disappear entirely in darker roasts. During roasting, aromatic oils and acids weaken, changing the flavor; at 205 °C (401 °F), other oils start to develop. One of these oils, caffeol, is created at about 200 °C (392 °F), and is largely responsible for coffee's aroma and flavor. The difference in caffeine content between a light roast and a dark roast is only about 0.1%.",
           "truncatedBefore": false,
           "truncatedAfter": false
         }
@@ -1910,27 +1910,27 @@
     "context": {
       "beforeBlocks": [
         {
-          "text": "According to an Educational Science Professor, Hatice Odaci, academic procrastination is a significant problem during college years in part because many college students lack efficient time management skills in using the Internet. Also, Odaci notes that most colleges provide free and fast twenty-four-hour Internet service which some students are not usually accustomed to, and as a result of irresponsible use or lack of firewalls these students become engulfed in distractions, and thus in procrastination.[39] Psychologist William J. Knaus estimated that more than 90% of college students procrastinate. Of these students, 25% are chronic procrastinators and typically abandon higher education.[40]",
+          "text": "According to an Educational Science Professor, Hatice Odaci, academic procrastination is a significant problem during college years in part because many college students lack efficient time management skills in using the Internet. Also, Odaci notes that most colleges provide free and fast twenty-four-hour Internet service which some students are not usually accustomed to, and as a result of irresponsible use or lack of firewalls these students become engulfed in distractions, and thus in procrastination. Psychologist William J. Knaus estimated that more than 90% of college students procrastinate. Of these students, 25% are chronic procrastinators and typically abandon higher education.",
           "truncatedBefore": false,
           "truncatedAfter": false
         }
       ],
       "focusBlock": {
-        "text": "Student syndrome is the phenomenon where a student will begin to fully apply themselves to a task only immediately before a deadline. This negates the usefulness of any buffers built into individual task duration estimates. Procrastinators end up being the ones doing most of the work in the final week before a deadline.[28] Additionally, students can delay making important decisions such as \"I'll get my degree out of the way first then worry about jobs and careers when I finish University\".[41] Other reasons cited on why students procrastinate include fear of failure and success, perfectionist expectations, as well as legitimate activities that may take precedence over school work, such as a job.[42]",
+        "text": "Student syndrome is the phenomenon where a student will begin to fully apply themselves to a task only immediately before a deadline. This negates the usefulness of any buffers built into individual task duration estimates. Procrastinators end up being the ones doing most of the work in the final week before a deadline. Additionally, students can delay making important decisions such as \"I'll get my degree out of the way first then worry about jobs and careers when I finish University\". Other reasons cited on why students procrastinate include fear of failure and success, perfectionist expectations, as well as legitimate activities that may take precedence over school work, such as a job.",
         "word": {
           "start": 240,
           "end": 243
         },
         "sentence": {
           "start": 224,
-          "end": 322
+          "end": 321
         },
         "truncatedBefore": false,
         "truncatedAfter": false
       },
       "afterBlocks": [
         {
-          "text": "Procrastinators have been found to receive worse grades than non-procrastinators. Tice et al. (1997) report that more than one-third of the variation in final exam scores could be attributed to procrastination. The negative association between procrastination and academic performance is recurring and consistent. The students in the study not only received poor academic grades, but they also reported high levels of stress and poor self-health. Howell et al. (2006) found that, though scores on two widely used procrastination scales[11][43] were not significantly associated with the grade received for an assignment, self-report measures of procrastination on the assessment itself were negatively associated with grade.[44]",
+          "text": "Procrastinators have been found to receive worse grades than non-procrastinators. Tice et al. (1997) report that more than one-third of the variation in final exam scores could be attributed to procrastination. The negative association between procrastination and academic performance is recurring and consistent. The students in the study not only received poor academic grades, but they also reported high levels of stress and poor self-health. Howell et al. (2006) found that, though scores on two widely used procrastination scales were not significantly associated with the grade received for an assignment, self-report measures of procrastination on the assessment itself were negatively associated with grade.",
           "truncatedBefore": false,
           "truncatedAfter": false
         }
@@ -1954,7 +1954,7 @@
         }
       ],
       "focusBlock": {
-        "text": "Making a plan to complete tasks in a rigid schedule format might not work for everyone. There is no hard-and-fast rule to follow such a process if it turns out to be counter-productive. Instead of scheduling, it may be better to execute tasks in a flexible, unstructured schedule which has time slots for only necessary activities.[52] Piers Steel suggests[53] that better time management is a key to overcoming procrastination, including being aware of and using one's \"power hours\" (being a \"morning person\" or \"night owl\"). A good approach is to creatively utilize one's internal circadian rhythms that are best suited for the most challenging and productive work. Steel states that it is essential to have realistic goals, to tackle one problem at a time and to cherish the \"small successes\". Brian O'Leary supports that \"finding a work-life balance...may actually help us find ways to be more productive\", suggesting that dedicating leisure activities as motivation can increase one's efficiency at handling tasks.[54] Procrastination is not a lifelong trait. Those likely to worry can learn to let go, those who procrastinate can find different methods and strategies to help focus and avoid impulses.[55]",
+        "text": "Making a plan to complete tasks in a rigid schedule format might not work for everyone. There is no hard-and-fast rule to follow such a process if it turns out to be counter-productive. Instead of scheduling, it may be better to execute tasks in a flexible, unstructured schedule which has time slots for only necessary activities. Piers Steel suggests that better time management is a key to overcoming procrastination, including being aware of and using one's \"power hours\" (being a \"morning person\" or \"night owl\"). A good approach is to creatively utilize one's internal circadian rhythms that are best suited for the most challenging and productive work. Steel states that it is essential to have realistic goals, to tackle one problem at a time and to cherish the \"small successes\". Brian O'Leary supports that \"finding a work-life balance...may actually help us find ways to be more productive\", suggesting that dedicating leisure activities as motivation can increase one's efficiency at handling tasks. Procrastination is not a lifelong trait. Those likely to worry can learn to let go, those who procrastinate can find different methods and strategies to help focus and avoid impulses.",
         "word": {
           "start": 100,
           "end": 104
@@ -1968,7 +1968,7 @@
       },
       "afterBlocks": [
         {
-          "text": "In his book Extreme Productivity, Robert Pozen introduces the \"OHIO principle\", short for \"only handle it once\".[56] This principle suggests that when a task is encountered, deal with it immediately to avoid procrastination. With the OHIO principle, an encountered task should lead to one of three actions: a) Complete the task. If a task takes just a few minutes, act immediately for completion. b) Schedule the task. If the task requires a longer process, schedule a time for completion. c) Delegate the task. If the task is appropriate for others, convey the task for completion. After contemplating his own procrastination habits, philosopher John Perry authored an essay entitled \"Structured Procrastination\",[57] wherein he proposes a \"cheat\" method as a safer approach for tackling procrastination: using a pyramid scheme to reinforce the unpleasant tasks needed to be completed in a quasi-prioritized order.[citation needed]",
+          "text": "In his book Extreme Productivity, Robert Pozen introduces the \"OHIO principle\", short for \"only handle it once\". This principle suggests that when a task is encountered, deal with it immediately to avoid procrastination. With the OHIO principle, an encountered task should lead to one of three actions: a) Complete the task. If a task takes just a few minutes, act immediately for completion. b) Schedule the task. If the task requires a longer process, schedule a time for completion. c) Delegate the task. If the task is appropriate for others, convey the task for completion. After contemplating his own procrastination habits, philosopher John Perry authored an essay entitled \"Structured Procrastination\", wherein he proposes a \"cheat\" method as a safer approach for tackling procrastination: using a pyramid scheme to reinforce the unpleasant tasks needed to be completed in a quasi-prioritized order.",
           "truncatedBefore": false,
           "truncatedAfter": false
         }
@@ -1986,13 +1986,13 @@
     "context": {
       "beforeBlocks": [
         {
-          "text": "According to an Educational Science Professor, Hatice Odaci, academic procrastination is a significant problem during college years in part because many college students lack efficient time management skills in using the Internet. Also, Odaci notes that most colleges provide free and fast twenty-four-hour Internet service which some students are not usually accustomed to, and as a result of irresponsible use or lack of firewalls these students become engulfed in distractions, and thus in procrastination.[39] Psychologist William J. Knaus estimated that more than 90% of college students procrastinate. Of these students, 25% are chronic procrastinators and typically abandon higher education.[40]",
+          "text": "According to an Educational Science Professor, Hatice Odaci, academic procrastination is a significant problem during college years in part because many college students lack efficient time management skills in using the Internet. Also, Odaci notes that most colleges provide free and fast twenty-four-hour Internet service which some students are not usually accustomed to, and as a result of irresponsible use or lack of firewalls these students become engulfed in distractions, and thus in procrastination. Psychologist William J. Knaus estimated that more than 90% of college students procrastinate. Of these students, 25% are chronic procrastinators and typically abandon higher education.",
           "truncatedBefore": false,
           "truncatedAfter": false
         }
       ],
       "focusBlock": {
-        "text": "Student syndrome is the phenomenon where a student will begin to fully apply themselves to a task only immediately before a deadline. This negates the usefulness of any buffers built into individual task duration estimates. Procrastinators end up being the ones doing most of the work in the final week before a deadline.[28] Additionally, students can delay making important decisions such as \"I'll get my degree out of the way first then worry about jobs and careers when I finish University\".[41] Other reasons cited on why students procrastinate include fear of failure and success, perfectionist expectations, as well as legitimate activities that may take precedence over school work, such as a job.[42]",
+        "text": "Student syndrome is the phenomenon where a student will begin to fully apply themselves to a task only immediately before a deadline. This negates the usefulness of any buffers built into individual task duration estimates. Procrastinators end up being the ones doing most of the work in the final week before a deadline. Additionally, students can delay making important decisions such as \"I'll get my degree out of the way first then worry about jobs and careers when I finish University\". Other reasons cited on why students procrastinate include fear of failure and success, perfectionist expectations, as well as legitimate activities that may take precedence over school work, such as a job.",
         "word": {
           "start": 169,
           "end": 176
@@ -2006,7 +2006,7 @@
       },
       "afterBlocks": [
         {
-          "text": "Procrastinators have been found to receive worse grades than non-procrastinators. Tice et al. (1997) report that more than one-third of the variation in final exam scores could be attributed to procrastination. The negative association between procrastination and academic performance is recurring and consistent. The students in the study not only received poor academic grades, but they also reported high levels of stress and poor self-health. Howell et al. (2006) found that, though scores on two widely used procrastination scales[11][43] were not significantly associated with the grade received for an assignment, self-report measures of procrastination on the assessment itself were negatively associated with grade.[44]",
+          "text": "Procrastinators have been found to receive worse grades than non-procrastinators. Tice et al. (1997) report that more than one-third of the variation in final exam scores could be attributed to procrastination. The negative association between procrastination and academic performance is recurring and consistent. The students in the study not only received poor academic grades, but they also reported high levels of stress and poor self-health. Howell et al. (2006) found that, though scores on two widely used procrastination scales were not significantly associated with the grade received for an assignment, self-report measures of procrastination on the assessment itself were negatively associated with grade.",
           "truncatedBefore": false,
           "truncatedAfter": false
         }
@@ -2024,27 +2024,27 @@
     "context": {
       "beforeBlocks": [
         {
-          "text": "According to an Educational Science Professor, Hatice Odaci, academic procrastination is a significant problem during college years in part because many college students lack efficient time management skills in using the Internet. Also, Odaci notes that most colleges provide free and fast twenty-four-hour Internet service which some students are not usually accustomed to, and as a result of irresponsible use or lack of firewalls these students become engulfed in distractions, and thus in procrastination.[39] Psychologist William J. Knaus estimated that more than 90% of college students procrastinate. Of these students, 25% are chronic procrastinators and typically abandon higher education.[40]",
+          "text": "According to an Educational Science Professor, Hatice Odaci, academic procrastination is a significant problem during college years in part because many college students lack efficient time management skills in using the Internet. Also, Odaci notes that most colleges provide free and fast twenty-four-hour Internet service which some students are not usually accustomed to, and as a result of irresponsible use or lack of firewalls these students become engulfed in distractions, and thus in procrastination. Psychologist William J. Knaus estimated that more than 90% of college students procrastinate. Of these students, 25% are chronic procrastinators and typically abandon higher education.",
           "truncatedBefore": false,
           "truncatedAfter": false
         }
       ],
       "focusBlock": {
-        "text": "Student syndrome is the phenomenon where a student will begin to fully apply themselves to a task only immediately before a deadline. This negates the usefulness of any buffers built into individual task duration estimates. Procrastinators end up being the ones doing most of the work in the final week before a deadline.[28] Additionally, students can delay making important decisions such as \"I'll get my degree out of the way first then worry about jobs and careers when I finish University\".[41] Other reasons cited on why students procrastinate include fear of failure and success, perfectionist expectations, as well as legitimate activities that may take precedence over school work, such as a job.[42]",
+        "text": "Student syndrome is the phenomenon where a student will begin to fully apply themselves to a task only immediately before a deadline. This negates the usefulness of any buffers built into individual task duration estimates. Procrastinators end up being the ones doing most of the work in the final week before a deadline. Additionally, students can delay making important decisions such as \"I'll get my degree out of the way first then worry about jobs and careers when I finish University\". Other reasons cited on why students procrastinate include fear of failure and success, perfectionist expectations, as well as legitimate activities that may take precedence over school work, such as a job.",
         "word": {
-          "start": 425,
-          "end": 428
+          "start": 421,
+          "end": 424
         },
         "sentence": {
           "start": 322,
-          "end": 496
+          "end": 491
         },
         "truncatedBefore": false,
         "truncatedAfter": false
       },
       "afterBlocks": [
         {
-          "text": "Procrastinators have been found to receive worse grades than non-procrastinators. Tice et al. (1997) report that more than one-third of the variation in final exam scores could be attributed to procrastination. The negative association between procrastination and academic performance is recurring and consistent. The students in the study not only received poor academic grades, but they also reported high levels of stress and poor self-health. Howell et al. (2006) found that, though scores on two widely used procrastination scales[11][43] were not significantly associated with the grade received for an assignment, self-report measures of procrastination on the assessment itself were negatively associated with grade.[44]",
+          "text": "Procrastinators have been found to receive worse grades than non-procrastinators. Tice et al. (1997) report that more than one-third of the variation in final exam scores could be attributed to procrastination. The negative association between procrastination and academic performance is recurring and consistent. The students in the study not only received poor academic grades, but they also reported high levels of stress and poor self-health. Howell et al. (2006) found that, though scores on two widely used procrastination scales were not significantly associated with the grade received for an assignment, self-report measures of procrastination on the assessment itself were negatively associated with grade.",
           "truncatedBefore": false,
           "truncatedAfter": false
         }
