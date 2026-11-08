@@ -50,9 +50,9 @@ Simulator results (2026-11-08, iPhone 18 Pro, iOS 27.2):
 - Confirmed: a tap on plain text opens the sheet, so the `click` reaches the content script and is trusted. Links work. A tap after a long-press selection clears the selection and opens the sheet. Rotation and dismissal work.
 - Fixed: when the Safari toolbar was expanded, the expanded sheet went above the top of the screen. The cause was `100vh`; the sheet now sizes itself to the visual viewport.
 - Fixed: with pinch zoom, the sheet scaled with the page and could move off the screen. The sheet now cancels the page zoom and stays at the bottom of the screen.
-- Fixed: the sheet could not be dragged. A swipe on the top bar now expands, collapses, or closes the sheet.
+- Fixed: the sheet could not be dragged, and a drag on it scrolled the page. Now a drag anywhere on the compact sheet expands or closes it. On the expanded sheet, the content scrolls, and a drag down collapses the sheet when the content is at the top. A drag on the sheet never scrolls the page.
 - Fixed: the collapsed floating Safari toolbar could cover the end of the sheet content. Touch devices now get extra bottom padding.
-- Limitation: a swipe works only on the top bar with the handle, not on the sheet content.
+- Limitation: trackpad or mouse-wheel scrolling over the sheet (for example, on an iPad with a trackpad) can still scroll the page under it.
 
 Still required: the same checks on a physical iPhone.
 
