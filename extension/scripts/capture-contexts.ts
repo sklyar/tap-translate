@@ -52,6 +52,7 @@ const capturePagePath = resolve(import.meta.dirname, 'capture-page.ts');
 // A pause between page loads keeps the request rate low for the source sites.
 const pageDelayMs = 2_000;
 const pageTimeoutMs = 60_000;
+const loadTimeoutMs = 15_000;
 
 async function main(): Promise<void> {
   const sources = parseSources(
@@ -73,7 +74,13 @@ async function main(): Promise<void> {
     await browserContext.addInitScript({ content: captureScript });
     const page = await browserContext.newPage();
 
+    let firstPage = true;
     for (const [url, group] of groupByUrl(sources)) {
+      if (!firstPage) {
+        await delay(pageDelayMs);
+      }
+      firstPage = false;
+
       console.log(`Opening ${url}`);
       const pageError = await openPage(page, url);
 
@@ -90,8 +97,6 @@ async function main(): Promise<void> {
           samples.push(result);
         }
       }
-
-      await delay(pageDelayMs);
     }
   } finally {
     await browser.close();
@@ -114,13 +119,19 @@ async function main(): Promise<void> {
 async function openPage(page: Page, url: string): Promise<string | null> {
   try {
     const response = await page.goto(url, {
-      waitUntil: 'load',
+      waitUntil: 'domcontentloaded',
       timeout: pageTimeoutMs,
     });
 
     if (response === null) {
       return 'the page returned no response';
     }
+
+    // Images and fonts change the layout, so wait for them. A resource that
+    // never finishes must not fail the page, because the text is already there.
+    await page
+      .waitForLoadState('load', { timeout: loadTimeoutMs })
+      .catch(() => undefined);
 
     return response.ok()
       ? null

@@ -27,6 +27,10 @@ document.addEventListener(
     );
 
     window.tapTranslateCapture = { context: result?.context ?? null };
+
+    // Unlike the content script, the capture must not let a click on a link
+    // navigate away: the next samples use the same page.
+    event.preventDefault();
   },
-  { capture: true, passive: true },
+  { capture: true },
 );
