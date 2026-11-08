@@ -119,7 +119,50 @@ function resolveTextHit(
     }
   }
 
-  return matches.length === 1 ? (matches[0] ?? null) : null;
+  return deepestMatch(matches, point);
+}
+
+// WebKit rounds character rectangles out to whole pixels, so neighbor
+// characters often overlap by 1 px, and a point can be inside both. The real
+// boundary is inside the overlap, so the character that the point is deeper in
+// wins: the overlap is split in the middle. When the depth is the same, for
+// example when two characters share one rectangle in a ligature, the hit is
+// ambiguous. Click coordinates in WebKit are whole pixels, so the middle of a
+// 1 px overlap is never a click point.
+function deepestMatch(
+  matches: readonly TextHit[],
+  point: ViewportPoint,
+): TextHit | null {
+  let deepest: TextHit | null = null;
+  let deepestDepth = Number.NEGATIVE_INFINITY;
+  let ambiguous = false;
+
+  for (const match of matches) {
+    const depth = depthInside(match.anchorRect, point);
+
+    if (depth > deepestDepth) {
+      deepest = match;
+      deepestDepth = depth;
+      ambiguous = false;
+    } else if (depth === deepestDepth) {
+      ambiguous = true;
+    }
+  }
+
+  return ambiguous ? null : deepest;
+}
+
+// The distance from the point to the nearest edge of the rectangle.
+function depthInside(
+  { x, y, width, height }: ViewportRect,
+  { clientX, clientY }: ViewportPoint,
+): number {
+  return Math.min(
+    clientX - x,
+    x + width - clientX,
+    clientY - y,
+    y + height - clientY,
+  );
 }
 
 export function findTextHitAtPoint(
