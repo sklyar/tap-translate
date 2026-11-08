@@ -17,12 +17,21 @@
 .superpowers/
 .impeccable/critique/
 
+# A global gitignore can hide .claude. Keep the shared Claude Code files
+# (settings.json, hooks, skills, agents) in the repo, but not personal ones.
+!/.claude/
+/.claude/settings.local.json
+/.claude/worktrees/
+
 .env
 deploy/backend/config.yaml
 
 # Safari Web Extension
 /extension/node_modules/
 /extension/dist/
+
+# Go backend: pinned tools and binaries (make install-deps, make build)
+/backend/bin/
 
 # Translation evaluation runs
 /eval/results/

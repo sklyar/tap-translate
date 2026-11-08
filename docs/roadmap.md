@@ -23,7 +23,8 @@ Done:
 - mobile-first translation sheet in a Shadow DOM, styled by the packaged `translation-sheet.css`;
 - hardening for hostile page CSS, restrictive CSP, page lifecycle, bfcache, and a removed sheet host;
 - CI that runs `npm run check` for each pull request;
-- evaluation of contextual translation: 54 captured samples in `eval/`, a capture script, and a Go command that runs a model on them (`backend/cmd/evaluate`).
+- evaluation of contextual translation: 54 captured samples in `eval/`, a capture script, and a Go command that runs a model on them (`backend/cmd/evaluate`);
+- Go rules for `backend/`: the Uber Go Style Guide, strict golangci-lint, nilaway, package boundaries, and test rules (`backend/AGENTS.md`).
 
 Not done:
 
@@ -108,6 +109,7 @@ Still required: a review of the report by a native speaker, a shorter and strict
 - Client identification and rate limits, so that nobody can use the API as a free LLM proxy.
 - Cache for repeated requests.
 - HTTP provider in the extension that implements `TranslationProvider`. The request goes from the extension context, not from the page context. The mock provider stays for tests and local development.
+- API tests with golden JSON fixtures. The expected JSON marks unknown values (IDs, time) with `<<PRESENCE>>` of `github.com/kinbiko/jsonassert`, and the test puts known values into the fixture as template values. A failure shows the path to the field and a diff of the formatted JSON.
 
 ### 4. Tests with real layout
 

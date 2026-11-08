@@ -1,0 +1,347 @@
+# golangci-lint v2 config.
+#
+# Code style: Uber Go Style Guide, https://github.com/uber-go/guide/blob/master/style.md
+# Rules that linters cannot check are in .claude/skills/go-style/SKILL.md.
+#
+# Based on https://github.com/maratori/golangci-lint-config
+# (MIT license, Copyright (c) 2021-2025 Marat Reimers).
+# All settings: https://github.com/golangci/golangci-lint/blob/HEAD/.golangci.reference.yml
+
+version: "2"
+
+run:
+  modules-download-mode: readonly
+
+issues:
+  # Show all issues. Do not hide repeated ones.
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  # Show all issues on the same line.
+  uniq-by-line: false
+
+formatters:
+  enable:
+    - gci # exactly two import groups: standard library, then everything else
+    - gofumpt # stricter gofmt
+    - goimports # adds missing and removes unused imports
+    - golines # wraps long lines
+
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+    gofumpt:
+      extra:
+        group-params: true
+        clothe-returns: true
+    golines:
+      # Uber soft limit, https://github.com/uber-go/guide/blob/master/style.md#avoid-overly-long-lines
+      max-len: 99
+
+linters:
+  default: none
+  enable:
+    - asasalint # []any passed as any in variadic func(...any)
+    - asciicheck # non-ASCII identifiers
+    - bidichk # dangerous unicode character sequences
+    - bodyclose # HTTP response body is closed
+    - canonicalheader # net/http.Header uses canonical header names
+    - containedctx # context.Context stored in a struct
+    - contextcheck # a function that gets a context passes it on
+    - copyloopvar # loop variables copied without need (Go 1.22+)
+    - cyclop # cyclomatic complexity
+    - depguard # forbidden imports
+    - dupl # duplicated code
+    - durationcheck # two durations multiplied together
+    - embeddedstructfieldcheck # embedded fields placement in structs
+    - errcheck # unchecked errors
+    - errchkjson # unsupported types and unchecked errors of encoding/json
+    - errname # sentinel errors start with Err, error types end with Error
+    - errorlint # errors.Is / errors.As and %w usage
+    - exhaustive # exhaustive enum switch statements
+    - exptostd # golang.org/x/exp functions that exist in std
+    - fatcontext # nested contexts in loops
+    - forbidigo # forbidden identifiers
+    - funcorder # order of constructors and methods
+    - funlen # long functions
+    - gocheckcompilerdirectives # valid //go: directives
+    - gochecknoglobals # no global variables
+    - gochecknoinits # no init functions
+    - gochecksumtype # exhaustive switch on sum types
+    - gocognit # cognitive complexity
+    - goconst # repeated strings that can be constants
+    - gocritic # bugs, performance and style issues
+    - gocyclo # cyclomatic complexity
+    - godoclint # godoc practice
+    - godot # comments end with a period
+    - gomoddirectives # replace / retract / exclude in go.mod
+    - goprintffuncname # printf-like functions end with f
+    - gosec # security problems
+    - govet # suspicious constructs
+    - iface # interface pollution
+    - ineffassign # unused assignments
+    - intrange # for loops that can use range over int
+    - iotamixing # iota mixed with other values in const blocks
+    - loggercheck # key-value pairs in logger calls
+    - makezero # slices with non-zero initial length used with append
+    - mirror # wrong bytes/strings mirror patterns
+    - misspell # misspelled English words
+    - mnd # magic numbers
+    - modernize # modern language and library features
+    - musttag # field tags in (un)marshaled structs
+    - nakedret # naked returns
+    - nestif # deeply nested if statements
+    - nilerr # returns nil after checking err != nil
+    - nilnesserr # checks err != nil, but returns other nil error
+    - nilnil # returns nil error and nil value at the same time
+    - noctx # HTTP requests without context.Context
+    - nolintlint # ill-formed nolint directives
+    - nonamedreturns # named returns
+    - nosprintfhostport # Sprintf used to build host:port
+    - paralleltest # missing t.Parallel()
+    - perfsprint # fmt.Sprintf that can be replaced with faster code
+    - prealloc # slices that can be preallocated
+    - predeclared # shadowed predeclared identifiers
+    - reassign # reassigned package variables
+    - recvcheck # receiver type consistency
+    - revive # golint replacement
+    - rowserrcheck # Rows.Err is checked
+    - sloglint # consistent log/slog usage
+    - sqlclosecheck # sql.Rows and sql.Stmt are closed
+    - staticcheck # go vet on steroids
+    - tagliatelle # struct tag naming
+    - testableexamples # examples have expected output
+    - testifylint # github.com/stretchr/testify usage
+    - testpackage # tests in a separate _test package
+    - thelper # test helpers call t.Helper()
+    - tparallel # wrong t.Parallel() usage
+    - unconvert # unnecessary type conversions
+    - unparam # unused function parameters
+    - unused # unused code
+    - usestdlibvars # std constants instead of literals
+    - usetesting # testing package replacements (t.Context, t.TempDir, ...)
+    - wastedassign # wasted assignments
+    - whitespace # leading and trailing empty lines
+    - wrapcheck # errors from other packages are wrapped
+
+  settings:
+    cyclop:
+      max-complexity: 30
+      package-average: 10.0
+
+    depguard:
+      rules:
+        deprecated:
+          files:
+            - $all
+          deny:
+            - pkg: github.com/golang/protobuf
+              desc: Use google.golang.org/protobuf instead.
+            - pkg: github.com/satori/go.uuid
+              desc: Use github.com/google/uuid instead.
+            - pkg: github.com/gofrs/uuid$
+              desc: Use github.com/gofrs/uuid/v5 or later.
+            - pkg: go.uber.org/atomic
+              desc: Use the atomic types from sync/atomic (atomic.Int64, atomic.Bool, ...).
+        non-test files:
+          files:
+            - "!$test"
+          deny:
+            - pkg: math/rand$
+              desc: Use math/rand/v2 instead.
+        non-main files:
+          files:
+            - "!**/main.go"
+          deny:
+            - pkg: log$
+              desc: Use log/slog instead.
+        # Package boundaries. See backend/AGENTS.md.
+        translation:
+          files:
+            - "**/internal/translation/**"
+          deny:
+            - pkg: github.com/sklyar/tap-translate/backend/internal/llm
+              desc: translation does not call the model. A command or the app wires the two.
+            - pkg: net/http
+              desc: translation has no I/O.
+        llm:
+          files:
+            - "**/internal/llm/**"
+          deny:
+            - pkg: github.com/sklyar/tap-translate/backend/internal/translation
+              desc: llm is a generic chat completions client and knows nothing about translation.
+
+    embeddedstructfieldcheck:
+      forbid-mutex: true
+
+    errcheck:
+      check-type-assertions: true
+
+    forbidigo:
+      forbid:
+        - pattern: ^(fmt\.Print(|f|ln)|print|println)$
+          msg: Write to an io.Writer or use log/slog.
+        - pattern: ^panic$
+          msg: Return an error instead, https://github.com/uber-go/guide/blob/master/style.md#dont-panic
+
+    exhaustive:
+      check:
+        - switch
+        - mapliteral
+
+    funcorder:
+      struct-method: false
+
+    funlen:
+      lines: 100
+      statements: 50
+
+    gochecksumtype:
+      default-signifies-exhaustive: false
+
+    gocognit:
+      min-complexity: 20
+
+    gocritic:
+      enabled-tags:
+        - diagnostic
+        - experimental
+        - opinionated
+        - performance
+        - style
+      disabled-checks:
+        - hugeParam # premature optimization
+        - rangeValCopy # premature optimization
+      settings:
+        ruleguard:
+          rules: ${base-path}/lint/rules.go
+          failOn: all
+        captLocal:
+          paramsOnly: false
+        underef:
+          skipRecvDeref: false
+
+    godoclint:
+      enable:
+        - no-unused-link
+        - require-stdlib-doclink
+
+    govet:
+      enable-all: true
+      disable:
+        - fieldalignment # too strict
+      settings:
+        shadow:
+          strict: true
+
+    mnd:
+      ignored-functions:
+        - args.Error
+        - flag.Arg
+        - flag.Duration.*
+        - flag.Float.*
+        - flag.Int.*
+        - flag.Uint.*
+        - os.Chmod
+        - os.Mkdir.*
+        - os.OpenFile
+        - os.WriteFile
+
+    nakedret:
+      max-func-lines: 0
+
+    nolintlint:
+      allow-no-explanation: [funlen, gocognit, golines]
+      require-explanation: true
+      require-specific: true
+
+    prealloc:
+      simple: false # also check loops that contain return, break, continue, or goto
+
+    perfsprint:
+      strconcat: false
+      error-format: false # https://github.com/catenacyber/perfsprint/issues/62
+
+    reassign:
+      patterns:
+        - ".*"
+
+    revive:
+      enable-default-rules: true
+      rules:
+        - name: atomic
+        - name: bool-literal-in-expr
+        - name: constant-logical-expr
+        - name: datarace
+        - name: deep-exit # https://github.com/uber-go/guide/blob/master/style.md#exit-in-main
+        - name: defer
+        - name: early-return # https://github.com/uber-go/guide/blob/master/style.md#reduce-nesting
+        - name: enforce-map-style # https://github.com/uber-go/guide/blob/master/style.md#initializing-maps
+          arguments: [make]
+        - name: enforce-slice-style # https://github.com/uber-go/guide/blob/master/style.md#nil-is-a-valid-slice
+          arguments: [nil]
+        - name: identical-branches
+        - name: import-shadowing
+        - name: modifies-value-receiver
+        - name: redundant-import-alias # https://github.com/uber-go/guide/blob/master/style.md#import-aliasing
+        - name: string-of-int
+        - name: struct-tag
+        - name: unconditional-recursion
+        - name: unnecessary-stmt
+        - name: use-any
+        - name: use-errors-new # https://github.com/uber-go/guide/blob/master/style.md#error-types
+        - name: useless-break
+        - name: waitgroup-by-value
+
+    sloglint:
+      no-global: all
+      context: scope
+
+    staticcheck:
+      checks:
+        - all
+        - -ST1000 # package comment
+        - -ST1016 # consistent receiver names
+        - -QF1008 # omit embedded fields from selector
+
+    tagliatelle:
+      case:
+        rules:
+          # The JSON contract with the extension (TypeScript) uses camelCase.
+          json: camel
+          yaml: snake
+        overrides:
+          # The OpenAI-compatible API uses snake_case.
+          - pkg: internal/llm
+            rules:
+              json: snake
+
+    usetesting:
+      os-temp-dir: true
+
+    wrapcheck:
+      # Errors from this module already have context. Wrap them only when
+      # the caller adds new information, so messages do not repeat.
+      ignore-package-globs:
+        - github.com/sklyar/tap-translate/backend/*
+
+  exclusions:
+    warn-unused: true
+    presets:
+      - std-error-handling
+      - common-false-positives
+    rules:
+      - text: should have a package comment
+        linters: [revive]
+      - text: exported \S+ \S+ should have comment( \(or a comment on this block\))? or be unexported
+        linters: [revive]
+      - path: _test\.go
+        linters:
+          - bodyclose
+          - dupl
+          - errcheck
+          - funlen
+          - goconst
+          - gosec
+          - noctx

@@ -10,3 +10,5 @@ The user taps a word, and the extension shows its translation and explanation ba
 - `ios` — iOS container application used to install, configure, and distribute the Safari extension.
 - `backend` — Go service that handles translation requests and communicates with translation or AI providers.
 - `eval` — samples and results for the evaluation of contextual translation.
+
+The rules for Go code, its commands, and its tests are in `backend/AGENTS.md`.
