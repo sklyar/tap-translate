@@ -288,6 +288,13 @@ mark {
   .content {
     padding-bottom: calc(56px + env(safe-area-inset-bottom));
   }
+
+  /* On iOS, a scrollable element can take a touch gesture before the
+     touchmove handler cancels it. The compact sheet does not scroll its
+     content: a swipe up expands the sheet instead. */
+  .sheet[data-expanded='false'] .content {
+    overflow-y: hidden;
+  }
 }
 
 @media (min-width: 768px) {

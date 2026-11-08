@@ -1010,6 +1010,9 @@ describe('translationSheetStyles', () => {
     expect(translationSheetStyles).toMatch(
       /\.sheet\[data-expanded='false'\]\s*\{[\s\S]*?touch-action: none;[\s\S]*?\}/,
     );
+    expect(translationSheetStyles).toMatch(
+      /@media \(pointer: coarse\)\s*\{[\s\S]*?\.sheet\[data-expanded='false'\] \.content\s*\{\s*overflow-y: hidden;/,
+    );
     expect(translationSheetStyles).toContain('max-width: 640px');
     expect(translationSheetStyles).toContain(':focus-visible');
     expect(translationSheetStyles).toMatch(
