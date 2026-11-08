@@ -10,6 +10,30 @@ export interface TranslationSheetCallbacks {
   readonly onDismiss: () => void;
 }
 
+// A vertical movement must be at least this long to count as a swipe. A
+// shorter movement is a tap and keeps the button behavior.
+const dragStartDistance = 8;
+const swipeDistance = 40;
+
+// How a touch gesture on the sheet is handled, decided on its first move:
+// - sheet: the gesture moves, expands, collapses, or closes the sheet;
+// - native: the browser scrolls the sheet content;
+// - blocked: nothing can scroll, so the gesture is cancelled to keep the page
+//   under the sheet from scrolling.
+type TouchMode = 'undecided' | 'sheet' | 'native' | 'blocked';
+
+interface DragGesture {
+  readonly input: 'mouse' | 'touch';
+  // The pointer id for a mouse drag or the touch identifier for a touch drag.
+  readonly id: number;
+  readonly startY: number;
+  readonly sheet: HTMLElement;
+  // The sheet content element when a touch starts inside it.
+  readonly content: HTMLElement | null;
+  mode: TouchMode;
+  active: boolean;
+}
+
 export class TranslationSheet implements TranslationView {
   private readonly documentRoot: Document;
   private readonly callbacks: TranslationSheetCallbacks;
@@ -18,6 +42,9 @@ export class TranslationSheet implements TranslationView {
   private shadowRoot: ShadowRoot | undefined;
   private stylesheetElement: HTMLLinkElement | undefined;
   private overlayElement: HTMLElement | undefined;
+  private visualViewport: VisualViewport | undefined;
+  private dragGesture: DragGesture | undefined;
+  private suppressHandleClick = false;
   private stylesheetReady = false;
   private failedStylesheetRequest: TranslationRequest | undefined;
   private currentState: TranslationViewState | undefined;
@@ -108,6 +135,225 @@ export class TranslationSheet implements TranslationView {
     this.failCurrentStylesheet();
   };
 
+  private readonly handleViewportChange = (): void => {
+    if (this.overlayElement !== undefined) {
+      applyViewportGeometry(this.overlayElement, this.visualViewport);
+    }
+  };
+
+  // Mouse drags start only on the top bar. Touch input uses the touch event
+  // handlers below, so touch pointers are ignored here.
+  private readonly handlePointerDown = (event: PointerEvent): void => {
+    this.suppressHandleClick = false;
+    const topbar = event.currentTarget;
+    if (
+      event.pointerType !== 'mouse' ||
+      !event.isPrimary ||
+      event.button !== 0 ||
+      !(topbar instanceof HTMLElement) ||
+      topbar.parentElement === null ||
+      isInsideCloseButton(event.target)
+    ) {
+      return;
+    }
+
+    this.dragGesture = {
+      input: 'mouse',
+      id: event.pointerId,
+      startY: event.clientY,
+      sheet: topbar.parentElement,
+      content: null,
+      mode: 'sheet',
+      active: false,
+    };
+  };
+
+  private readonly handlePointerMove = (event: PointerEvent): void => {
+    const gesture = this.dragGesture;
+    if (gesture?.input !== 'mouse' || gesture.id !== event.pointerId) {
+      return;
+    }
+
+    // A mouse button released outside the top bar sends no pointerup here.
+    if (event.buttons === 0) {
+      this.cancelDrag();
+      return;
+    }
+
+    this.moveSheet(gesture, event.clientY - gesture.startY, () => {
+      capturePointer(event.currentTarget, event.pointerId);
+    });
+  };
+
+  private readonly handlePointerUp = (event: PointerEvent): void => {
+    const gesture = this.dragGesture;
+    if (gesture?.input === 'mouse' && gesture.id === event.pointerId) {
+      this.finishSwipe(gesture, event.clientY - gesture.startY);
+    }
+  };
+
+  private readonly handlePointerCancel = (event: PointerEvent): void => {
+    const gesture = this.dragGesture;
+    if (gesture?.input === 'mouse' && gesture.id === event.pointerId) {
+      this.cancelDrag();
+    }
+  };
+
+  private readonly handleTouchStart = (event: TouchEvent): void => {
+    this.suppressHandleClick = false;
+    const sheet = event.currentTarget;
+    const touch = event.changedTouches[0];
+    if (
+      event.touches.length !== 1 ||
+      touch === undefined ||
+      !(sheet instanceof HTMLElement) ||
+      isInsideCloseButton(event.target)
+    ) {
+      this.cancelDrag();
+      return;
+    }
+
+    const content =
+      event.target instanceof Element
+        ? event.target.closest<HTMLElement>('.content')
+        : null;
+    this.dragGesture = {
+      input: 'touch',
+      id: touch.identifier,
+      startY: touch.clientY,
+      sheet,
+      content,
+      mode: 'undecided',
+      active: false,
+    };
+  };
+
+  private readonly handleTouchMove = (event: TouchEvent): void => {
+    const gesture = this.dragGesture;
+    const touch =
+      gesture?.input === 'touch'
+        ? findTouch(event.changedTouches, gesture.id)
+        : undefined;
+    if (gesture === undefined || touch === undefined) {
+      return;
+    }
+
+    const distance = touch.clientY - gesture.startY;
+    if (gesture.mode === 'undecided') {
+      if (distance === 0) {
+        return;
+      }
+      gesture.mode = this.chooseTouchMode(gesture.content, distance);
+    }
+
+    if (gesture.mode === 'native') {
+      return;
+    }
+
+    // Once the browser starts scrolling, touchmove is no longer cancelable.
+    if (!event.cancelable) {
+      gesture.mode = 'native';
+      this.resetSheetPosition(gesture.sheet);
+      return;
+    }
+
+    event.preventDefault();
+    if (gesture.mode === 'sheet') {
+      this.moveSheet(gesture, distance);
+    }
+  };
+
+  private readonly handleTouchEnd = (event: TouchEvent): void => {
+    const gesture = this.dragGesture;
+    const touch =
+      gesture?.input === 'touch'
+        ? findTouch(event.changedTouches, gesture.id)
+        : undefined;
+    if (gesture === undefined || touch === undefined) {
+      return;
+    }
+
+    if (gesture.mode === 'sheet') {
+      this.finishSwipe(gesture, touch.clientY - gesture.startY);
+    } else {
+      this.cancelDrag();
+    }
+  };
+
+  private readonly handleTouchCancel = (): void => {
+    if (this.dragGesture?.input === 'touch') {
+      this.cancelDrag();
+    }
+  };
+
+  // The compact sheet always handles a swipe itself: up expands and down
+  // closes. The expanded sheet lets its content scroll and collapses only on a
+  // downward swipe when the content is already at the top.
+  private chooseTouchMode(
+    content: HTMLElement | null,
+    distance: number,
+  ): TouchMode {
+    if (!this.expanded || content === null) {
+      return 'sheet';
+    }
+
+    if (distance > 0) {
+      return content.scrollTop <= 0 ? 'sheet' : 'native';
+    }
+
+    return content.scrollTop + content.clientHeight < content.scrollHeight - 1
+      ? 'native'
+      : 'blocked';
+  }
+
+  private moveSheet(
+    gesture: DragGesture,
+    distance: number,
+    onStart?: () => void,
+  ): void {
+    if (!gesture.active) {
+      if (Math.abs(distance) < dragStartDistance) {
+        return;
+      }
+      gesture.active = true;
+      onStart?.();
+    }
+
+    // Only a downward drag follows the finger. An upward swipe expands the
+    // sheet when the gesture ends.
+    gesture.sheet.style.transition = 'none';
+    gesture.sheet.style.transform = `translateY(${String(Math.max(0, distance))}px)`;
+  }
+
+  private finishSwipe(gesture: DragGesture, distance: number): void {
+    this.cancelDrag();
+    if (!gesture.active) {
+      return;
+    }
+
+    this.suppressHandleClick = true;
+    if (distance <= -swipeDistance && !this.expanded) {
+      this.setExpanded(true);
+    } else if (distance >= swipeDistance && this.expanded) {
+      this.setExpanded(false);
+    } else if (distance >= swipeDistance) {
+      this.safeCallback(this.callbacks.onDismiss);
+    }
+  }
+
+  private cancelDrag(): void {
+    const gesture = this.dragGesture;
+    this.dragGesture = undefined;
+    if (gesture !== undefined) {
+      this.resetSheetPosition(gesture.sheet);
+    }
+  }
+
+  private resetSheetPosition(sheet: HTMLElement): void {
+    sheet.style.removeProperty('transition');
+    sheet.style.removeProperty('transform');
+  }
+
   private ensureMounted(): void {
     if (this.isMountConnected()) {
       return;
@@ -153,6 +399,10 @@ export class TranslationSheet implements TranslationView {
     this.stylesheetElement = stylesheetElement;
     this.documentRoot.documentElement.append(host);
     this.documentRoot.addEventListener('keydown', this.handleKeyDown);
+    this.visualViewport =
+      this.documentRoot.defaultView?.visualViewport ?? undefined;
+    this.visualViewport?.addEventListener('resize', this.handleViewportChange);
+    this.visualViewport?.addEventListener('scroll', this.handleViewportChange);
     shadowRoot.append(stylesheetElement);
   }
 
@@ -177,12 +427,22 @@ export class TranslationSheet implements TranslationView {
     ) {
       this.documentRoot.removeEventListener('keydown', this.handleKeyDown);
     }
+    this.visualViewport?.removeEventListener(
+      'resize',
+      this.handleViewportChange,
+    );
+    this.visualViewport?.removeEventListener(
+      'scroll',
+      this.handleViewportChange,
+    );
     this.removeStylesheetListeners();
     this.host?.remove();
     this.host = undefined;
     this.shadowRoot = undefined;
     this.stylesheetElement = undefined;
     this.overlayElement = undefined;
+    this.visualViewport = undefined;
+    this.dragGesture = undefined;
     this.stylesheetReady = false;
   }
 
@@ -198,6 +458,8 @@ export class TranslationSheet implements TranslationView {
     }
 
     const overlay = this.createOverlay(state);
+    applyViewportGeometry(overlay, this.visualViewport);
+    this.dragGesture = undefined;
     this.overlayElement?.remove();
     shadowRoot.append(overlay);
     this.overlayElement = overlay;
@@ -232,6 +494,15 @@ export class TranslationSheet implements TranslationView {
     sheet.setAttribute('aria-labelledby', 'taptranslate-title');
     sheet.setAttribute('lang', 'ru');
 
+    sheet.addEventListener('touchstart', this.handleTouchStart, {
+      passive: true,
+    });
+    // Not passive: the first move decides whether to cancel page scrolling.
+    sheet.addEventListener('touchmove', this.handleTouchMove, {
+      passive: false,
+    });
+    sheet.addEventListener('touchend', this.handleTouchEnd);
+    sheet.addEventListener('touchcancel', this.handleTouchCancel);
     sheet.append(this.createTopbar(), this.createContent(state));
     overlay.append(scrim, sheet);
     return overlay;
@@ -246,9 +517,13 @@ export class TranslationSheet implements TranslationView {
     handle.setAttribute('data-taptranslate-expand', '');
     handle.setAttribute('aria-expanded', String(this.expanded));
     handle.addEventListener('click', () => {
+      // The click that some browsers fire after a swipe must not toggle again.
+      if (this.suppressHandleClick) {
+        this.suppressHandleClick = false;
+        return;
+      }
       const restoreFocus = this.shadowRoot?.activeElement === handle;
-      this.expanded = !this.expanded;
-      this.renderCurrentState();
+      this.setExpanded(!this.expanded);
       if (restoreFocus) {
         this.focusCurrentHandle();
       }
@@ -262,8 +537,17 @@ export class TranslationSheet implements TranslationView {
       this.safeCallback(this.callbacks.onDismiss);
     });
 
+    topbar.addEventListener('pointerdown', this.handlePointerDown);
+    topbar.addEventListener('pointermove', this.handlePointerMove);
+    topbar.addEventListener('pointerup', this.handlePointerUp);
+    topbar.addEventListener('pointercancel', this.handlePointerCancel);
     topbar.append(handle, close);
     return topbar;
+  }
+
+  private setExpanded(expanded: boolean): void {
+    this.expanded = expanded;
+    this.renderCurrentState();
   }
 
   private createContent(state: TranslationViewState): HTMLElement {
@@ -452,6 +736,62 @@ function appendHighlightedSentence(
     mark,
     documentRoot.createTextNode(sentenceText.slice(wordEnd)),
   );
+}
+
+// The host is fixed to the layout viewport. Safari can show a smaller area
+// (an expanded toolbar, the keyboard) or a zoomed part of the page (pinch
+// zoom). The overlay covers exactly the visual viewport and cancels the page
+// zoom, so the sheet keeps its size and stays at the bottom of the screen.
+function applyViewportGeometry(
+  overlay: HTMLElement,
+  viewport: VisualViewport | undefined,
+): void {
+  if (viewport === undefined) {
+    return;
+  }
+
+  const { width, height, scale, offsetLeft, offsetTop } = viewport;
+  if (
+    ![width, height, scale, offsetLeft, offsetTop].every(Number.isFinite) ||
+    width <= 0 ||
+    height <= 0 ||
+    scale <= 0
+  ) {
+    return;
+  }
+
+  overlay.style.left = '0px';
+  overlay.style.top = '0px';
+  overlay.style.width = `${String(width * scale)}px`;
+  overlay.style.height = `${String(height * scale)}px`;
+  overlay.style.transform = `translate(${String(offsetLeft)}px, ${String(offsetTop)}px) scale(${String(1 / scale)})`;
+}
+
+function findTouch(list: TouchList, identifier: number): Touch | undefined {
+  for (const touch of list) {
+    if (touch.identifier === identifier) {
+      return touch;
+    }
+  }
+  return undefined;
+}
+
+function isInsideCloseButton(target: EventTarget | null): boolean {
+  return (
+    target instanceof Element &&
+    target.closest('[data-taptranslate-close]') !== null
+  );
+}
+
+function capturePointer(target: EventTarget | null, pointerId: number): void {
+  if (!(target instanceof Element)) {
+    return;
+  }
+  try {
+    target.setPointerCapture(pointerId);
+  } catch {
+    // Pointer capture is optional. Touch input is captured implicitly.
+  }
 }
 
 function isValidSpan(
