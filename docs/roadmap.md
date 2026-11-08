@@ -104,6 +104,8 @@ Still required: a review of the report by a native speaker, a shorter and strict
 
 ### 3. Backend and transport
 
+The draft of the API contract is in [api.md](api.md).
+
 - Go API with request validation, size limits, timeouts, and a stable error contract.
 - Privacy boundary: which page text leaves the device and how long it is kept (not kept by default). Logs never contain page text.
 - Client identification and rate limits, so that nobody can use the API as a free LLM proxy.
